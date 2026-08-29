@@ -1,0 +1,64 @@
+"use client";
+
+import { DEFAULT_SYMBOLS } from "@/lib/constants";
+import { formatPercent, formatPrice } from "@/lib/format";
+import { useMarketStore } from "@/store/marketStore";
+
+export function TickerTable() {
+  const tickers = useMarketStore((state) => state.tickers);
+  const symbols = [...DEFAULT_SYMBOLS];
+  const rows = symbols.map((symbol) => ({ symbol, ticker: tickers[symbol] }));
+  const hasData = rows.some((row) => row.ticker);
+
+  if (!hasData) {
+    return (
+      <div className="px-4 py-12 text-center text-sm text-zinc-500 dark:text-zinc-400">
+        Menunggu data real-time dari Binance…
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left text-sm">
+        <thead>
+          <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+            <th className="px-4 py-3">Simbol</th>
+            <th className="px-4 py-3 text-right">Harga</th>
+            <th className="px-4 py-3 text-right">24 Jam</th>
+            <th className="px-4 py-3 text-right">Volume (24 Jam)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(({ symbol, ticker }) => {
+            const change = ticker?.priceChangePercent;
+            const isUp = (change ?? 0) >= 0;
+            return (
+              <tr
+                key={symbol}
+                className="border-b border-zinc-100 dark:border-zinc-800/60"
+              >
+                <td className="px-4 py-2.5 font-medium">{symbol}</td>
+                <td className="px-4 py-2.5 text-right tabular-nums">
+                  {ticker ? formatPrice(ticker.lastPrice) : "-"}
+                </td>
+                <td
+                  className={`px-4 py-2.5 text-right tabular-nums ${
+                    isUp
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
+                  }`}
+                >
+                  {ticker ? formatPercent(change ?? 0) : "-"}
+                </td>
+                <td className="px-4 py-2.5 text-right tabular-nums text-zinc-600 dark:text-zinc-400">
+                  {ticker ? formatPrice(ticker.quoteVolume) : "-"}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
