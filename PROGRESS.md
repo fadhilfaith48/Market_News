@@ -111,6 +111,32 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 29 Agustus 2026 — Milestone C: Halaman Detail Koin + Candlestick Real-time
+
+### Status: Done
+- [x] Instal `lightweight-charts@^5.2.1` + `@tanstack/react-query@^5.102.8` di dependencies
+- [x] `lib/constants.ts` → `TIMEFRAMES` (1m…1w) + tipe `Timeframe`, `KLINE_DEFAULT_INTERVAL` (5m), `KLINE_LIMIT` (500), `BINANCE_MARKET_DATA_BASE` (`data-api.binance.vision`)
+- [x] `types/index.ts` → interface `LiveKline` (pakai `k.x` `closed`)
+- [x] `lib/binance/ws.ts` → `buildKlineStreamUrl` + `parseKlineMessage` (+ `RawKlineMessage`); URL stream `{symbol}@kline_{interval}`
+- [x] `app/api/klines/route.ts` → proxy GET klines (validasi simbol/interval, limit clamp 100–1000, `fetch` + `next.revalidate: 60`)
+- [x] `components/providers/QueryProvider.tsx` → React Query, dibungkus di `app/layout.tsx` (di luar `MarketDataProvider`)
+- [x] `hooks/useKlines.ts` (queryKey `["klines",symbol,interval]`, `keepPreviousData`) + `hooks/useKlineStream.ts` (rotasi endpoint + backoff 1s→30s, filter interval)
+- [x] `components/coin/PriceChart.tsx` (lightweight-charts v5, `CandlestickSeries`, theme-aware, `setData` historis + `update` candle live dengan merge OHLC)
+- [x] `components/coin/CoinDetail.tsx` + `CoinDetailStats.tsx` (header koin, harga live dari store, stat 24j, timeswitch, indeks status live)
+- [x] `app/coin/[code]/page.tsx` → `generateStaticParams`, `generateMetadata`, validasi `code`
+- [x] `TickerTable.tsx` → baris jadi klik → `router.push('/coin/{code}')` + hover
+- [x] Verifikasi: `npm run build` OK (25 route, SSG untuk 20 halaman koin), `npm run lint` OK, `/api/klines` 200, `/coin/BTC` 200
+- [x] Commit + push ke GitHub
+
+### Catatan
+- **`use cache` / `cacheLife` butuh flag `cacheComponents`** di next.config → tidak dipakai; pakai model caching lama via `fetch(url, { next: { revalidate: 60 } })` (lihat `caching-without-cache-components.md`).
+- Rule lint baru `react-hooks/refs` menolak akses `ref.current` saat render → pola "set ref di dalam `useEffect`" (contoh: `liveRef`, `onCandleRef`).
+- Cast `CombinedStreamMessage.data` → `as unknown as RawKlineMessage` (tipe gabungan paksa ke tipe kline).
+- Status "Grafik live / Menyambung ulang…" bersumber dari state `open` hook kline-stream (bukan ticker). Timeframe default 5m (ID).
+- Statistik tetap dari ticker WS; market cap CoinGecko tetap ditunda (keputusan sesi sebelumnya).
+
+---
+
 <!-- 
 Template entri selanjutnya — salin & isi di atas baris ini:
 

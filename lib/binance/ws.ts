@@ -1,4 +1,4 @@
-import type { TickerWS } from "@/types";
+import type { LiveKline, TickerWS } from "@/types";
 
 export interface RawTickerMessage {
   e: string;
@@ -52,5 +52,49 @@ export function parseTickerMessage(raw: RawTickerMessage): TickerWS | null {
     quoteVolume: Number.parseFloat(raw.q),
     volume: Number.parseFloat(raw.V),
     eventTime: raw.E,
+  };
+}
+
+export interface RawKlineMessage {
+  e: "kline";
+  E: number;
+  s: string;
+  k: {
+    t: number;
+    T: number;
+    s: string;
+    i: string;
+    o: string;
+    h: string;
+    l: string;
+    c: string;
+    v: string;
+    x: boolean;
+  };
+}
+
+export function buildKlineStreamUrl(
+  endpoint: string,
+  symbol: string,
+  interval: string,
+): string {
+  const stream = `${symbol.toLowerCase()}@kline_${interval}`;
+  return `${endpoint}?streams=${stream}`;
+}
+
+export function parseKlineMessage(raw: RawKlineMessage): LiveKline | null {
+  if (!raw || raw.e !== "kline" || !raw.s || !raw.k) return null;
+  const k = raw.k;
+  return {
+    symbol: raw.s,
+    interval: k.i,
+    openTime: k.t,
+    closeTime: k.T,
+    open: Number.parseFloat(k.o),
+    high: Number.parseFloat(k.h),
+    low: Number.parseFloat(k.l),
+    close: Number.parseFloat(k.c),
+    volume: Number.parseFloat(k.v),
+    closed: k.x,
   };
 }

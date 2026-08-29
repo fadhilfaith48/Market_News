@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Header } from "@/components/layout/Header";
 import { MarketDataProvider } from "@/components/dashboard/MarketDataProvider";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ThemeSync } from "@/components/ThemeSync";
 import "./globals.css";
 
@@ -30,10 +31,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <ThemeSync />
-        <MarketDataProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-        </MarketDataProvider>
+        <QueryProvider>
+          <MarketDataProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+          </MarketDataProvider>
+        </QueryProvider>
       </body>
     </html>
   );

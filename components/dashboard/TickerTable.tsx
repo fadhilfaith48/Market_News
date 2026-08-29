@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { CoinIcon } from "@/components/ui/CoinIcon";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { getCoinMeta } from "@/lib/coinMeta";
@@ -7,6 +9,7 @@ import { formatPercent, formatPrice } from "@/lib/format";
 import { useMarketStore } from "@/store/marketStore";
 
 export function TickerTable() {
+  const router = useRouter();
   const tickers = useMarketStore((state) => state.tickers);
   const symbols = [...DEFAULT_SYMBOLS];
   const rows = symbols.map((symbol) => ({ symbol, ticker: tickers[symbol] }));
@@ -35,10 +38,12 @@ export function TickerTable() {
           {rows.map(({ symbol, ticker }) => {
             const change = ticker?.priceChangePercent;
             const isUp = (change ?? 0) >= 0;
+            const { code } = getCoinMeta(symbol);
             return (
               <tr
                 key={symbol}
-                className="border-b border-zinc-100 dark:border-zinc-800/60"
+                onClick={() => router.push(`/coin/${code}`)}
+                className="cursor-pointer border-b border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800/60 dark:hover:bg-zinc-900/40"
               >
                 <td className="px-4 py-2.5">
                 <div className="flex items-center gap-2">
