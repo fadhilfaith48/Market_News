@@ -1,6 +1,7 @@
 "use client";
 
 import { ConnectionBadge } from "@/components/ui/ConnectionBadge";
+import { Logo } from "@/components/layout/Logo";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useUIStore } from "@/store/uiStore";
 
@@ -12,7 +13,10 @@ export function Header() {
   return (
     <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
       <div className="flex items-center gap-3">
-        <span className="text-lg font-bold tracking-tight">Market News</span>
+        <div className="flex items-center gap-2">
+          <Logo className="h-6 w-6 text-green-600 dark:text-green-400" />
+          <span className="text-lg font-bold tracking-tight">Market News</span>
+        </div>
         <ConnectionBadge />
       </div>
       <button

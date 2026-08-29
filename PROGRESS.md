@@ -92,6 +92,14 @@ Format entri baru (ikuti pola yang sama):
 4. Highlight animasi naik/turun harga
 5. Update TASKS.md / PROGRESS.md / BUGS.md di akhir
 
+## 29 Agustus 2026 — Sesi 1.7: Branding — custom logo crypto & favicon
+
+### Status: Done
+- [x] `app/icon.svg` — logo candlestick hijau di badge gelap, dipakai sebagai favicon (hapus `app/favicon.ico` bawaan agar SVG dipakai)
+- [x] `components/layout/Logo.tsx` — SVG `currentColor` (menyesuaikan tema terang/gelap), dipakai di Header berdampingan teks "Market News"
+- [x] Verifikasi: `npm run build` OK, `npm run lint` OK, HTML memuat `<link rel="icon" href="/icon.svg" type="image/svg+xml">`, logo tampil di header
+- [x] Commit + push ke GitHub: `feat: custom logo & favicon crypto`
+
 ---
 
 <!-- 
