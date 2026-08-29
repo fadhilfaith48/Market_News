@@ -1,6 +1,8 @@
 "use client";
 
+import { CoinIcon } from "@/components/ui/CoinIcon";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
+import { getCoinMeta } from "@/lib/coinMeta";
 import { formatPercent, formatPrice } from "@/lib/format";
 import { useMarketStore } from "@/store/marketStore";
 
@@ -23,7 +25,7 @@ export function TickerTable() {
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-            <th className="px-4 py-3">Simbol</th>
+            <th className="px-4 py-3">Koin</th>
             <th className="px-4 py-3 text-right">Harga</th>
             <th className="px-4 py-3 text-right">24 Jam</th>
             <th className="px-4 py-3 text-right">Volume (24 Jam)</th>
@@ -38,7 +40,12 @@ export function TickerTable() {
                 key={symbol}
                 className="border-b border-zinc-100 dark:border-zinc-800/60"
               >
-                <td className="px-4 py-2.5 font-medium">{symbol}</td>
+                <td className="px-4 py-2.5">
+                <div className="flex items-center gap-2">
+                  <CoinIcon symbol={symbol} size={22} />
+                  <span className="font-medium">{getCoinMeta(symbol).code}</span>
+                </div>
+              </td>
                 <td className="px-4 py-2.5 text-right tabular-nums">
                   {ticker ? formatPrice(ticker.lastPrice) : "-"}
                 </td>

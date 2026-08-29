@@ -100,6 +100,15 @@ Format entri baru (ikuti pola yang sama):
 - [x] Verifikasi: `npm run build` OK, `npm run lint` OK, HTML memuat `<link rel="icon" href="/icon.svg" type="image/svg+xml">`, logo tampil di header
 - [x] Commit + push ke GitHub: `feat: custom logo & favicon crypto`
 
+## 29 Agustus 2026 — Sesi 1.8: Logo koin di tabel (favicon tetap)
+
+### Status: Done
+- [x] `lib/coinMeta.ts` — pemetaan simbol → kode/nama/logo (18 logo SVG atomiclabs via jsDelivr + override SHIB/NEAR pakai gambar CoinGecko — semuanya terverifikasi HTTP 200)
+- [x] `components/ui/CoinIcon.tsx` — logo koin dengan fallback inisial berwarna saat gagal load
+- [x] Tabel: kolom "Koin" → logo + kode (mis. logo Bitcoin + "BTC")
+- [x] Verifikasi: `npm run build` OK, `npm run lint` OK
+- [x] Commit + push ke GitHub
+
 ---
 
 <!-- 
