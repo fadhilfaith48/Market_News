@@ -14,12 +14,14 @@ interface UseBinanceWSOptions {
   symbols: string[];
   onTicker: (ticker: TickerWS) => void;
   onStatusChange: (status: ConnectionStatus) => void;
+  retryCounter?: number;
 }
 
 export function useBinanceWS({
   symbols,
   onTicker,
   onStatusChange,
+  retryCounter = 0,
 }: UseBinanceWSOptions) {
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
 
@@ -102,7 +104,7 @@ export function useBinanceWS({
       onStatusChangeRef.current("offline");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [symbolsKey]);
+  }, [symbolsKey, retryCounter]);
 
   return { status };
 }

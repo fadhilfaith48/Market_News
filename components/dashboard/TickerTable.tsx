@@ -3,28 +3,195 @@
 import { useRouter } from "next/navigation";
 
 import { CoinIcon } from "@/components/ui/CoinIcon";
+import { useMarketDataContext } from "@/components/dashboard/marketDataContext";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { getCoinMeta } from "@/lib/coinMeta";
-import { formatPercent, formatPrice } from "@/lib/format";
+import { formatCompact, formatPercent, formatPrice } from "@/lib/format";
 import { useMarketStore } from "@/store/marketStore";
+import { useUIStore } from "@/store/uiStore";
+import type { TickerWS } from "@/types";
+
+type Tone = "up" | "down" | "flat";
+
+const TONE_TEXT: Record<Tone, string> = {
+  up: "text-green-600 dark:text-green-400",
+  down: "text-red-600 dark:text-red-400",
+  flat: "text-zinc-500 dark:text-zinc-400",
+};
+
+function percentTone(change: number | undefined): Tone {
+  if (change === undefined || change === 0) return "flat";
+  return change > 0 ? "up" : "down";
+}
+
+function flashTone(
+  ticker: TickerWS | undefined,
+  previous: number | undefined,
+): Tone {
+  if (!ticker || previous === undefined) return "flat";
+  if (ticker.lastPrice > previous) return "up";
+  if (ticker.lastPrice < previous) return "down";
+  return "flat";
+}
+
+function FlashPrice({
+  ticker,
+  previous,
+}: {
+  ticker: TickerWS | undefined;
+  previous: number | undefined;
+}) {
+  const tone = flashTone(ticker, previous);
+  const flashClass =
+    tone === "up"
+      ? "animate-flash-up"
+      : tone === "down"
+        ? "animate-flash-down"
+        : "";
+  return (
+    <span
+      key={ticker ? `${ticker.symbol}-${ticker.lastPrice}` : "empty"}
+      className={`-mx-1 inline-block rounded-sm px-1 ${flashClass}`}
+    >
+      {ticker ? formatPrice(ticker.lastPrice) : "-"}
+    </span>
+  );
+}
 
 export function TickerTable() {
   const router = useRouter();
   const tickers = useMarketStore((state) => state.tickers);
+  const previousLastPrice = useMarketStore((state) => state.previousLastPrice);
+  const connectionStatus = useUIStore((state) => state.connectionStatus);
+  const { retryConnection } = useMarketDataContext();
+
   const symbols = [...DEFAULT_SYMBOLS];
-  const rows = symbols.map((symbol) => ({ symbol, ticker: tickers[symbol] }));
+  const rows = symbols.map((symbol) => ({
+    symbol,
+    ticker: tickers[symbol],
+    previous: previousLastPrice[symbol],
+  }));
   const hasData = rows.some((row) => row.ticker);
 
   if (!hasData) {
-    return (
-      <div className="px-4 py-12 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        Menunggu data real-time dari Binance…
-      </div>
-    );
+    if (connectionStatus === "offline") {
+      return (
+        <div className="space-y-3 px-4 py-10 text-center sm:py-14">
+          <div className="text-sm font-medium text-foreground">
+            Koneksi ke Binance terputus
+          </div>
+          <p className="mx-auto max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
+            Data real-time tidak bisa dimuat. Periksa koneksi internet Anda,
+            lalu coba lagi.
+          </p>
+          <button
+            type="button"
+            onClick={retryConnection}
+            className="rounded-md border border-zinc-300 px-4 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          >
+            Coba Lagi
+          </button>
+        </div>
+      );
+    }
+
+    return <TickerTableSkeleton />;
   }
 
+  const openCoin = (symbol: string) => {
+    const { code } = getCoinMeta(symbol);
+    router.push(`/coin/${code}`);
+  };
+
   return (
-    <div className="overflow-x-auto">
+    <div>
+      <div className="grid grid-cols-1 gap-2 sm:hidden">
+        {rows.map(({ symbol, ticker, previous }) => {
+          const change = ticker?.priceChangePercent;
+          const { code, name } = getCoinMeta(symbol);
+          const tone = percentTone(change);
+          return (
+            <div
+              key={symbol}
+              onClick={() => openCoin(symbol)}
+              className="flex cursor-pointer items-center justify-between rounded-xl border border-zinc-200 p-3 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900/40"
+            >
+              <div className="flex min-w-0 items-center gap-2.5">
+                <CoinIcon symbol={symbol} size={28} />
+                <div className="min-w-0">
+                  <div className="font-medium">{code}</div>
+                  <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                    {name}
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="tabular-nums text-sm font-semibold">
+                  <FlashPrice ticker={ticker} previous={previous} />
+                </div>
+                <div className={`text-xs tabular-nums ${TONE_TEXT[tone]}`}>
+                  {ticker ? formatPercent(change ?? 0) : "-"}
+                </div>
+                <div className="text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
+                  {ticker ? formatCompact(ticker.quoteVolume) : "-"}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="hidden overflow-x-auto sm:block">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+              <th className="px-4 py-3">Koin</th>
+              <th className="px-4 py-3 text-right">Harga</th>
+              <th className="px-4 py-3 text-right">24 Jam</th>
+              <th className="px-4 py-3 text-right">Volume (24 Jam)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ symbol, ticker, previous }) => {
+              const change = ticker?.priceChangePercent;
+              const tone = percentTone(change);
+              const { code } = getCoinMeta(symbol);
+              return (
+                <tr
+                  key={symbol}
+                  onClick={() => openCoin(symbol)}
+                  className="cursor-pointer border-b border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800/60 dark:hover:bg-zinc-900/40"
+                >
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <CoinIcon symbol={symbol} size={22} />
+                      <span className="font-medium">{code}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">
+                    <FlashPrice ticker={ticker} previous={previous} />
+                  </td>
+                  <td
+                    className={`px-4 py-2.5 text-right tabular-nums ${TONE_TEXT[tone]}`}
+                  >
+                    {ticker ? formatPercent(change ?? 0) : "-"}
+                  </td>
+                  <td className="px-4 py-2.5 text-right tabular-nums text-zinc-600 dark:text-zinc-400">
+                    {ticker ? formatCompact(ticker.quoteVolume) : "-"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function TickerTableSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
@@ -35,40 +202,25 @@ export function TickerTable() {
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ symbol, ticker }) => {
-            const change = ticker?.priceChangePercent;
-            const isUp = (change ?? 0) >= 0;
-            const { code } = getCoinMeta(symbol);
-            return (
-              <tr
-                key={symbol}
-                onClick={() => router.push(`/coin/${code}`)}
-                className="cursor-pointer border-b border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800/60 dark:hover:bg-zinc-900/40"
-              >
-                <td className="px-4 py-2.5">
+          {Array.from({ length: 10 }, (_, index) => (
+            <tr key={index} className="border-b border-zinc-100 dark:border-zinc-800/60">
+              <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <CoinIcon symbol={symbol} size={22} />
-                  <span className="font-medium">{getCoinMeta(symbol).code}</span>
+                  <div className="shimmer h-6 w-6 rounded-full" />
+                  <div className="shimmer h-3.5 w-16 rounded" />
                 </div>
               </td>
-                <td className="px-4 py-2.5 text-right tabular-nums">
-                  {ticker ? formatPrice(ticker.lastPrice) : "-"}
-                </td>
-                <td
-                  className={`px-4 py-2.5 text-right tabular-nums ${
-                    isUp
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
-                  }`}
-                >
-                  {ticker ? formatPercent(change ?? 0) : "-"}
-                </td>
-                <td className="px-4 py-2.5 text-right tabular-nums text-zinc-600 dark:text-zinc-400">
-                  {ticker ? formatPrice(ticker.quoteVolume) : "-"}
-                </td>
-              </tr>
-            );
-          })}
+              <td className="px-4 py-3 text-right">
+                <div className="shimmer ml-auto h-3.5 w-20 rounded" />
+              </td>
+              <td className="px-4 py-3 text-right">
+                <div className="shimmer ml-auto h-3.5 w-16 rounded" />
+              </td>
+              <td className="px-4 py-3 text-right">
+                <div className="shimmer ml-auto h-3.5 w-20 rounded" />
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

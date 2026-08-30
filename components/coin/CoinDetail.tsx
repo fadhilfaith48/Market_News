@@ -22,10 +22,19 @@ export function CoinDetail({ code }: { code: string }) {
   const [live, setLive] = useState<LiveKline | null>(null);
 
   const ticker = useMarketStore((state) => state.tickers[symbol]);
-  const { data: historical, isLoading, isError } = useKlines(symbol, interval);
+  const { data: historical, isLoading, isError, refetch } = useKlines(
+    symbol,
+    interval,
+  );
   const streamOpen = useKlineStream(symbol, interval, setLive);
 
   const change = ticker?.priceChangePercent;
+  const changeClass =
+    change === undefined || change === 0
+      ? "text-zinc-500 dark:text-zinc-400"
+      : change > 0
+        ? "text-green-600 dark:text-green-400"
+        : "text-red-600 dark:text-red-400";
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6">
@@ -69,13 +78,7 @@ export function CoinDetail({ code }: { code: string }) {
           <div className="text-3xl font-bold tabular-nums">
             {ticker ? formatPrice(ticker.lastPrice) : "-"}
           </div>
-          <div
-            className={`text-sm font-medium tabular-nums ${
-              (change ?? 0) >= 0
-                ? "text-green-600 dark:text-green-400"
-                : "text-red-600 dark:text-red-400"
-            }`}
-          >
+          <div className={`text-sm font-medium tabular-nums ${changeClass}`}>
             {change !== undefined
               ? `${change >= 0 ? "+" : ""}${change.toFixed(2)}% (24j)`
               : "…"}
@@ -109,12 +112,19 @@ export function CoinDetail({ code }: { code: string }) {
 
       <div className="mt-4 overflow-hidden rounded-xl border border-zinc-200 p-2 dark:border-zinc-800">
         {isLoading && !historical ? (
-          <div className="flex h-96 items-center justify-center text-sm text-zinc-400">
-            Memuat data candlestick…
-          </div>
+          <div className="shimmer h-96 w-full rounded-lg" />
         ) : isError || !historical || historical.length === 0 ? (
-          <div className="flex h-96 items-center justify-center text-sm text-red-500">
-            Gagal memuat data candlestick
+          <div className="flex h-96 flex-col items-center justify-center gap-3">
+            <div className="text-sm text-red-500">
+              Gagal memuat data candlestick
+            </div>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="rounded-md border border-zinc-300 px-4 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            >
+              Coba Lagi
+            </button>
           </div>
         ) : (
           <PriceChart historical={historical} live={live} />

@@ -3,25 +3,32 @@
 import { formatCompact, formatPercent, formatPrice } from "@/lib/format";
 import type { TickerWS } from "@/types";
 
+type Tone = "up" | "down" | "flat";
+
+function changeVariant(change: number | undefined): Tone {
+  if (change === undefined || change === 0) return "flat";
+  return change > 0 ? "up" : "down";
+}
+
+const TONE_TEXT: Record<Tone, string> = {
+  up: "text-green-600 dark:text-green-400",
+  down: "text-red-600 dark:text-red-400",
+  flat: "text-zinc-500 dark:text-zinc-400",
+};
+
 function StatCard({
   label,
   value,
-  variant = "default",
+  tone = "flat",
 }: {
   label: string;
   value: string;
-  variant?: "default" | "up" | "down";
+  tone?: Tone;
 }) {
-  const color =
-    variant === "up"
-      ? "text-green-600 dark:text-green-400"
-      : variant === "down"
-        ? "text-red-600 dark:text-red-400"
-        : "text-foreground";
   return (
     <div className="rounded-xl border border-zinc-200 px-4 py-3 dark:border-zinc-800">
       <div className="text-xs text-zinc-500 dark:text-zinc-400">{label}</div>
-      <div className={`mt-0.5 text-lg font-semibold tabular-nums ${color}`}>
+      <div className={`mt-0.5 text-lg font-semibold tabular-nums ${TONE_TEXT[tone]}`}>
         {value}
       </div>
     </div>
@@ -30,10 +37,17 @@ function StatCard({
 
 export function CoinDetailStats({ ticker }: { ticker: TickerWS | null }) {
   const change = ticker?.priceChangePercent;
+  const tone = changeVariant(change);
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <StatCard label="Tertinggi 24j" value={ticker ? formatPrice(ticker.highPrice) : "-"} />
-      <StatCard label="Terendah 24j" value={ticker ? formatPrice(ticker.lowPrice) : "-"} />
+      <StatCard
+        label="Tertinggi 24j"
+        value={ticker ? formatPrice(ticker.highPrice) : "-"}
+      />
+      <StatCard
+        label="Terendah 24j"
+        value={ticker ? formatPrice(ticker.lowPrice) : "-"}
+      />
       <StatCard
         label="Volume 24j"
         value={ticker ? formatCompact(ticker.quoteVolume) : "-"}
@@ -41,13 +55,7 @@ export function CoinDetailStats({ ticker }: { ticker: TickerWS | null }) {
       <StatCard
         label="Perubahan 24j"
         value={ticker ? formatPercent(change ?? 0) : "-"}
-        variant={
-          change !== undefined
-            ? change >= 0
-              ? "up"
-              : "down"
-            : "default"
-        }
+        tone={tone}
       />
     </div>
   );
