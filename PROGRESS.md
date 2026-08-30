@@ -135,6 +135,24 @@ Format entri baru (ikuti pola yang sama):
 - Status "Grafik live / Menyambung ulang…" bersumber dari state `open` hook kline-stream (bukan ticker). Timeframe default 5m (ID).
 - Statistik tetap dari ticker WS; market cap CoinGecko tetap ditunda (keputusan sesi sebelumnya).
 
+## 29 Agustus 2026 — Milestone D (Sesi Desain): Standar Desain UI/UX
+
+### Status: Done (fokus desain; fitur D13.7 ditunda ke tahap fitur)
+- [x] `app/globals.css` — keyframes `flash-up`/`flash-down` (450ms) + `shimmer` (+ custom props `--shimmer-base`/`--shimmer-hover` per tema)
+- [x] `store/marketStore.ts` — tambah `previousLastPrice` map (harga sebelum update) untuk deteksi arah flash tanpa timer/ref
+- [x] `lib/format.ts` — `formatPrice` aturan bertingkat (staircase): `≥1000`→compact, `≥1`→2 desimal, `<1 & ≥0.01`→4 desimal, `<0.01`→sig-digit gaya CMC (`formatMicroPrice`) — **menutup BUG-003 (SHIB)**
+- [x] `hooks/useBinanceWS.ts` — opsi `retryCounter` (perubahan nilai → reconnect paksa)
+- [x] `components/dashboard/marketDataContext.ts` + `MarketDataProvider.tsx` — `retryConnection` via React Context
+- [x] `components/dashboard/TickerTable.tsx` — warna % 3 arah (flat=abu), flash sel Harga (key remount + CSS anim), volume `formatCompact`, skeleton shimmer saat loading, error+Retry saat offline, **card list mobile** (`sm:hidden`) + tabel desktop
+- [x] `components/coin/CoinDetail.tsx` + `CoinDetailStats.tsx` — warna % 3 arah, skeleton chart shimmer, tombol Retry (refetch) saat klines error
+- [x] Verifikasi: `npm run build` OK (25 route), `npm run lint` OK, dev `/` & `/coin/BTC` HTTP 200
+- [ ] (defer) D13.7 navbar: search bar + currency selector → Milestone D no. 4 & 6 (tahap fitur)
+- [ ] Unit test formatter — masih di Fase 5
+
+### Catatan
+- Flash harga diimplementasikan tanpa state/effect timer (hindari rule lint `react-hooks/refs` & `set-state-in-effect`): arah dari `previousLastPrice`, replay animasi lewat `key` yang berubah saat harga berganti.
+- `offline` (state WS) hampir tak pernah tampil tanpa intervensi manual (hook terus auto-reconnect) — Retry berguna terutama saat jaringan user kembal; error state klines di detail halaman lebih sering terlihat (tombol Retry → `refetch`).
+
 ---
 
 <!-- 
@@ -144,3 +162,5 @@ Template entri selanjutnya — salin & isi di atas baris ini:
 - [x] npx create-next-app ...
 - [ ] ...
 -->
+
+---

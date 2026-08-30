@@ -29,6 +29,26 @@ Format entri baru:
 - **Solusi:** Hapus class modul font (`geist_*`) dari `<html>` di `layout.tsx`; pakai system font di `globals.css`.
 - **Verifikasi:** `<html lang="id" class="h-full antialiased">` dan `grep "geist"` di HTML = 0; build & lint lolos.
 
+## BUG-002 — MATIC menampilkan "-" di semua kolom (simbol sudah delisting)
+- **Tanggal ditemukan:** 29 Agustus 2026
+- **Prioritas:** High
+- **Status:** Open — penyebab terverifikasi; perbaikan belum dieksekusi (terjadwal Milestone D)
+- **Langkah reproduce:** Buka dashboard → baris "MATIC" selalu "-" di kolom Harga, 24 Jam, dan Volume.
+- **Penyebab:** `MATICUSDT` **di-delist Binance sejak 2024-09-10** (token swap 1 MATIC = 1 POL ke Polygon/Pol); sejak 2024-09-13 trading dibuka sebagai **`POLUSDT`**. Tidak ada lagi ticker WS `MATICUSDT` → `tickers[MATICUSDT]` selalu undefined.
+- **Dampak:** Satu baris mati permanen di tabel; menu detail MATIC tidak ada datanya.
+- **Solusi/rancangan perbaikan:** Ganti `MATICUSDT` → `POLUSDT` di `DEFAULT_SYMBOLS` (`lib/constants.ts`); tambah `COIN_NAMES.POL` = "Polygon (POL)" di `lib/coinMeta.ts`; cek ketersediaan logo POL (atomiclabs kemungkinan tak punya `pol.svg` → override CoinGecko `polygon-ecosystem-token`); verifikasi WS ticker + REST klines `POLUSDT` hidup via `data-stream/data-api.binance.vision`.
+- **Diperbaiki tanggal/versi:** (belum; lihat Milestone D TASKS.md)
+
+## BUG-003 — SHIB menampilkan harga "0"
+- **Tanggal ditemukan:** 29 Agustus 2026
+- **Prioritas:** High
+- **Status:** Fixed — 29 Agustus 2026 (sesi desain Milestone D): `formatPrice` aturan bertingkat sudah diterapkan
+- **Langkah reproduce:** Buka dashboard → baris SHIB, kolom Harga menampilkan "0".
+- **Penyebab:** `formatPrice` di `lib/format.ts` tidak mengakomodasi harga mikro (< $0.01): cabang `compactFormatter` memangkas desimal (bisa menghasilkan "0") dan cabang default dibatasi maksimal 6 desimal — keduanya tidak aman untuk koin berharga sangat kecil.
+- **Dampak:** Harga SHIB (dan koin mikro lain) terbaca keliru → menyesatkan pengguna.
+- **Solusi/rancangan perbaikan:** `formatPrice` aturan bertingkat (staircase): `≥ 1` → 2 desimal; `< 1 && ≥ 0.01` → 4 desimal; `< 0.01` → hingga digit signifikan pertama non-nol (gaya CoinMarketCap, mis. `0.00001234`); `≥ 1000` → compact. Berlaku di tabel + detail + stats. Tambah unit test rentang: 0, < 0.01, 0.01–1, ≥ 1, ≥ 1000, NaN.
+- **Diperbaiki tanggal/versi:** 29 Agustus 2026 — `lib/format.ts` (`formatPrice` staircase + `formatMicroPrice`); verifikasi build & lint lolos. Unit test formatter masih ditunda (Fase 5).
+
 ## Known Issues / Risiko yang Dipantau (dari perencanaan)
 
 ## Known Issue 1 — Watchlist & preferensi tidak tersinkron antar device

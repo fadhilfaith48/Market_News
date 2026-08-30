@@ -2,7 +2,7 @@
 
 Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` saat selesai. Setiap selesai, catat juga di [PROGRESS.md](./PROGRESS.md).
 
-**Status umum:** Fase 1 & 2 belum dimulai (belum ada kode).
+**Status umum:** Milestone A–C selesai (scaffold Next.js 16, WS ticker real-time, tabel dashboard, logo/favicon, halaman detail koin + candlestick real-time). **Sedang berjalan: Milestone D — umpan balik user** + **E1 — Rombak gaya TradingView** (layout & styling; bagian paling bawah). Lihat [PROGRESS.md](./PROGRESS.md).
 
 ---
 
@@ -29,7 +29,7 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [ ] Setup lib/adapter: interface + implementasi Binance & CoinGecko
 - [x] Setup lib/storage.ts (wrapper Local Storage)
 - [x] Setup store Zustand: uiStore (theme, currency, connection status) + marketStore (ticker real-time)
-- [ ] Setup React Query provider + query client di root layout
+- [x] Setup React Query provider + query client di root layout
 - [ ] Setup .env.local & dokumentasi environment variables
 
 ## Fase 3 — Pengembangan Fitur Inti
@@ -38,14 +38,15 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [ ] Dashboard: highlight animasi naik/turun pada perubahan harga
 - [ ] Dashboard: top gainers & top losers section
 - [ ] Integrasi data pasar via CoinGecko (REST) + live update via Binance WS
-- [ ] Halaman detail koin `/coin/[symbol]`
-- [ ] Grafik candlestick interaktif dengan TradingView Lightweight Charts
-- [ ] Penggabungan data historis (REST) + live update (WS) dalam satu chart
-- [ ] Timeframe switcher (1m, 5m, 15m, 1h, 4h, 1d, 1w)
-- [ ] Stats card detail koin (high/low 24h, volume, market cap, supply)
+- [x] Halaman detail koin `/coin/[symbol]`
+- [x] Grafik candlestick interaktif dengan TradingView Lightweight Charts
+- [x] Penggabungan data historis (REST) + live update (WS) dalam satu chart
+- [x] Timeframe switcher (1m, 5m, 15m, 1h, 4h, 1d, 1w)
+- [x] Stats card detail koin (high/low 24h, volume; market cap & supply masih nanti)
 - [ ] Loading skeleton & error state di seluruh halaman
 
 ## Fase 4 — Fitur Tambahan
+> Item watchlist, search bar, dan konversi mata uang di bawah ditindaklanjuti secara eksplisit di **Milestone D** (bagian bawah) sesuai umpan balik user.
 - [ ] Watchlist: tombol bintang pada koin (tambah/hapus)
 - [ ] Watchlist: store lokal (Zustand persist → Local Storage)
 - [ ] Watchlist: halaman khusus menampilkan koin favorit dengan data real-time
@@ -73,6 +74,96 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [ ] Monitoring uptime + error tracking (Vercel Analytics / Sentry)
 - [ ] Status indikator koneksi WS di UI (online/offline/reconnecting)
 - [ ] Release notes / changelog Fase 1
+
+---
+
+## Milestone D — Umpan Balik User (Gambar 1: Dashboard / Gambar 2: Detail Koin)
+
+Diambil dari review user (29 Agustus 2026). Nomor tetap mengikuti urutan masukan user.
+
+### 1. [BUG] MATIC tampil "-" di semua kolom
+- [x] Verifikasi akar masalah: `MATICUSDT` **di-delist Binance sejak 2024-09-10** (swap token 1 MATIC = 1 POL); sejak 2024-09-13 trading dibuka sebagai `POLUSDT`
+- [ ] Ganti `MATICUSDT` → `POLUSDT` di `DEFAULT_SYMBOLS` (`lib/constants.ts`)
+- [ ] Update `COIN_NAMES.POL` = `Polygon (POL)` di `lib/coinMeta.ts`
+- [ ] Cek ketersediaan logo POL: atomiclabs kemungkinan tak punya `pol.svg` → override CoinGecko (`polygon-ecosystem-token`) di `LOGO_OVERRIDES`
+- [ ] Verifikasi WS ticker + REST klines `POLUSDT` hidup via `data-stream/data-api.binance.vision` (rotasi endpoint sudah ada)
+
+### 2. [BUG] SHIB menampilkan harga "0"
+- [x] Rombak `formatPrice` di `lib/format.ts` menjadi **aturan bertingkat (staircase)**:
+  - `≥ 1` → 2 desimal
+  - `< 1 && ≥ 0.01` → 4 desimal
+  - `< 0.01` → tampilkan hingga digit signifikan pertama tidak nol (notasi gaya CoinMarketCap, mis. `0.00001234`) — jangan dibulatkan jadi "0"
+  - `≥ 1000` → compact `formatCompact` (K/M/B/T)
+- [x] Berlaku di tabel dashboard **dan** halaman detail (harga + stats)
+- [ ] Tambah unit test formatter (rentang: 0, < 0.01, 0.01–1, ≥ 1, ≥ 1000, NaN) — selaras Fase 5
+
+### 3. [FITUR] Watchlist — ikon bintang di tabel dashboard
+- [ ] `store/watchStore.ts` (Zustand + persist, key `WATCHLIST_STORAGE_KEY` = `crypto-watchlist`, sudah ada di constants); simpan base code (mis. `BTC`)
+- [ ] `components/ui/WatchStar.tsx` — tombol ☆/★ dengan `stopPropagation` agar klik tidak memicu navigasi row
+- [ ] Kolom bintang baru di `TickerTable` (di samping nama koin)
+- [ ] ~~`app/watchlist/page.tsx` — halaman terpisah~~ **DIBATALKAN (E1 Tahap 2)** → diganti **panel sidebar drawer global** `components/watchlist/WatchlistPanel.tsx`: tombol "Watchlist" di Header (state `uiStore.watchlistOpen`), list kompak logo+kode | harga | chg% (rata kanan), highlight baris koin aktif, grouping kolaps "Watchlist Saya / Top Gainers / Semua Koin"; data live dari ticker store (scope 20 koin default) + link ke `/coin/{code}`
+- [ ] Toggle watchlist di halaman detail (lihat no. 5) ikut sinkron dengan store yang sama
+
+### 4. [FITUR] Search bar di header *(dikerjakan di E1 Tahap 3)*
+- [ ] `components/layout/SearchBox.tsx` di `Header` (sebelah toggle tema)
+- [ ] Filter client-side atas `COIN_NAMES`/kode (code terkait `coinMeta.ts`), debounce ±150ms, dropdown hasil (logo + kode + nama), klik → `/coin/{code}`; tutup saat blur/Escape
+- [ ] Perluasan data pencarian (skala 20 koin saat ini; jika nanti > daftar, pindah ke REST `/api/coins`)
+
+### 5. [FITUR] Tombol watchlist di halaman detail
+- [ ] Pakai `WatchStar` yang sama di header `CoinDetail` (di samping nama koin `/ USDT`), storage/fungsi sama dgn dashboard (no. 3)
+
+### 6. [FITUR] Currency selector global (konversi kurs otomatis) *(dikerjakan di E1 Tahap 3)*
+- [ ] Dropdown mata uang di `Header` (USD / IDR / EUR / JPY / SGD) → simpan ke `uiStore.currency` (state + persist sudah ada)
+- [ ] API Route `app/api/rate/route.ts` → proxy `open.er-api.com/v6/latest/USD` (gratis tanpa key, CORS terbuka; backup `exchangerate.host`), cache via `fetch({ next: { revalidate: 3600 } })`
+- [ ] `hooks/useFiatRates.ts` (React Query, queryKey `["rates"]`)
+- [ ] Helper `formatCurrency(usd, currency, rate)` di `lib/format.ts`
+- [ ] Terapkan konversi di: tabel dashboard, harga & stats halaman detail
+- [ ] Pertahankan harga tersimpan dalam USD (Binance) — konversi hanya di lapisan tampilan
+
+### 7. [CEK] Transisi timeframe chart (1M/5M/…/1W)
+- [ ] Hapus risiko candle basi TF lama masuk chart TF baru: `setLive(null)` saat ganti interval + render `PriceChart` dengan `key={interval}` (remount bersih)
+- [ ] Skeleton/loading state saat data historis TF baru di-fetch (pastikan tidak flicker)
+- [ ] Verifikasi WS reconnect otomatis ke `{symbol}@kline_{interval}` baru (rotasi endpoint + backoff sudah ada) dan indeks status "Grafik live / Menyambung ulang…" akurat
+
+### Standar Desain / UX (konvensi umum web market crypto)
+Spek baku tercatat di [PRD.md](./PRD.md) §13 "Standar Desain UI/UX"; daftar di bawah adalah ceklis implementasinya.
+
+- [x] **D13.1 Layout tabel**: kolom angka (harga, %, volume) rata kanan; kolom koin rata kiri dengan logo + simbol + nama lengkap (sudah berjalan baik — pertahankan)
+- [x] **D13.2 Warna indikator**: hijau = naik, merah = turun, **abu netral = flat (perubahan 0% / data tidak berubah)** — konsisten di tabel, badge %, dan candle chart (bukan default hijau/merah untuk 0%)
+- [x] **D13.3 Micro-interaction**: flash highlight singkat 300–500ms (background hijau/merah) di sel harga yang berubah secara real-time
+- [x] **D13.4 Skeleton loading**: shimmer skeleton saat data awal sedang di-fetch (dashboard, tabel, detail) — bukan halaman kosong/spinner biasa
+- [x] **D13.5 Empty & error state**: pesan jelas + tombol **Retry** saat WS gagal connect / API down; tabel tidak dibiarkan kosong tanpa penjelasan
+- [x] **D13.6 Responsive mobile**: tabel dashboard berubah menjadi **card list per koin** (bukan horizontal-scroll) agar tetap mudah dibaca
+- [ ] **D13.7 Navbar konsisten**: search bar + currency selector muncul di SEMUA halaman (dashboard, detail koin, watchlist) — Header sudah global; komponennya **sedang dikerjakan di E1 Tahap 3** (SearchBox + CurrencySelect)
+- [x] **D13.8 Number formatting**: singkatan standar K/M/B/T untuk volume/market cap besar (`formatCompact`) — sudah diterapkan, cukup verifikasi
+
+### E1 — Rombak Gaya TradingView (Layout & Styling)
+
+Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layout & styling saja** — tanpa fitur order/trading (aplikasi tetap murni monitoring). Spek lengkap: PRD §13.9–13.12. Update ARCHITECTURE.md bila struktur komponen berubah + TASKS.md tiap bagian selesai.
+
+- **Tahap 0 — Fondasi token warna**
+  - [ ] `app/globals.css`: token semantik dark/light (`--color-page`, `--color-panel`, `--color-panel-border`, `--color-text`, `--color-muted`, `--color-up/down/flat`) → map ke Tailwind v4 (`@theme inline`); update `--shimmer-base/hover`
+- **Tahap 1 — Detail koin 2 kolom** (PRD §13.9, 13.11)
+  - [ ] `components/coin/CoinQuoteBar.tsx` — info-bar tipis: logo · kode/nama · O/H/L/C · Vol (satu baris, `tabular-nums`)
+  - [ ] `components/coin/ChartToolbar.tsx` — tab timeframe **kiri** bawah chart (tetap 7 interval: 1m/5m/15m/1h/4h/1d/1w) + **jam UTC** kanan bawah (dihitung saat render → refresh tiap tick; tanpa setInterval)
+  - [ ] `components/coin/CoinInfoPanel.tsx` — sidebar kanan sticky: harga besar + perubahan (flat = abu) · status "Live"/"Menyambung…" · "Last update at [waktu]" (dari `eventTime`) · Key Stats list label-kiri/nilai-kanan (Volume 24j, Tertinggi/Terendah 24j, Perubahan 24j; Market Cap & Supply "n/a") · Key Facts ringkas statis (dari % & volume)
+  - [ ] Rombak `CoinDetail.tsx` → `lg:grid-cols-[minmax(0,1fr)_300px]`; hapus `CoinDetailStats.tsx`; `< lg` tumpuk; pastikan ganti interval → reset candle live (`setLive(null)` + remount `key`)
+- **Tahap 2 — Watchlist jadi panel sidebar** (PRD §13.10)
+  - [ ] `store/watchStore.ts` (Zustand persist `crypto-watchlist`, `toggle`) + `components/ui/WatchStar.tsx` (☆/★, `stopPropagation`)
+  - [ ] Star di `TickerTable` (kolom kiri) & header `CoinDetail`
+  - [ ] `components/watchlist/WatchlistPanel.tsx` — drawer kanan global (tombol "Watchlist" di Header, state `uiStore.watchlistOpen`), list kode+logo | harga | chg%, highlight koin aktif (`pathname`), grouping kolaps Watchlist Saya / Top Gainers / Semua Koin, state kosong + CTA
+  - [ ] Koreksi ARCHITECTURE/TASKS/DECISIONS — halaman `/watchlist` dibatalkan
+- **Tahap 3 — Search bar + currency di Header** (menuntaskan D13.7 + Milestone D no.4 & 6)
+  - [ ] `app/api/rate/route.ts` → proxy `open.er-api.com/v6/latest/USD` (`next.revalidate: 3600`); `hooks/useFiatRates.ts` (React Query `["rates"]`)
+  - [ ] Helper `convertPrice`/`formatCurrency` di `lib/format.ts`
+  - [ ] `components/layout/SearchBox.tsx` (filter `COIN_NAMES`, debounce ±150ms, dropdown → `/coin/{kode}`, blur/Escape) + `components/layout/CurrencySelect.tsx` (USD/IDR/EUR/JPY/SGD → `uiStore.currency`) di `Header.tsx`
+  - [ ] Terapkan konversi harga di TickerTable & CoinInfoPanel (%; volume tetap USD `formatCompact`; harga tersimpan tetap USD)
+- **Tahap 4 — Styling umum TV** (PRD §13.12)
+  - [ ] Retune komponen lama (Header, TickerTable, ConnectionBadge, card list, skeleton) ke token TV; audit ganti shadow-heavy → border 1px
+  - [ ] `PriceChart.tsx`: grid sangat samar, price scale kanan, bg transparan, warna candle dari token up/down, hapus border scale
+- **Docs & verifikasi**
+  - [ ] Update ARCHITECTURE.md (struktur komponen baru), DECISIONS.md (keputusan E1), TASKS.md tiap tahap, PROGRESS.md
+  - [ ] Build 25 route + lint; HTTP 200 `/` & `/coin/BTC`; cek visual 2 kolom → stack, sticky sidebar, toolbar bawah + clock, toggle panel + highlight, dropdown search/currency, harga IDR
 
 ---
 

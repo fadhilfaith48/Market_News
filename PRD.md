@@ -183,7 +183,7 @@ Banyak pengguna pemula maupun trader kripto membutuhkan satu tempat yang cepat, 
 ### 7.4 Integrasi Pihak Ketiga
 - **Binance WebSocket API** — data real-time harga & order book, diakses langsung dari client (gratis, tanpa API key untuk data publik).
 - **CoinGecko API** — data historis, market cap, metadata koin (di-proxy melalui Next.js API Route bila perlu menghindari CORS/rate-limit exposure).
-- **Currency Exchange API** (mis. exchangerate.host) — untuk konversi mata uang fiat.
+- **Currency Exchange API** (`open.er-api.com`, backup `exchangerate.host`) — untuk konversi mata uang fiat.
 
 ### 7.5 Deployment & Infrastruktur — 100% Gratis via Vercel
 - **Hosting:** Vercel Hobby plan (gratis, mencakup frontend + API Routes serverless dalam satu deployment).
@@ -273,6 +273,59 @@ Banyak pengguna pemula maupun trader kripto membutuhkan satu tempat yang cepat, 
 | **Fase 5: Testing & QA** | Unit testing, load testing WebSocket, cross-browser testing | 1–2 minggu |
 | **Fase 6: Deployment & Monitoring** | Deploy ke production, setup monitoring & alerting | 1 minggu |
 | **Total Estimasi** | | **±9–12 minggu** |
+
+---
+
+## 13. Standar Desain UI/UX
+
+Konvensi visual & interaksi yang berlaku konsisten di seluruh halaman (dashboard, halaman detail koin, watchlist). Mengikuti pola umum dashboard market crypto, dengan orientasi gaya platform trading profesional (referensi TradingView). Checklist implementasi: lihat Milestone D di [TASKS.md](./TASKS.md).
+
+### 13.1 Layout tabel
+- Semua kolom angka (harga, % perubahan, volume) **rata kanan**, `tabular-nums`.
+- Kolom nama koin **rata kiri** dengan logo + simbol + nama lengkap.
+
+### 13.2 Warna indikator
+- Hijau = naik, merah = turun, **abu netral = flat** (perubahan 0% / data tidak berubah).
+- Konsisten di tabel, badge %, dan candle chart (hijau untuk candle naik, merah untuk turun).
+
+### 13.3 Micro-interaction (flash highlight)
+- Saat harga diperbarui real-time, sel yang berubah diberi **flash background hijau/merah 300–500ms** (sesuai arah perubahan) agar terasa "hidup".
+
+### 13.4 Skeleton loading
+- Saat data awal di-fetch, tampilkan **skeleton shimmer** — bukan halaman kosong maupun spinner biasa.
+
+### 13.5 Empty & error state
+- Jika WebSocket gagal terhubung atau API down: tampilkan pesan jelas + **tombol Retry**. Tabel tidak dibiarkan kosong tanpa penjelasan.
+
+### 13.6 Responsive
+- Desktop: tabel penuh. Mobile: tabel dashboard berubah menjadi **card list per koin** (menghindari horizontal scroll).
+
+### 13.7 Navbar konsisten
+- Search bar dan currency selector tersedia di **semua halaman** (dashboard, detail koin, watchlist) — via komponen global di `Header`.
+
+### 13.8 Number formatting
+- Singkatan standar **K, M, B, T** untuk volume/market cap besar (kompak, maks 2 angka di belakang koma).
+- Harga koin mikro (< $0.01) ditampilkan sampai digit signifikan pertama tidak nol (gaya CoinMarketCap), jangan dibulatkan jadi "0".
+
+### 13.9 Layout halaman detail koin — 2 kolom (gaya TradingView)
+- Kolom kiri (±75%): info-bar tipis satu baris (logo · kode/nama · **O**pen **H**igh **L**ow **C**lose · Volume, `tabular-nums`) di atas chart candlestick full-size; toolbar timeframe di **bawah** chart.
+- Kolom kanan (±25%, sticky): harga besar + perubahan, status koneksi ("Live"/"Menyambung ulang…"), "Last update at [waktu]", **Key Stats** sebagai list label-kiri/nilai-kanan (Volume 24j, Tertinggi/Terendah 24j, Perubahan 24j; Market Cap & Supply placeholder "n/a"), dan **Key Facts** ringkas statis (dari % & volume — bukan AI).
+- Mobile (< lg): kedua kolom ditumpuk (chart dulu, lalu info).
+
+### 13.10 Watchlist sebagai panel sidebar (bukan halaman terpisah)
+- Watchlist ditampilkan sebagai **panel drawer di sisi kanan** yang bisa di-toggle show/hide (dari tombol "Watchlist" di Header), global di dashboard & halaman detail.
+- Baris kompak satu baris per koin: logo+kode | harga | chg% (rata kanan, `tabular-nums`); baris koin yang sedang dibuka diberi highlight; grouping kolaps "Watchlist Saya / Top Gainers / Semua Koin".
+- **Halaman `/watchlist` dibatalkan** — digantikan panel (keputusan di DECISIONS.md).
+
+### 13.11 Chart: jalur sumbu & grid
+- Grid line sangat tipis/samar (opacity rendah, lebih samar dari border panel).
+- Harga di **sumbu kanan** chart (right price scale), bukan kiri.
+
+### 13.12 Palet warna TradingView & styling umum
+- Background gelap solid `#131722` (bukan pure black): panel `#1e222d`, border `#2a2e39`, teks primer `#d1d4dc`, teks muted `#787b86`; **naik `#26a69a`, turun `#ef5350`** (khas TradingView). Light mode tetap ada sebagai TV-light: bg `#ffffff`, border `#e3e6ea`, naik `#089981`, turun `#f23645`.
+- Border antar panel: garis tipis 1px abu gelap — **bukan shadow** (kesan clean).
+- Angka harga besar (panel utama & watchlist) pakai font tabular/monospace agar digit rata.
+- Tidak ditiru dari referensi: toolbar kiri penuh (indicator/drawing/alert/replay/trade) & tombol BUY/SELL — di luar scope (aplikasi murni monitoring, bukan exchange).
 
 ---
 

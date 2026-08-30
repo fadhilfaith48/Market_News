@@ -1,8 +1,8 @@
 # Architecture — Crypto Market Web App
 
-**Versi Dokumen:** 1.0
+**Versi Dokumen:** 1.1 (30 Agustus 2026 — update struktur E1)
 **Tanggal:** 29 Agustus 2026
-**Status:** Rencana (belum ada kode)
+**Status:** Aktif — sebagian terimplementasi (dashboard real-time, halaman detail koin, candlestick live)
 
 Dokumen ini menjelaskan struktur teknis proyek. AI dan developer harus membaca dokumen ini agar tetap konsisten dengan pola yang sudah ditetapkan dan **tidak membuat struktur baru yang bertentangan**. Setiap perubahan arsitektur harus tercatat di [DECISIONS.md](./DECISIONS.md).
 
@@ -54,43 +54,42 @@ Poin kunci:
 ```
 market-news/
 ├── app/                       # Next.js App Router
-│   ├── layout.tsx             # Root layout (navbar, theme provider)
+│   ├── layout.tsx             # Root layout (navbar, theme provider, MarketDataProvider)
 │   ├── page.tsx               # Dashboard real-time (halaman utama)
-│   ├── watchlist/page.tsx     # Halaman watchlist
 │   ├── coin/
-│   │   └── [symbol]/page.tsx  # Halaman detail koin + chart
+│   │   └── [symbol]/page.tsx  # Halaman detail koin + chart (2 kolom, E1)
 │   └── api/                   # API Routes (REST proxy & cache)
-│       ├── coins/route.ts     # Daftar koin + market cap (cache ISR)
-│       ├── coins/[symbol]/route.ts   # Metadata/detail koin (cache)
+│       ├── coins/route.ts     # Daftar koin + market cap (cache ISR)   [belum]
+│       ├── coins/[symbol]/route.ts   # Metadata/detail koin (cache)     [belum]
 │       ├── klines/route.ts    # Data historis candlestick (cache)
-│       └── rate/route.ts      # Kurs mata uang (cache)
+│       └── rate/route.ts      # Kurs mata uang (proxy open.er-api.com, cache)  [E1]
 ├── components/                # Komponen React (atomic/feature-based)
-│   ├── layout/                #   Navbar, Footer, CurrencySelector, ThemeToggle
-│   ├── dashboard/             #   MarketTable, TopGainer, TopLoser, LiveTicker
-│   ├── coin/                  #   PriceChart, StatsCard, WatchlistButton
-│   ├── watchlist/             #   WatchlistTable, EmptyState
-│   └── ui/                    #   SearchBar, Badge, Skeleton, dsb.
+│   ├── layout/                #   Header/Navbar (berisi SearchBox + CurrencySelect + toggle Watchlist), Footer, Logo, ThemeToggle
+│   ├── dashboard/             #   TickerTable, MarketDataProvider, TopGainer/TopLoser [belum]
+│   ├── coin/                  #   PriceChart, CoinQuoteBar (E1), ChartToolbar (E1), CoinInfoPanel (E1)
+│   ├── watchlist/             #   WatchlistPanel — panel sidebar drawer (E1; menggantikan halaman /watchlist)
+│   └── ui/                    #   CoinIcon, ConnectionBadge, WatchStar (E1), SearchBox (E1), CurrencySelect (E1), skeleton
 ├── hooks/                     # Custom hooks
 │   ├── useBinanceWS.ts        # Koneksi WebSocket + auto-reconnect
-│   ├── useMarketData.ts       # Query React Query untuk data pasar
+│   ├── useMarketData.ts       # Query React Query untuk data pasar    [belum]
 │   ├── useKlines.ts           # Query data historis chart
-│   ├── useCurrency.ts         # Konversi mata uang
-│   └── useWatchlist.ts        # CRUD watchlist di Local Storage
+│   ├── useKlineStream.ts      # Subskripsi candle live (WS) dari store
+│   ├── useFiatRates.ts        # Kurs mata uang via /api/rate          [E1]
+│   └── useWatchlist.ts        # CRUD watchlist di Local Storage       [belum — langsung via watchStore]
 ├── lib/                       # Utilitas & logika inti
 │   ├── binance/
 │   │   ├── ws.ts              # Build URL stream, parser message
 │   │   └── rest.ts            # Client REST Binance
-│   ├── adapters/              # Abstraksi data provider (adapter pattern)
+│   ├── adapters/              # Abstraksi data provider (adapter pattern)  [belum]
 │   │   ├── types.ts           # Interface Coin, PriceHistory, Kline, dsb.
-│   │   └── coingecko.ts       # Provider CoinGecko
-│   │   └── binance.ts         # Provider Binance
+│   │   └── coingecko.ts / binance.ts
 │   ├── storage.ts             # Wrapper Local Storage (get/set/remove)
-│   ├── format.ts              # Format harga, persentase, satuan (b, m, k)
+│   ├── format.ts              # Format harga, persentase, compact (K/M/B/T), convertPrice/formatCurrency (E1)
 │   └── constants.ts           # Daftar symbol, URL, interval, timeframes
 ├── store/                     # Zustand stores
 │   ├── marketStore.ts         # Harga real-time gabungan (dari WS)
-│   ├── uiStore.ts             # Theme, currency terpilih, status koneksi
-│   └── watchlistStore.ts      # State watchlist
+│   ├── uiStore.ts             # Theme, currency, watchlistOpen, status koneksi
+│   └── watchStore.ts          # State watchlist (persist `crypto-watchlist`)  [E1]
 ├── types/                     # TypeScript types global
 │   └── index.ts
 ├── public/                    # Asset statis
@@ -103,7 +102,7 @@ market-news/
 └── BUGS.md
 ```
 
-> Catatan: struktur di atas adalah **target**. Saat memulai implementasi, ikuti pola ini. Jika ada perubahan struktur, perbarui dokumen ini + catat di DECISIONS.md.
+> Catatan: struktur di atas adalah **target** (tanda `[belum]` = belum diimplementasikan; `[E1]` = dibuat pada rombak gaya TradingView). Saat ada perubahan struktur, perbarui dokumen ini + catat di DECISIONS.md.
 
 ---
 
@@ -122,9 +121,10 @@ market-news/
 3. Halaman detail koin menggabungkan data historis (satu kali fetch) + update live (WS) dalam satu chart.
 
 ### 4.3 Watchlist
-1. `useWatchlist` membaca/menulis array `coin[]` di Local Storage (key: `crypto-watchlist`).
-2. Perubahan langsung tercermin di UI via `watchlistStore`.
-3. **Batasan Fase 1:** per-device/browser, tidak tersinkron antar device.
+1. `watchStore` (Zustand) membaca/menulis array base code coin di Local Storage (key: `crypto-watchlist`).
+2. Perubahan langsung tercermin di UI via store (ikon ☆/★ di tabel & detail, dan panel).
+3. **Tampilan watchlist = panel sidebar drawer** (`WatchlistPanel`) yang di-toggle global — **bukan halaman `/watchlist`** (keputusan 30 Agustus 2026, E1). Data live koin favorit diambil dari `marketStore` (WS global 20 ticker), dengan grouping "Watchlist Saya / Top Gainers / Semua Koin".
+4. **Batasan Fase 1:** per-device/browser, tidak tersinkron antar device.
 
 ---
 

@@ -102,6 +102,65 @@ Format entri baru:
 - **Alasan:** Di dev Turbopack, class hash font `next/font` berbeda antara render server & client → hydration mismatch pada atribut `className` `<html>` (BUG-001). Solusi ini menghilangkan sumber mismatch, mempercepat build (tanpa fetch font Google), dan cocok dengan prinsip "ringan & cepat".
 - **Trade-off:** Tampilan font jadi bergantung OS; tidak se-spesifik Geist.
 
+## 29 Agustus 2026 — Sumber kurs fiat: open.er-api.com (backup exchangerate.host)
+- **Status:** Approved
+- **Keputusan:** Konversi mata uang (USD → IDR/dll) memakai `https://open.er-api.com/v6/latest/USD` — gratis tanpa API key, CORS terbuka, terverifikasi HTTP 200 di dev. Backup: `exchangerate.host` (satu vendor, exchangerate-api). Di-proxy lewat API Route `/api/rate` + cache (`fetch next.revalidate`).
+- **Alasan:** PRD §7.4 menulis "exchangerate.host" sebagai contoh, tetapi endpoint resminya belakangan membatasi akses tanpa key; `open.er-api.com` adalah endpoint gratis aktif dari vendor yang sama dan berfungsi penuh.
+- **Trade-off:** Kurs diperbarui sekali sehari (rate terakhir direspons); cukup untuk tampilan konversi harga.
+- **Alternatif ditolak:** exchangerate.host sebagai sumber utama (perlu key), frankfurter.app (kurasi ECB, tidak selalu ada IDR stabil), hardcode kurs (tidak real).
+
+## 29 Agustus 2026 — Aturan format harga bertingkat (koin mikro)
+- **Status:** Approved
+- **Keputusan:** `formatPrice` memakai aturan bertingkat (staircase): `≥ 1` → 2 desimal; `< 1 && ≥ 0.01` → 4 desimal; `< 0.01` → hingga digit signifikan pertama non-nol (gaya CoinMarketCap, mis. `0.00001234`); `≥ 1000` → compact (K/M/B/T).
+- **Alasan:** Perbaiki BUG-003 — SHIB (dan koin mikro lain) tampil "0" karena formatter lama memangkas desimal.
+- **Trade-off:** Harga koin besar akan tampil compact (mis. BTC volume) — sesuai konvensi; nilai ≥ 1 di bawah 1000 tetap 2 desimal penuh.
+
+## 29 Agustus 2026 — Konvensi warna indikator: naik=hijau, turun=merah, flat=abu
+- **Status:** Approved
+- **Keputusan:** Hijau = naik, merah = turun, dan **abu netral = flat** (perubahan 0% / data tidak berubah). Berlaku konsisten di tabel, badge %, dan candle chart.
+- **Alasan:** Logika lama (`isUp = (change ?? 0) >= 0`) membuat 0% berwarna hijau — menyesatkan.
+- **Trade-off:** Tidak ada — data netral memang seharusnya netral.
+
+## 29 Agustus 2026 — Responsive mobile: tabel → card list
+- **Status:** Approved
+- **Keputusan:** Di layar mobile, tabel dashboard diubah menjadi **card list per koin** (bukan tabel horizontal-scroll) agar mudah dibaca; `.md:` ke atas tetap tabel penuh.
+- **Alasan:** Konvensi umum dashboard trading mobile; menghindari scroll horizontal yang menyulitkan.
+- **Trade-off:** Dua jalur rendering pada komponen tabel (perlu dipelihara konsistensi).
+
+## 30 Agustus 2026 — Rombak tampilan mengikuti gaya TradingView (E1)
+- **Status:** Approved
+- **Keputusan:** Seluruh tampilan dirombak ke gaya platform trading profesional (referensi TradingView), terbatas pada **layout & styling** — tanpa fitur order/trading (aplikasi tetap murni monitoring). Direvisi bertahap: detail koin 2 kolom → watchlist sidebar → styling umum.
+- **Alasan:** Meningkatkan kesan "hidup" & pro; konvensi yang sudah familiar pengguna trading.
+- **Trade-off:** Pekerjaan restyle menyeluruh; pola token warna baru perlu dipelihara.
+- **Alternatif ditolak:** Menambah fitur trading/BUY-SELL (di luar scope PRD).
+
+## 30 Agustus 2026 — Palet warna TradingView (dark tetap + TV-light)
+- **Status:** Approved
+- **Keputusan:** Dark diubah dari pure black (`#0a0a0a`) ke solid `#131722`, panel `#1e222d`, border `#2a2e39`, teks primer `#d1d4dc`, muted `#787b86`; **naik `#26a69a`, turun `#ef5350`** (khas TV). **Light mode tetap dipertahankan** sebagai TV-light: bg `#ffffff`, border `#e3e6ea`, naik `#089981`, turun `#f23645`. Border antar panel = garis 1px abu gelap, **tanpa shadow**; angka harga pakai `tabular-nums`. Token diimplementasikan sebagai CSS var semantik → map Tailwind v4 (`@theme inline`).
+- **Alasan:** Kontras chart lebih baik daripada hitam pekat; meniru palet TV yang familiar; mode light masih berguna & sudah dilisensi pengguna.
+- **Trade-off:** Perlu retune class zinc lama ke token.
+- **Alternatif ditolak:** Dark-only tanpa toggle (menghapus fitur yang sudah ada).
+
+## 30 Agustus 2026 — Halaman detail koin: layout 2 kolom
+- **Status:** Approved
+- **Keputusan:** Detail koin memakai `grid` 2 kolom: kiri ±75% = info-bar tipis (O/H/L/C + vol) di atas chart full + toolbar timeframe di bawah chart; kanan ±25% sticky = harga besar + perubahan, status "Live", "Last update at", **Key Stats list label-kiri/nilai-kanan** (bukan card kotak-kotak), + **Key Facts** ringkas statis dari % & volume (bukan AI generatif). Mobile `< lg`: ditumpuk.
+- **Alasan:** Meniru layout "Apple Inc · 1D · O/H/L/C" pada referensi; Key Stats list lebih rapat & pro daripada card bertumpuk.
+- **Trade-off:** Sidebar memakan lebar di layar sedang (diatasi tumpukan saat `< lg`).
+- **Keputusan terkait:** Timeframe berada di **bawah** chart (7 interval Binance tetap dipertahankan — bukan preset kalender TV), grid chart sangat samar, harga di sumbu kanan.
+
+## 30 Agustus 2026 — Watchlist sebagai panel sidebar, bukan halaman terpisah
+- **Status:** Approved (menggantikan rencana halaman `/watchlist`)
+- **Keputusan:** Watchlist direpresentasikan sebagai **panel drawer sisi kanan global**, di-toggle dari tombol "Watchlist" di Header (state `uiStore.watchlistOpen`), muncul di dashboard & detail koin. Baris kompak: logo+kode | harga | chg%, highlight baris koin aktif, grouping kolaps "Watchlist Saya / Top Gainers / Semua Koin". **Pengembangan `app/watchlist/page.tsx` dibatalkan.**
+- **Alasan:** Referensi TV menampilkan watchlist sebagai panel samping; hemat navigasi, data live langsung terlihat; konsisten lintas halaman.
+- **Trade-off:** Panel overlay/dock memakan ruang layar (bisa di-toggle); tidak ada URL khusus watchlist.
+- **Alternatif ditolak:** Halaman `/watchlist` terpisah (sudah pernah direncanakan di Milestone D no.3), panel hanya di dashboard (kurang "global").
+
+## 30 Agustus 2026 — Search bar + currency selector dikerjakan di sesi E1
+- **Status:** Approved (merevisi keputusan "defer ke tahap fitur")
+- **Keputusan:** `SearchBox` + `CurrencySelect` dibangun sekarang di sesi rombak **E1 Tahap 3** (di Header, global) → menuntaskan D13.7 & Milestone D no.4 & 6. Sumber kurs tetap `open.er-api.com` (keputusan 29 Agustus) via `/api/rate`.
+- **Alasan:** Navbar konsisten adalah bagian dari gaya TV; pengerjaan setahap dengan layout menghindari utang desain ganda.
+- **Trade-off:** Menambah cakupan sesi desain (sekitar 3-4 komponen + 1 API route).
+
 ---
 
 ## Keputusan yang Pernah Dibahas & Ditutup
