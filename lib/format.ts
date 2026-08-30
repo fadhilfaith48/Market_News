@@ -3,16 +3,34 @@ const compactFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-const priceFormatterFull = new Intl.NumberFormat("en-US", {
+const twoDecimalFormatter = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
-  maximumFractionDigits: 6,
+  maximumFractionDigits: 2,
 });
+
+const fourDecimalFormatter = new Intl.NumberFormat("en-US", {
+  minimumFractionDigits: 4,
+  maximumFractionDigits: 4,
+});
+
+function formatMicroPrice(value: number): string {
+  const decimals = Math.max(
+    2,
+    -Math.floor(Math.log10(Math.abs(value))) + 4,
+  );
+  return value
+    .toFixed(decimals)
+    .replace(/(\.\d*?[1-9])0+$|\.0+$/, "$1");
+}
 
 export function formatPrice(value: number): string {
   if (!Number.isFinite(value)) return "-";
   if (value === 0) return "0";
-  if (value >= 1000 || value < 0.00001) return compactFormatter.format(value);
-  return priceFormatterFull.format(value);
+  const abs = Math.abs(value);
+  if (abs >= 1000) return compactFormatter.format(value);
+  if (abs >= 1) return twoDecimalFormatter.format(value);
+  if (abs >= 0.01) return fourDecimalFormatter.format(value);
+  return formatMicroPrice(value);
 }
 
 export function formatCompact(value: number): string {
