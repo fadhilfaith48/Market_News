@@ -12,6 +12,8 @@ interface UIState {
   toggleTheme: () => void;
   currency: string;
   setCurrency: (currency: string) => void;
+  watchlistOpen: boolean;
+  setWatchlistOpen: (open: boolean) => void;
   connectionStatus: ConnectionStatus;
   setConnectionStatus: (status: ConnectionStatus) => void;
 }
@@ -25,6 +27,8 @@ export const useUIStore = create<UIState>()(
         set({ theme: get().theme === "dark" ? "light" : "dark" }),
       currency: "USD",
       setCurrency: (currency) => set({ currency }),
+      watchlistOpen: false,
+      setWatchlistOpen: (watchlistOpen) => set({ watchlistOpen }),
       connectionStatus: "connecting",
       setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
     }),

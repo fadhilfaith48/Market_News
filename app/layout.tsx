@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Header } from "@/components/layout/Header";
+import { WatchlistPanel } from "@/components/watchlist/WatchlistPanel";
 import { MarketDataProvider } from "@/components/dashboard/MarketDataProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ThemeSync } from "@/components/ThemeSync";
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <MarketDataProvider>
             <Header />
             <main className="flex-1">{children}</main>
+            <WatchlistPanel />
           </MarketDataProvider>
         </QueryProvider>
       </body>

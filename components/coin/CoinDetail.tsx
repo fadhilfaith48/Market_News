@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { CoinDetailStats } from "@/components/coin/CoinDetailStats";
 import { CoinIcon } from "@/components/ui/CoinIcon";
+import { WatchStar } from "@/components/ui/WatchStar";
 import { PriceChart } from "@/components/coin/PriceChart";
 import { getCoinMeta } from "@/lib/coinMeta";
 import { KLINE_DEFAULT_INTERVAL, TIMEFRAMES } from "@/lib/constants";
@@ -51,6 +52,7 @@ export function CoinDetail({ code }: { code: string }) {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold">{code}</h1>
+              <WatchStar code={code} size={18} />
               <span className="text-sm text-zinc-500 dark:text-zinc-400">
                 {name} / USDT
               </span>

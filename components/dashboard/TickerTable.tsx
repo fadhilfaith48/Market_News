@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { CoinIcon } from "@/components/ui/CoinIcon";
+import { WatchStar } from "@/components/ui/WatchStar";
 import { useMarketDataContext } from "@/components/dashboard/marketDataContext";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { getCoinMeta } from "@/lib/coinMeta";
@@ -117,6 +118,7 @@ export function TickerTable() {
               className="flex cursor-pointer items-center justify-between rounded-xl border border-zinc-200 p-3 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900/40"
             >
               <div className="flex min-w-0 items-center gap-2.5">
+                <WatchStar code={code} />
                 <CoinIcon symbol={symbol} size={28} />
                 <div className="min-w-0">
                   <div className="font-medium">{code}</div>
@@ -163,10 +165,11 @@ export function TickerTable() {
                   className="cursor-pointer border-b border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800/60 dark:hover:bg-zinc-900/40"
                 >
                   <td className="px-4 py-2.5">
-                    <div className="flex items-center gap-2">
-                      <CoinIcon symbol={symbol} size={22} />
-                      <span className="font-medium">{code}</span>
-                    </div>
+<div className="flex min-w-0 items-center gap-2">
+                <WatchStar code={code} />
+                <CoinIcon symbol={symbol} size={22} />
+                <span className="font-medium">{code}</span>
+              </div>
                   </td>
                   <td className="px-4 py-2.5 text-right tabular-nums">
                     <FlashPrice ticker={ticker} previous={previous} />
