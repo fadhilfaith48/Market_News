@@ -4,6 +4,7 @@ const ICON_BASE =
 const LOGO_OVERRIDES: Record<string, string> = {
   SHIB: "https://assets.coingecko.com/coins/images/11939/small/shiba.png",
   NEAR: "https://assets.coingecko.com/coins/images/10365/small/near.png",
+  POL: `${ICON_BASE}/poly.svg`,
 };
 
 export const COIN_NAMES: Record<string, string> = {
@@ -16,7 +17,7 @@ export const COIN_NAMES: Record<string, string> = {
   DOGE: "Dogecoin",
   AVAX: "Avalanche",
   LINK: "Chainlink",
-  MATIC: "Polygon",
+  POL: "Polygon (POL)",
   DOT: "Polkadot",
   LTC: "Litecoin",
   UNI: "Uniswap",

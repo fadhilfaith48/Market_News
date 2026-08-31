@@ -13,7 +13,7 @@ export const DEFAULT_SYMBOLS = [
   "DOGEUSDT",
   "AVAXUSDT",
   "LINKUSDT",
-  "MATICUSDT",
+  "POLUSDT",
   "DOTUSDT",
   "LTCUSDT",
   "UNIUSDT",
