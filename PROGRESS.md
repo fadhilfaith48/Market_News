@@ -147,11 +147,31 @@ Format entri baru (ikuti pola yang sama):
 - [x] `components/coin/CoinDetail.tsx` + `CoinDetailStats.tsx` — warna % 3 arah, skeleton chart shimmer, tombol Retry (refetch) saat klines error
 - [x] Verifikasi: `npm run build` OK (25 route), `npm run lint` OK, dev `/` & `/coin/BTC` HTTP 200
 - [ ] (defer) D13.7 navbar: search bar + currency selector → Milestone D no. 4 & 6 (tahap fitur)
-- [ ] Unit test formatter — masih di Fase 5
+- [x] Unit test formatter — dituntaskan 31 Agustus (Milestone D no. 2, lihat entri bawah)
 
 ### Catatan
 - Flash harga diimplementasikan tanpa state/effect timer (hindari rule lint `react-hooks/refs` & `set-state-in-effect`): arah dari `previousLastPrice`, replay animasi lewat `key` yang berubah saat harga berganti.
 - `offline` (state WS) hampir tak pernah tampil tanpa intervensi manual (hook terus auto-reconnect) — Retry berguna terutama saat jaringan user kembal; error state klines di detail halaman lebih sering terlihat (tombol Retry → `refetch`).
+
+---
+
+## 31 Agustus 2026 — Milestone D no. 1, 2, 3 & 5 (MATIC→POL, unit test formatter, watchlist dasar)
+
+### Status: Done
+- [x] **no.1 BUG MATIC→POL**: `MATICUSDT` → `POLUSDT` di `DEFAULT_SYMBOLS`; `COIN_NAMES.POL` = "Polygon (POL)"; `LOGO_OVERRIDES.POL` = atomiclabs `poly.svg` (hasil cek: `pol.svg` 404, `poly.svg` 200, CoinGecko 403 → tidak dipakai)
+- [x] **no.1 verifikasi**: ticker `POLUSDT` live via `data-api.binance.vision` (price OK), `/api/klines?symbol=POLUSDT` 200, `/coin/POL` 200, `/coin/MATIC` → **404** (`dynamicParams = false` di `app/coin/[code]/page.tsx`)
+- [x] **no.2 setup test**: **Vitest 4** (`npm i -D vitest`, `vitest.config.mts`, script `"test": "vitest run"`) + `tests/format.test.ts` — 12 tes pass (0 / <0.01 / 0.01–1 / ≥1 / ≥1000 / NaN + `formatPercent`/`formatCompact`)
+- [x] **no.3+5 fondasi watchlist**: `store/watchStore.ts` (Zustand persist `crypto-watchlist`, `codes`+`toggle`+`useIsWatched`); `uiStore` + `watchlistOpen`/`setWatchlistOpen` (tidak di-persist)
+- [x] `components/ui/WatchStar.tsx` — ☆/★, `stopPropagation`+`preventDefault`, hidrasi `useHydrated`; dipasang di `TickerTable` (sel "Koin" desktop + card mobile) & `CoinDetail` (samping kode)
+- [x] `components/watchlist/WatchlistPanel.tsx` — drawer kanan 300px (toggle di Header), grouping kolaps "Watchlist Saya / Top Gainers / Semua Koin", highlight koin aktif (`usePathname`), klik → `/coin/{code}`, state kosong + hint; **mount di `app/layout.tsx`** (global)
+- [x] `Header.tsx` — tombol "Watchlist" (toggle, `aria-pressed`)
+- [x] Verifikasi: `npm run lint` OK, `npm test` 12/12, `npm run build` OK (25 route), dev `/` & `/coin/POL` HTTP 200
+
+### Catatan
+- Watchlist sementara **hanya dari 20 koin `DEFAULT_SYMBOLS`** (codes disaring list itu agar tak ada link mati).
+- Panel watchlist memakai styling lama (zinc) — **belum restyle TV**; itu bagian E1 Tahap 2/4 yang masih wait.
+- Masih pending: Milestone D no. 4 (search), 6 (currency), 7 (transisi timeframe), D13.7, dan seluruh E1 (Tahap 0–4).
+- Perubahan sesi ini **belum di-commit/push** (tunggu instruksi user).
 
 ---
 

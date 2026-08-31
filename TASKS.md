@@ -83,10 +83,10 @@ Diambil dari review user (29 Agustus 2026). Nomor tetap mengikuti urutan masukan
 
 ### 1. [BUG] MATIC tampil "-" di semua kolom
 - [x] Verifikasi akar masalah: `MATICUSDT` **di-delist Binance sejak 2024-09-10** (swap token 1 MATIC = 1 POL); sejak 2024-09-13 trading dibuka sebagai `POLUSDT`
-- [ ] Ganti `MATICUSDT` → `POLUSDT` di `DEFAULT_SYMBOLS` (`lib/constants.ts`)
-- [ ] Update `COIN_NAMES.POL` = `Polygon (POL)` di `lib/coinMeta.ts`
-- [ ] Cek ketersediaan logo POL: atomiclabs kemungkinan tak punya `pol.svg` → override CoinGecko (`polygon-ecosystem-token`) di `LOGO_OVERRIDES`
-- [ ] Verifikasi WS ticker + REST klines `POLUSDT` hidup via `data-stream/data-api.binance.vision` (rotasi endpoint sudah ada)
+- [x] Ganti `MATICUSDT` → `POLUSDT` di `DEFAULT_SYMBOLS` (`lib/constants.ts`)
+- [x] Update `COIN_NAMES.POL` = `Polygon (POL)` di `lib/coinMeta.ts`
+- [x] Logo POL: `pol.svg` atomiclabs **tidak ada (404)** → `LOGO_OVERRIDES.POL` = atomiclabs **`poly.svg` (200)**; CoinGecko `assets.coingecko.com` ditolak (403) sehingga tidak dipakai; fallback huruf di `CoinIcon` tetap ada
+- [x] Verifikasi: WS/REST `POLUSDT` hidup via `data-stream/data-api.binance.vision` (ticker price OK, `/api/klines?symbol=POLUSDT` 200); `/coin/POL` 200; tambah `dynamicParams = false` → `/coin/MATIC` **404**
 
 ### 2. [BUG] SHIB menampilkan harga "0"
 - [x] Rombak `formatPrice` di `lib/format.ts` menjadi **aturan bertingkat (staircase)**:
@@ -95,14 +95,14 @@ Diambil dari review user (29 Agustus 2026). Nomor tetap mengikuti urutan masukan
   - `< 0.01` → tampilkan hingga digit signifikan pertama tidak nol (notasi gaya CoinMarketCap, mis. `0.00001234`) — jangan dibulatkan jadi "0"
   - `≥ 1000` → compact `formatCompact` (K/M/B/T)
 - [x] Berlaku di tabel dashboard **dan** halaman detail (harga + stats)
-- [ ] Tambah unit test formatter (rentang: 0, < 0.01, 0.01–1, ≥ 1, ≥ 1000, NaN) — selaras Fase 5
+- [x] Tambah unit test formatter: **Vitest 4** (devDep) + `vitest.config.mts` + script `"test": "vitest run"` + `tests/format.test.ts` (rentang: 0, < 0.01, 0.01–1, ≥ 1, ≥ 1000, NaN + formatPercent/formatCompact) — 12 tes pass
 
 ### 3. [FITUR] Watchlist — ikon bintang di tabel dashboard
-- [ ] `store/watchStore.ts` (Zustand + persist, key `WATCHLIST_STORAGE_KEY` = `crypto-watchlist`, sudah ada di constants); simpan base code (mis. `BTC`)
-- [ ] `components/ui/WatchStar.tsx` — tombol ☆/★ dengan `stopPropagation` agar klik tidak memicu navigasi row
-- [ ] Kolom bintang baru di `TickerTable` (di samping nama koin)
-- [ ] ~~`app/watchlist/page.tsx` — halaman terpisah~~ **DIBATALKAN (E1 Tahap 2)** → diganti **panel sidebar drawer global** `components/watchlist/WatchlistPanel.tsx`: tombol "Watchlist" di Header (state `uiStore.watchlistOpen`), list kompak logo+kode | harga | chg% (rata kanan), highlight baris koin aktif, grouping kolaps "Watchlist Saya / Top Gainers / Semua Koin"; data live dari ticker store (scope 20 koin default) + link ke `/coin/{code}`
-- [ ] Toggle watchlist di halaman detail (lihat no. 5) ikut sinkron dengan store yang sama
+- [x] `store/watchStore.ts` (Zustand + persist, key `WATCHLIST_STORAGE_KEY` = `crypto-watchlist`); simpan base code (mis. `BTC`) — + hook `useIsWatched`
+- [x] `components/ui/WatchStar.tsx` — tombol ☆/★ dengan `stopPropagation` + `preventDefault` agar klik tidak memicu navigasi row (hidrasi via `useHydrated`)
+- [x] Kolom bintang di `TickerTable` (sel "Koin" desktop + card mobile, sebelum logo)
+- [x] ~~`app/watchlist/page.tsx` — halaman terpisah~~ **DIBATALKAN (E1 Tahap 2)** → **sudah dibangun**: panel sidebar drawer global `components/watchlist/WatchlistPanel.tsx` (tombol "Watchlist" di Header, state `uiStore.watchlistOpen`), list kompak logo+kode | harga | chg% (rata kanan), highlight koin aktif, grouping kolaps "Watchlist Saya / Top Gainers / Semua Koin"; data live dari ticker store (scope 20 koin default) + link ke `/coin/{code}`; mount di `app/layout.tsx` (global)
+- [x] Toggle watchlist di halaman detail (no. 5) sinkron dengan store yang sama
 
 ### 4. [FITUR] Search bar di header *(dikerjakan di E1 Tahap 3)*
 - [ ] `components/layout/SearchBox.tsx` di `Header` (sebelah toggle tema)
@@ -110,7 +110,7 @@ Diambil dari review user (29 Agustus 2026). Nomor tetap mengikuti urutan masukan
 - [ ] Perluasan data pencarian (skala 20 koin saat ini; jika nanti > daftar, pindah ke REST `/api/coins`)
 
 ### 5. [FITUR] Tombol watchlist di halaman detail
-- [ ] Pakai `WatchStar` yang sama di header `CoinDetail` (di samping nama koin `/ USDT`), storage/fungsi sama dgn dashboard (no. 3)
+- [x] Pakai `WatchStar` yang sama di header `CoinDetail` (di samping nama koin `/ USDT`), storage/fungsi sama dgn dashboard (no. 3)
 
 ### 6. [FITUR] Currency selector global (konversi kurs otomatis) *(dikerjakan di E1 Tahap 3)*
 - [ ] Dropdown mata uang di `Header` (USD / IDR / EUR / JPY / SGD) → simpan ke `uiStore.currency` (state + persist sudah ada)
