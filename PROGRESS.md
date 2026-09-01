@@ -175,6 +175,21 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 31 Agustus 2026 — Perbaikan pasca-audit watchlist & dedup tone
+
+### Status: Done
+- [x] `lib/market.ts` (baru) — `MarketTone`, `getMarketTone(change)`, `TONE_TEXT` map, `toneText(change)`; **dedup** warna 3 arah yang sebelumnya dobel di `TickerTable.tsx` & `WatchlistPanel.tsx`
+- [x] `TickerTable.tsx` — ganti `percentTone`/`TONE_TEXT` lokal → `toneText(change)` dari `lib/market`
+- [x] `WatchlistPanel.tsx` — ganti tone lokal → `toneText(change)`; **panel tutup otomatis** saat klik baris navigasi (`close(false)` sebelum `router.push`)
+- [x] `WatchStar.tsx` — tambah `p-0.5` (area klik lebih besar) & indikator warna di span dalam
+- [x] `WatchlistPanel.tsx` — `w-[300px] max-w-[85vw]` (hindari overflow layar sangat sempit)
+- [x] Verifikasi: lint OK, `npm test` 12/12, `npm run build` OK (25 route), dev `/` & `/coin/POL` 200
+
+### Catatan
+- Perubahan sesi ini **belum di-commit/push** (tunggu instruksi user).
+
+---
+
 <!-- 
 Template entri selanjutnya — salin & isi di atas baris ini:
 

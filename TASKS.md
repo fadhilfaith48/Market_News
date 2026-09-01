@@ -103,6 +103,8 @@ Diambil dari review user (29 Agustus 2026). Nomor tetap mengikuti urutan masukan
 - [x] Kolom bintang di `TickerTable` (sel "Koin" desktop + card mobile, sebelum logo)
 - [x] ~~`app/watchlist/page.tsx` — halaman terpisah~~ **DIBATALKAN (E1 Tahap 2)** → **sudah dibangun**: panel sidebar drawer global `components/watchlist/WatchlistPanel.tsx` (tombol "Watchlist" di Header, state `uiStore.watchlistOpen`), list kompak logo+kode | harga | chg% (rata kanan), highlight koin aktif, grouping kolaps "Watchlist Saya / Top Gainers / Semua Koin"; data live dari ticker store (scope 20 koin default) + link ke `/coin/{code}`; mount di `app/layout.tsx` (global)
 - [x] Toggle watchlist di halaman detail (no. 5) sinkron dengan store yang sama
+- [x] (Refactor) `lib/market.ts` — helper `getMarketTone`/`toneText` + map `TONE_TEXT` (dedup warna 3 arah antara TickerTable & WatchlistPanel); `WatchlistPanel` → `toneText(change)`; `TickerTable` → `toneText(change)`
+- [x] (UX) Panel watchlist **tutup otomatis** saat navigasi ke `/coin/{code}`; `WatchStar` diberi `p-0.5` (area klik lebih besar); panel `max-w-[85vw]`
 
 ### 4. [FITUR] Search bar di header *(dikerjakan di E1 Tahap 3)*
 - [ ] `components/layout/SearchBox.tsx` di `Header` (sebelah toggle tema)
