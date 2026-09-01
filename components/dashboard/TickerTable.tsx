@@ -8,27 +8,15 @@ import { useMarketDataContext } from "@/components/dashboard/marketDataContext";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { getCoinMeta } from "@/lib/coinMeta";
 import { formatCompact, formatPercent, formatPrice } from "@/lib/format";
+import { toneText } from "@/lib/market";
 import { useMarketStore } from "@/store/marketStore";
 import { useUIStore } from "@/store/uiStore";
 import type { TickerWS } from "@/types";
 
-type Tone = "up" | "down" | "flat";
-
-const TONE_TEXT: Record<Tone, string> = {
-  up: "text-green-600 dark:text-green-400",
-  down: "text-red-600 dark:text-red-400",
-  flat: "text-zinc-500 dark:text-zinc-400",
-};
-
-function percentTone(change: number | undefined): Tone {
-  if (change === undefined || change === 0) return "flat";
-  return change > 0 ? "up" : "down";
-}
-
 function flashTone(
   ticker: TickerWS | undefined,
   previous: number | undefined,
-): Tone {
+): "up" | "down" | "flat" {
   if (!ticker || previous === undefined) return "flat";
   if (ticker.lastPrice > previous) return "up";
   if (ticker.lastPrice < previous) return "down";
@@ -110,7 +98,6 @@ export function TickerTable() {
         {rows.map(({ symbol, ticker, previous }) => {
           const change = ticker?.priceChangePercent;
           const { code, name } = getCoinMeta(symbol);
-          const tone = percentTone(change);
           return (
             <div
               key={symbol}
@@ -131,7 +118,7 @@ export function TickerTable() {
                 <div className="tabular-nums text-sm font-semibold">
                   <FlashPrice ticker={ticker} previous={previous} />
                 </div>
-                <div className={`text-xs tabular-nums ${TONE_TEXT[tone]}`}>
+                <div className={`text-xs tabular-nums ${toneText(change)}`}>
                   {ticker ? formatPercent(change ?? 0) : "-"}
                 </div>
                 <div className="text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
@@ -156,7 +143,6 @@ export function TickerTable() {
           <tbody>
             {rows.map(({ symbol, ticker, previous }) => {
               const change = ticker?.priceChangePercent;
-              const tone = percentTone(change);
               const { code } = getCoinMeta(symbol);
               return (
                 <tr
@@ -165,17 +151,17 @@ export function TickerTable() {
                   className="cursor-pointer border-b border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800/60 dark:hover:bg-zinc-900/40"
                 >
                   <td className="px-4 py-2.5">
-<div className="flex min-w-0 items-center gap-2">
-                <WatchStar code={code} />
-                <CoinIcon symbol={symbol} size={22} />
-                <span className="font-medium">{code}</span>
-              </div>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <WatchStar code={code} />
+                      <CoinIcon symbol={symbol} size={22} />
+                      <span className="font-medium">{code}</span>
+                    </div>
                   </td>
                   <td className="px-4 py-2.5 text-right tabular-nums">
                     <FlashPrice ticker={ticker} previous={previous} />
                   </td>
                   <td
-                    className={`px-4 py-2.5 text-right tabular-nums ${TONE_TEXT[tone]}`}
+                    className={`px-4 py-2.5 text-right tabular-nums ${toneText(change)}`}
                   >
                     {ticker ? formatPercent(change ?? 0) : "-"}
                   </td>

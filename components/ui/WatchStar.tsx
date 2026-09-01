@@ -27,13 +27,18 @@ export function WatchStar({
         toggle(code);
       }}
       style={{ width: size, height: size }}
-      className={`inline-flex shrink-0 cursor-pointer select-none items-center justify-center text-base leading-none transition-colors ${
-        hydrated && watched
-          ? "text-amber-400"
-          : "text-zinc-400 hover:text-amber-400"
-      }`}
+      className="inline-flex shrink-0 cursor-pointer select-none items-center justify-center rounded p-0.5 text-base leading-none transition-colors"
     >
-      {hydrated ? (watched ? "★" : "☆") : <span aria-hidden="true" />}
+      <span
+        aria-hidden="true"
+        className={`transition-colors ${
+          hydrated && watched
+            ? "text-amber-400"
+            : "text-zinc-400 hover:text-amber-400"
+        }`}
+      >
+        {hydrated ? (watched ? "★" : "☆") : ""}
+      </span>
     </button>
   );
 }

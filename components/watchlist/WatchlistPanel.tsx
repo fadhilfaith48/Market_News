@@ -6,34 +6,25 @@ import { CoinIcon } from "@/components/ui/CoinIcon";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { getCoinMeta } from "@/lib/coinMeta";
 import { formatPercent, formatPrice } from "@/lib/format";
+import { toneText } from "@/lib/market";
 import { useMarketStore } from "@/store/marketStore";
 import { useUIStore } from "@/store/uiStore";
 import { useWatchStore } from "@/store/watchStore";
 
-type Tone = "up" | "down" | "flat";
-
-const TONE_TEXT: Record<Tone, string> = {
-  up: "text-green-600 dark:text-green-400",
-  down: "text-red-600 dark:text-red-400",
-  flat: "text-zinc-500 dark:text-zinc-400",
-};
-
-function percentTone(change: number | undefined): Tone {
-  if (change === undefined || change === 0) return "flat";
-  return change > 0 ? "up" : "down";
-}
-
 function PanelRow({ symbol, active }: { symbol: string; active: boolean }) {
   const router = useRouter();
+  const close = useUIStore((state) => state.setWatchlistOpen);
   const ticker = useMarketStore((state) => state.tickers[symbol]);
   const { code } = getCoinMeta(symbol);
   const change = ticker?.priceChangePercent;
-  const tone = percentTone(change);
 
   return (
     <button
       type="button"
-      onClick={() => router.push(`/coin/${code}`)}
+      onClick={() => {
+        close(false);
+        router.push(`/coin/${code}`);
+      }}
       className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/60 ${
         active ? "bg-zinc-100 dark:bg-zinc-800/70" : ""
       }`}
@@ -46,7 +37,7 @@ function PanelRow({ symbol, active }: { symbol: string; active: boolean }) {
         {ticker ? formatPrice(ticker.lastPrice) : "-"}
       </span>
       <span
-        className={`w-14 flex-none text-right text-[11px] tabular-nums ${TONE_TEXT[tone]}`}
+        className={`w-14 flex-none text-right text-[11px] tabular-nums ${toneText(change)}`}
       >
         {ticker ? formatPercent(change ?? 0) : "-"}
       </span>
@@ -121,7 +112,7 @@ export function WatchlistPanel() {
   return (
     <aside
       aria-label="Watchlist"
-      className="fixed inset-y-0 right-0 z-50 flex w-[300px] flex-col border-l border-zinc-200 bg-background dark:border-zinc-800"
+      className="fixed inset-y-0 right-0 z-50 flex w-[300px] max-w-[85vw] flex-col border-l border-zinc-200 bg-background dark:border-zinc-800"
     >
       <div className="flex items-center justify-between border-b border-zinc-200 px-3 py-2.5 dark:border-zinc-800">
         <h2 className="text-sm font-semibold">Watchlist</h2>
