@@ -143,13 +143,13 @@ Spek baku tercatat di [PRD.md](./PRD.md) §13 "Standar Desain UI/UX"; daftar di 
 
 Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layout & styling saja** — tanpa fitur order/trading (aplikasi tetap murni monitoring). Spek lengkap: PRD §13.9–13.12. Update ARCHITECTURE.md bila struktur komponen berubah + TASKS.md tiap bagian selesai.
 
-- **Tahap 0 — Fondasi token warna**
-  - [ ] `app/globals.css`: token semantik dark/light (`--color-page`, `--color-panel`, `--color-panel-border`, `--color-text`, `--color-muted`, `--color-up/down/flat`) → map ke Tailwind v4 (`@theme inline`); update `--shimmer-base/hover`
-- **Tahap 1 — Detail koin 2 kolom** (PRD §13.9, 13.11)
-  - [ ] `components/coin/CoinQuoteBar.tsx` — info-bar tipis: logo · kode/nama · O/H/L/C · Vol (satu baris, `tabular-nums`)
-  - [ ] `components/coin/ChartToolbar.tsx` — tab timeframe **kiri** bawah chart (tetap 7 interval: 1m/5m/15m/1h/4h/1d/1w) + **jam UTC** kanan bawah (dihitung saat render → refresh tiap tick; tanpa setInterval)
-  - [ ] `components/coin/CoinInfoPanel.tsx` — sidebar kanan sticky: harga besar + perubahan (flat = abu) · status "Live"/"Menyambung…" · "Last update at [waktu]" (dari `eventTime`) · Key Stats list label-kiri/nilai-kanan (Volume 24j, Tertinggi/Terendah 24j, Perubahan 24j; Market Cap & Supply "n/a") · Key Facts ringkas statis (dari % & volume)
-  - [ ] Rombak `CoinDetail.tsx` → `lg:grid-cols-[minmax(0,1fr)_300px]`; hapus `CoinDetailStats.tsx`; `< lg` tumpuk; pastikan ganti interval → reset candle live (`setLive(null)` + remount `key`)
+- **Tahap 0 — Fondasi token warna** ✅
+  - [x] `app/globals.css`: token semantik dark/light (`--tv-page`, `--tv-panel`, `--tv-border`, `--tv-text`, `--tv-muted`, `--tv-up/down/flat/interactive/hover/warning`) → map ke Tailwind v4 (`@theme inline`); update `--shimmer-base/hover`
+- **Tahap 1 — Detail koin 2 kolom** (PRD §13.9, 13.11) ✅
+  - [x] `components/coin/CoinQuoteBar.tsx` — info-bar tipis: logo · kode/nama · O/H/L/C · Vol (satu baris, `tabular-nums`)
+  - [x] `components/coin/ChartToolbar.tsx` — tab timeframe **kiri** bawah chart (7 interval: 1m/5m/15m/1h/4h/1d/1w) + **jam UTC** kanan bawah (render time, tanpa setInterval)
+  - [x] `components/coin/CoinInfoPanel.tsx` — sidebar kanan sticky: harga besar + perubahan · status "Live"/"Menyambung…" · "Last update at [waktu]" (dari `eventTime`) · Key Stats list (Volume 24j, Tertinggi/Terendah 24j, Perubahan 24j; Market Cap & Supply "n/a") · Key Facts ringkas (dari % & volume)
+  - [x] Rombak `CoinDetail.tsx` → `lg:grid-cols-[minmax(0,1fr)_300px]`; hapus `CoinDetailStats.tsx`; `< lg` tumpuk; ganti interval → reset candle live (`setLive(null)` + remount `key`)
 - **Tahap 2 — Watchlist jadi panel sidebar** (PRD §13.10)
   - [ ] `store/watchStore.ts` (Zustand persist `crypto-watchlist`, `toggle`) + `components/ui/WatchStar.tsx` (☆/★, `stopPropagation`)
   - [ ] Star di `TickerTable` (kolom kiri) & header `CoinDetail`

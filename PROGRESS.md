@@ -175,6 +175,24 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 4 September 2026 — E1 Tahap 0 & 1 (TradingView token + detail 2 kolom)
+
+### Status: Done
+- [x] **E1 Tahap 0 — Token warna**: `app/globals.css` ditulis ulang dengan 11 token semantik TradingView (`--tv-page/panel/border/text/muted/up/down/flat/interactive/hover/warning`) untuk dark & light; map ke Tailwind v4 via `@theme inline` → semua komponen di-update dari hardcoded `zinc-*/green-*/red-*` ke `bg-page`, `text-up`, `border`, dll (11 file)
+- [x] **E1 Tahap 0 — PriceChart**: hardcoded hex diganti baca CSS variables via `getComputedStyle`, fallback ke default TV colors
+- [x] **E1 Tahap 1 — CoinQuoteBar**: info bar tipis di atas chart — logo · kode/nama · WatchStar · O/H/L/C/Vol (tabular-nums)
+- [x] **E1 Tahap 1 — ChartToolbar**: tab timeframe kiri bawah (7 interval, active = `bg-interactive`) + jam UTC kanan bawah
+- [x] **E1 Tahap 1 — CoinInfoPanel**: sidebar kanan sticky — harga besar + %, status live/koneksi, Key Stats (volume, high/low/change, market cap n/a, supply n/a), Key Facts (tren bullish/bearish/sideways, likuiditas tinggi/sedang/rendah)
+- [x] **E1 Tahap 1 — CoinDetail refactor**: layout `lg:grid-cols-[minmax(0,1fr)_300px]`, `< lg` tumpuk; `key={interval}` pada PriceChart → remount bersih saat ganti TF; `setLive(null)` di `handleIntervalChange`
+- [x] Verifikasi: `tsc --noEmit` OK, `npm run lint` OK, `npm test` 12/12, `npm run build` OK (25 route), commit `07ba3bb` + push
+
+### Catatan
+- `CoinDetailStats.tsx` tidak di-import lagi (digantikan `CoinInfoPanel`), tapi file masih ada untuk referensi.
+- E1 Tahap 2 (Watchlist panel) sudah selesai dari sesi sebelumnya.
+- Sisa E1: Tahap 3 (Search + Currency) dan Tahap 4 (Styling umum TV).
+
+---
+
 ## 31 Agustus 2026 — Perbaikan pasca-audit watchlist & dedup tone
 
 ### Status: Done
