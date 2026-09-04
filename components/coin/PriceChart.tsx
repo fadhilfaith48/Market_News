@@ -19,6 +19,10 @@ interface PriceChartProps {
   live: LiveKline | null;
 }
 
+function getCSSVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
 function toCandleData(k: Kline | LiveKline): CandlestickData {
   return {
     time: Math.trunc(k.openTime / 1000) as UTCTimestamp,
@@ -61,9 +65,12 @@ export function PriceChart({ historical, live }: PriceChartProps) {
     const container = containerRef.current;
     if (!container) return;
 
-    const border = isDark ? "#3f3f46" : "#d4d4d8";
-    const grid = isDark ? "rgba(113,113,122,0.14)" : "rgba(113,113,122,0.16)";
-    const text = isDark ? "#a1a1aa" : "#52525b";
+    const border = getCSSVar("--tv-border") || (isDark ? "#2a2e39" : "#e3e6ea");
+    const muted = getCSSVar("--tv-muted") || "#787b86";
+    const grid = isDark ? `rgba(120,123,134,0.14)` : `rgba(120,123,134,0.16)`;
+    const text = muted || (isDark ? "#d1d4dc" : "#131722");
+    const up = getCSSVar("--tv-up") || (isDark ? "#26a69a" : "#089981");
+    const down = getCSSVar("--tv-down") || (isDark ? "#ef5350" : "#f23645");
 
     const chart = createChart(container, {
       autoSize: true,
@@ -92,12 +99,12 @@ export function PriceChart({ historical, live }: PriceChartProps) {
     });
 
     const series = chart.addSeries(CandlestickSeries, {
-      upColor: "#16a34a",
-      downColor: "#dc2626",
-      borderUpColor: "#16a34a",
-      borderDownColor: "#dc2626",
-      wickUpColor: "#16a34a",
-      wickDownColor: "#dc2626",
+      upColor: up,
+      downColor: down,
+      borderUpColor: up,
+      borderDownColor: down,
+      wickUpColor: up,
+      wickDownColor: down,
     });
 
     chartRef.current = chart;

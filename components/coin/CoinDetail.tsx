@@ -32,16 +32,16 @@ export function CoinDetail({ code }: { code: string }) {
   const change = ticker?.priceChangePercent;
   const changeClass =
     change === undefined || change === 0
-      ? "text-zinc-500 dark:text-zinc-400"
+      ? "text-flat"
       : change > 0
-        ? "text-green-600 dark:text-green-400"
-        : "text-red-600 dark:text-red-400";
+        ? "text-up"
+        : "text-down";
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6">
       <Link
         href="/"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-foreground dark:text-zinc-400"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-muted hover:text-text"
       >
         &larr; Kembali ke Dashboard
       </Link>
@@ -53,22 +53,22 @@ export function CoinDetail({ code }: { code: string }) {
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold">{code}</h1>
               <WatchStar code={code} size={18} />
-              <span className="text-sm text-zinc-500 dark:text-zinc-400">
+              <span className="text-sm text-muted">
                 {name} / USDT
               </span>
             </div>
             <span
               className={`inline-flex items-center gap-1.5 text-xs ${
                 streamOpen
-                  ? "text-green-600 dark:text-green-400"
-                  : "text-orange-500"
+                  ? "text-up"
+                  : "text-warning"
               }`}
             >
               <span
                 className={`size-1.5 rounded-full ${
                   streamOpen
-                    ? "bg-green-500"
-                    : "animate-pulse bg-orange-400"
+                    ? "bg-up"
+                    : "animate-pulse bg-warning"
                 }`}
               />
               {streamOpen ? "Grafik live" : "Menyambung ulang…"}
@@ -90,7 +90,7 @@ export function CoinDetail({ code }: { code: string }) {
 
       <CoinDetailStats ticker={ticker ?? null} />
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-4">
         <div className="flex gap-1">
           {TIMEFRAMES.map((tf) => (
             <button
@@ -99,31 +99,31 @@ export function CoinDetail({ code }: { code: string }) {
               onClick={() => setInterval(tf)}
               className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
                 interval === tf
-                  ? "bg-zinc-900 text-white dark:bg-zinc-200 dark:text-zinc-900"
-                  : "text-zinc-500 hover:bg-zinc-100 hover:text-foreground dark:text-zinc-400 dark:hover:bg-zinc-800"
+                  ? "bg-text text-page"
+                  : "text-muted hover:bg-hover hover:text-text"
               }`}
             >
               {tf.toUpperCase()}
             </button>
           ))}
         </div>
-        <span className="text-xs text-zinc-400 dark:text-zinc-500">
+        <span className="text-xs text-muted">
           Sumber: Binance
         </span>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-xl border border-zinc-200 p-2 dark:border-zinc-800">
+      <div className="mt-4 overflow-hidden rounded-xl border border-border p-2">
         {isLoading && !historical ? (
           <div className="shimmer h-96 w-full rounded-lg" />
         ) : isError || !historical || historical.length === 0 ? (
           <div className="flex h-96 flex-col items-center justify-center gap-3">
-            <div className="text-sm text-red-500">
+            <div className="text-sm text-down">
               Gagal memuat data candlestick
             </div>
             <button
               type="button"
               onClick={() => refetch()}
-              className="rounded-md border border-zinc-300 px-4 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              className="rounded-md border border-border px-4 py-1.5 text-sm font-medium hover:bg-hover"
             >
               Coba Lagi
             </button>

@@ -6,9 +6,9 @@ export function getMarketTone(change: number | undefined): MarketTone {
 }
 
 export const TONE_TEXT: Record<MarketTone, string> = {
-  up: "text-green-600 dark:text-green-400",
-  down: "text-red-600 dark:text-red-400",
-  flat: "text-zinc-500 dark:text-zinc-400",
+  up: "text-up",
+  down: "text-down",
+  flat: "text-flat",
 };
 
 export function toneText(change: number | undefined): string {

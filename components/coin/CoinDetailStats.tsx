@@ -11,9 +11,9 @@ function changeVariant(change: number | undefined): Tone {
 }
 
 const TONE_TEXT: Record<Tone, string> = {
-  up: "text-green-600 dark:text-green-400",
-  down: "text-red-600 dark:text-red-400",
-  flat: "text-zinc-500 dark:text-zinc-400",
+  up: "text-up",
+  down: "text-down",
+  flat: "text-flat",
 };
 
 function StatCard({
@@ -26,8 +26,8 @@ function StatCard({
   tone?: Tone;
 }) {
   return (
-    <div className="rounded-xl border border-zinc-200 px-4 py-3 dark:border-zinc-800">
-      <div className="text-xs text-zinc-500 dark:text-zinc-400">{label}</div>
+    <div className="rounded-xl border border-border px-4 py-3">
+      <div className="text-xs text-muted">{label}</div>
       <div className={`mt-0.5 text-lg font-semibold tabular-nums ${TONE_TEXT[tone]}`}>
         {value}
       </div>

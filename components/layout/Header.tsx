@@ -13,10 +13,10 @@ export function Header() {
   const hydrated = useHydrated();
 
   return (
-    <header className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+    <header className="flex items-center justify-between border-b border-border px-4 py-3">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <Logo className="h-6 w-6 text-green-600 dark:text-green-400" />
+          <Logo className="h-6 w-6 text-up" />
           <span className="text-lg font-bold tracking-tight">Market News</span>
         </div>
         <ConnectionBadge />
@@ -28,8 +28,8 @@ export function Header() {
           aria-pressed={watchlistOpen}
           className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
             watchlistOpen
-              ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-200 dark:bg-zinc-200 dark:text-zinc-900"
-              : "border-zinc-200 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              ? "border-text bg-text text-page"
+              : "border-border hover:bg-hover"
           }`}
         >
           {hydrated ? (watchlistOpen ? "Tutup Watchlist" : "Watchlist") : "Watchlist"}
@@ -37,7 +37,7 @@ export function Header() {
         <button
           type="button"
           onClick={toggleTheme}
-          className="rounded-md border border-zinc-200 px-3 py-1.5 text-xs font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-hover"
         >
           {hydrated ? (theme === "dark" ? "Terang" : "Gelap") : "Tema"}
         </button>

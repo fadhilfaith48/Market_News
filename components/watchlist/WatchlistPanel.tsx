@@ -25,15 +25,15 @@ function PanelRow({ symbol, active }: { symbol: string; active: boolean }) {
         close(false);
         router.push(`/coin/${code}`);
       }}
-      className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800/60 ${
-        active ? "bg-zinc-100 dark:bg-zinc-800/70" : ""
+      className={`flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-hover ${
+        active ? "bg-hover" : ""
       }`}
     >
       <CoinIcon symbol={symbol} size={18} />
       <span className="min-w-0 flex-1 truncate text-sm font-medium">
         {code}
       </span>
-      <span className="flex-none text-right text-xs tabular-nums text-foreground">
+      <span className="flex-none text-right text-xs tabular-nums text-text">
         {ticker ? formatPrice(ticker.lastPrice) : "-"}
       </span>
       <span
@@ -55,8 +55,8 @@ function PanelSection({
   activeCode: string | null;
 }) {
   return (
-    <details className="group border-b border-zinc-200 last:border-b-0 dark:border-zinc-800">
-      <summary className="flex cursor-pointer select-none list-none items-center gap-1.5 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+    <details className="group border-b border-border last:border-b-0">
+      <summary className="flex cursor-pointer select-none list-none items-center gap-1.5 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted">
         <span className="inline-block text-[9px] leading-none transition-transform group-open:rotate-90">
           ▶
         </span>
@@ -66,7 +66,7 @@ function PanelSection({
         </span>
       </summary>
       {symbols.length === 0 ? (
-        <p className="px-3 pb-3 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="px-3 pb-3 text-xs text-muted">
           Belum ada koin. Klik ikon ☆ di tabel untuk menambahkan.
         </p>
       ) : (
@@ -112,15 +112,15 @@ export function WatchlistPanel() {
   return (
     <aside
       aria-label="Watchlist"
-      className="fixed inset-y-0 right-0 z-50 flex w-[300px] max-w-[85vw] flex-col border-l border-zinc-200 bg-background dark:border-zinc-800"
+      className="fixed inset-y-0 right-0 z-50 flex w-[300px] max-w-[85vw] flex-col border-l border-border bg-panel"
     >
-      <div className="flex items-center justify-between border-b border-zinc-200 px-3 py-2.5 dark:border-zinc-800">
+      <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
         <h2 className="text-sm font-semibold">Watchlist</h2>
         <button
           type="button"
           aria-label="Tutup watchlist"
           onClick={() => close(false)}
-          className="cursor-pointer rounded px-2 py-0.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-foreground dark:hover:bg-zinc-800"
+          className="cursor-pointer rounded px-2 py-0.5 text-sm text-muted transition-colors hover:bg-hover hover:text-text"
         >
           ✕
         </button>

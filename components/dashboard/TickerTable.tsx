@@ -66,17 +66,17 @@ export function TickerTable() {
     if (connectionStatus === "offline") {
       return (
         <div className="space-y-3 px-4 py-10 text-center sm:py-14">
-          <div className="text-sm font-medium text-foreground">
+          <div className="text-sm font-medium text-text">
             Koneksi ke Binance terputus
           </div>
-          <p className="mx-auto max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mx-auto max-w-sm text-sm text-muted">
             Data real-time tidak bisa dimuat. Periksa koneksi internet Anda,
             lalu coba lagi.
           </p>
           <button
             type="button"
             onClick={retryConnection}
-            className="rounded-md border border-zinc-300 px-4 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            className="rounded-md border border-border px-4 py-1.5 text-sm font-medium hover:bg-hover"
           >
             Coba Lagi
           </button>
@@ -102,14 +102,14 @@ export function TickerTable() {
             <div
               key={symbol}
               onClick={() => openCoin(symbol)}
-              className="flex cursor-pointer items-center justify-between rounded-xl border border-zinc-200 p-3 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900/40"
+              className="flex cursor-pointer items-center justify-between rounded-xl border border-border p-3 hover:bg-hover"
             >
               <div className="flex min-w-0 items-center gap-2.5">
                 <WatchStar code={code} />
                 <CoinIcon symbol={symbol} size={28} />
                 <div className="min-w-0">
                   <div className="font-medium">{code}</div>
-                  <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                  <div className="truncate text-xs text-muted">
                     {name}
                   </div>
                 </div>
@@ -121,7 +121,7 @@ export function TickerTable() {
                 <div className={`text-xs tabular-nums ${toneText(change)}`}>
                   {ticker ? formatPercent(change ?? 0) : "-"}
                 </div>
-                <div className="text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
+                <div className="text-xs tabular-nums text-muted">
                   {ticker ? formatCompact(ticker.quoteVolume) : "-"}
                 </div>
               </div>
@@ -133,7 +133,7 @@ export function TickerTable() {
       <div className="hidden overflow-x-auto sm:block">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+            <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
               <th className="px-4 py-3">Koin</th>
               <th className="px-4 py-3 text-right">Harga</th>
               <th className="px-4 py-3 text-right">24 Jam</th>
@@ -148,7 +148,7 @@ export function TickerTable() {
                 <tr
                   key={symbol}
                   onClick={() => openCoin(symbol)}
-                  className="cursor-pointer border-b border-zinc-100 transition-colors hover:bg-zinc-50 dark:border-zinc-800/60 dark:hover:bg-zinc-900/40"
+                  className="cursor-pointer border-b border-border/50 transition-colors hover:bg-hover"
                 >
                   <td className="px-4 py-2.5">
                     <div className="flex min-w-0 items-center gap-2">
@@ -165,7 +165,7 @@ export function TickerTable() {
                   >
                     {ticker ? formatPercent(change ?? 0) : "-"}
                   </td>
-                  <td className="px-4 py-2.5 text-right tabular-nums text-zinc-600 dark:text-zinc-400">
+                  <td className="px-4 py-2.5 text-right tabular-nums text-muted">
                     {ticker ? formatCompact(ticker.quoteVolume) : "-"}
                   </td>
                 </tr>
@@ -180,10 +180,10 @@ export function TickerTable() {
 
 function TickerTableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
+    <div className="overflow-hidden rounded-xl border border-border">
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+          <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
             <th className="px-4 py-3">Koin</th>
             <th className="px-4 py-3 text-right">Harga</th>
             <th className="px-4 py-3 text-right">24 Jam</th>
@@ -192,7 +192,7 @@ function TickerTableSkeleton() {
         </thead>
         <tbody>
           {Array.from({ length: 10 }, (_, index) => (
-            <tr key={index} className="border-b border-zinc-100 dark:border-zinc-800/60">
+            <tr key={index} className="border-b border-border/50">
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
                   <div className="shimmer h-6 w-6 rounded-full" />

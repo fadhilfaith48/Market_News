@@ -33,8 +33,8 @@ export function WatchStar({
         aria-hidden="true"
         className={`transition-colors ${
           hydrated && watched
-            ? "text-amber-400"
-            : "text-zinc-400 hover:text-amber-400"
+            ? "text-warning"
+            : "text-muted hover:text-warning"
         }`}
       >
         {hydrated ? (watched ? "★" : "☆") : ""}

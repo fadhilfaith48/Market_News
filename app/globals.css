@@ -2,34 +2,72 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─── TradingView Semantic Tokens — Dark ─── */
+.dark {
+  --tv-page: #131722;
+  --tv-panel: #1e222d;
+  --tv-border: #2a2e39;
+  --tv-text: #d1d4dc;
+  --tv-muted: #787b86;
+  --tv-up: #26a69a;
+  --tv-down: #ef5350;
+  --tv-flat: #787b86;
+  --tv-interactive: #2962ff;
+  --tv-hover: #252832;
+  --tv-warning: #ff9800;
+
+  --shimmer-base: #1a1e2e;
+  --shimmer-hover: #252940;
 }
 
+/* ─── TradingView Semantic Tokens — Light ─── */
+:root {
+  --tv-page: #ffffff;
+  --tv-panel: #f8f9fd;
+  --tv-border: #e3e6ea;
+  --tv-text: #131722;
+  --tv-muted: #787b86;
+  --tv-up: #089981;
+  --tv-down: #f23645;
+  --tv-flat: #787b86;
+  --tv-interactive: #2962ff;
+  --tv-hover: #f0f1f5;
+  --tv-warning: #f7931a;
+
+  --shimmer-base: #e9ecef;
+  --shimmer-hover: #dee2e6;
+}
+
+/* ─── Tailwind v4 Theme Mapping ─── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-page: var(--tv-page);
+  --color-panel: var(--tv-panel);
+  --color-border: var(--tv-border);
+  --color-text: var(--tv-text);
+  --color-muted: var(--tv-muted);
+  --color-up: var(--tv-up);
+  --color-down: var(--tv-down);
+  --color-flat: var(--tv-flat);
+  --color-interactive: var(--tv-interactive);
+  --color-hover: var(--tv-hover);
+  --color-warning: var(--tv-warning);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas,
     "Liberation Mono", monospace;
 }
 
-.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
+/* ─── Base Styles ─── */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--tv-page);
+  color: var(--tv-text);
   font-family: var(--font-sans);
 }
 
+/* ─── Flash Animations ─── */
 @keyframes flash-up {
   from {
-    background-color: rgba(22, 163, 74, 0.4);
+    background-color: rgba(38, 166, 154, 0.35);
   }
   to {
     background-color: transparent;
@@ -38,7 +76,7 @@ body {
 
 @keyframes flash-down {
   from {
-    background-color: rgba(220, 38, 38, 0.4);
+    background-color: rgba(239, 83, 80, 0.35);
   }
   to {
     background-color: transparent;
@@ -53,6 +91,7 @@ body {
   animation: flash-down 450ms ease-out;
 }
 
+/* ─── Shimmer Skeleton ─── */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -72,14 +111,4 @@ body {
   );
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
-}
-
-:root {
-  --shimmer-base: #f4f4f5;
-  --shimmer-hover: #e4e4e7;
-}
-
-.dark {
-  --shimmer-base: #18181b;
-  --shimmer-hover: #27272a;
 }
