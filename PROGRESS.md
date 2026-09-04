@@ -193,6 +193,24 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 4 September 2026 — E1 Tahap 3 (Search bar + Currency selector)
+
+### Status: Done
+- [x] **API Route** `app/api/rate/route.ts` → proxy `open.er-api.com/v6/latest/USD` dengan `next.revalidate: 3600` (ISR 1 jam)
+- [x] **React Query hook** `hooks/useFiatRates.ts` → queryKey `["rates"]`, staleTime 1 jam, retry 2
+- [x] **Format helpers** `lib/format.ts` → `convertPrice(usd, rate)`, `formatCurrency(value, currency, rates)`, `SUPPORTED_CURRENCIES` (USD/IDR/EUR/JPY/SGD), locale-aware formatting
+- [x] **SearchBox** `components/layout/SearchBox.tsx` → filter `COIN_NAMES` + `DEFAULT_SYMBOLS`, keyboard nav (↑/↓/Enter/Escape), dropdown → `/coin/{code}`
+- [x] **CurrencySelect** `components/layout/CurrencySelect.tsx` → dropdown USD/IDR/EUR/JPY/SGD, state ke `uiStore.currency` (persist)
+- [x] **Header.tsx** → integrasi `SearchBox` + `CurrencySelect` di antara ConnectionBadge dan Watchlist button
+- [x] **Konversi harga** di: `TickerTable` (FlashPrice), `CoinInfoPanel` (harga besar + high/low), `CoinQuoteBar` (O/H/L/C), `WatchlistPanel` (PanelRow) — volume tetap USD `formatCompact`
+- [x] Verifikasi: `tsc --noEmit` OK, `npm run lint` OK, `npm test` 12/12, `npm run build` OK (26 route termasuk `/api/rate`)
+
+### Catatan
+- Sisa E1: hanya Tahap 4 (Styling umum TV) yang belum.
+- Data harga tetap dalam USD dari Binance; konversi hanya di lapisan tampilan.
+
+---
+
 ## 31 Agustus 2026 — Perbaikan pasca-audit watchlist & dedup tone
 
 ### Status: Done

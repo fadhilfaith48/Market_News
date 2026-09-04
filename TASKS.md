@@ -155,11 +155,11 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
   - [ ] Star di `TickerTable` (kolom kiri) & header `CoinDetail`
   - [ ] `components/watchlist/WatchlistPanel.tsx` — drawer kanan global (tombol "Watchlist" di Header, state `uiStore.watchlistOpen`), list kode+logo | harga | chg%, highlight koin aktif (`pathname`), grouping kolaps Watchlist Saya / Top Gainers / Semua Koin, state kosong + CTA
   - [ ] Koreksi ARCHITECTURE/TASKS/DECISIONS — halaman `/watchlist` dibatalkan
-- **Tahap 3 — Search bar + currency di Header** (menuntaskan D13.7 + Milestone D no.4 & 6)
-  - [ ] `app/api/rate/route.ts` → proxy `open.er-api.com/v6/latest/USD` (`next.revalidate: 3600`); `hooks/useFiatRates.ts` (React Query `["rates"]`)
-  - [ ] Helper `convertPrice`/`formatCurrency` di `lib/format.ts`
-  - [ ] `components/layout/SearchBox.tsx` (filter `COIN_NAMES`, debounce ±150ms, dropdown → `/coin/{kode}`, blur/Escape) + `components/layout/CurrencySelect.tsx` (USD/IDR/EUR/JPY/SGD → `uiStore.currency`) di `Header.tsx`
-  - [ ] Terapkan konversi harga di TickerTable & CoinInfoPanel (%; volume tetap USD `formatCompact`; harga tersimpan tetap USD)
+- **Tahap 3 — Search bar + currency di Header** (menuntaskan D13.7 + Milestone D no.4 & 6) ✅
+  - [x] `app/api/rate/route.ts` → proxy `open.er-api.com/v6/latest/USD` (`next.revalidate: 3600`); `hooks/useFiatRates.ts` (React Query `["rates"]`)
+  - [x] Helper `convertPrice`/`formatCurrency` di `lib/format.ts` (SUPPORTED_CURRENCIES: USD/IDR/EUR/JPY/SGD)
+  - [x] `components/layout/SearchBox.tsx` (filter `COIN_NAMES`, keyboard nav, dropdown → `/coin/{kode}`, blur/Escape) + `components/layout/CurrencySelect.tsx` (USD/IDR/EUR/JPY/SGD → `uiStore.currency`) di `Header.tsx`
+  - [x] Terapkan konversi harga di TickerTable, CoinInfoPanel, CoinQuoteBar, WatchlistPanel (% & volume tetap USD)
 - **Tahap 4 — Styling umum TV** (PRD §13.12)
   - [ ] Retune komponen lama (Header, TickerTable, ConnectionBadge, card list, skeleton) ke token TV; audit ganti shadow-heavy → border 1px
   - [ ] `PriceChart.tsx`: grid sangat samar, price scale kanan, bg transparan, warna candle dari token up/down, hapus border scale

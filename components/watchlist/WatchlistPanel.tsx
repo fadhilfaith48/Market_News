@@ -5,11 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { CoinIcon } from "@/components/ui/CoinIcon";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { getCoinMeta } from "@/lib/coinMeta";
-import { formatPercent, formatPrice } from "@/lib/format";
+import { formatCurrency, formatPercent } from "@/lib/format";
 import { toneText } from "@/lib/market";
 import { useMarketStore } from "@/store/marketStore";
 import { useUIStore } from "@/store/uiStore";
 import { useWatchStore } from "@/store/watchStore";
+import { useFiatRates } from "@/hooks/useFiatRates";
+import type { SupportedCurrency } from "@/lib/format";
 
 function PanelRow({ symbol, active }: { symbol: string; active: boolean }) {
   const router = useRouter();
@@ -17,6 +19,8 @@ function PanelRow({ symbol, active }: { symbol: string; active: boolean }) {
   const ticker = useMarketStore((state) => state.tickers[symbol]);
   const { code } = getCoinMeta(symbol);
   const change = ticker?.priceChangePercent;
+  const currency = useUIStore((state) => state.currency) as SupportedCurrency;
+  const { data: rateData } = useFiatRates();
 
   return (
     <button
@@ -34,7 +38,7 @@ function PanelRow({ symbol, active }: { symbol: string; active: boolean }) {
         {code}
       </span>
       <span className="flex-none text-right text-xs tabular-nums text-text">
-        {ticker ? formatPrice(ticker.lastPrice) : "-"}
+        {ticker ? formatCurrency(ticker.lastPrice, currency, rateData?.rates) : "-"}
       </span>
       <span
         className={`w-14 flex-none text-right text-[11px] tabular-nums ${toneText(change)}`}

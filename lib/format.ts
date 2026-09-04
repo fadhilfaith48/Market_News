@@ -47,3 +47,57 @@ export function formatPercent(value: number): string {
 export function formatTime(timestamp: number): string {
   return new Date(timestamp).toLocaleTimeString();
 }
+
+const CURRENCY_LOCALE: Record<string, string> = {
+  USD: "en-US",
+  IDR: "id-ID",
+  EUR: "de-DE",
+  JPY: "ja-JP",
+  SGD: "en-SG",
+};
+
+export const SUPPORTED_CURRENCIES = ["USD", "IDR", "EUR", "JPY", "SGD"] as const;
+export type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];
+
+export function convertPrice(usdPrice: number, rate: number): number {
+  return usdPrice * rate;
+}
+
+export function formatCurrency(
+  value: number,
+  currency: SupportedCurrency,
+  rates: Record<string, number> | undefined,
+): string {
+  if (currency === "USD") return formatPrice(value);
+  if (!rates || !rates[currency]) return formatPrice(value);
+
+  const converted = convertPrice(value, rates[currency]);
+  const locale = CURRENCY_LOCALE[currency] ?? "en-US";
+
+  if (Math.abs(converted) >= 1_000_000) {
+    return new Intl.NumberFormat(locale, {
+      notation: "compact",
+      maximumFractionDigits: 2,
+    }).format(converted);
+  }
+  if (Math.abs(converted) >= 1) {
+    return new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(converted);
+  }
+  if (Math.abs(converted) >= 0.01) {
+    return new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 4,
+      maximumFractionDigits: 4,
+    }).format(converted);
+  }
+  const decimals = Math.max(
+    2,
+    -Math.floor(Math.log10(Math.abs(converted))) + 4,
+  );
+  return new Intl.NumberFormat(locale, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(converted);
+}

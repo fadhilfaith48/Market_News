@@ -2,6 +2,8 @@
 
 import { ConnectionBadge } from "@/components/ui/ConnectionBadge";
 import { Logo } from "@/components/layout/Logo";
+import { SearchBox } from "@/components/layout/SearchBox";
+import { CurrencySelect } from "@/components/layout/CurrencySelect";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useUIStore } from "@/store/uiStore";
 
@@ -22,6 +24,8 @@ export function Header() {
         <ConnectionBadge />
       </div>
       <div className="flex items-center gap-2">
+        <SearchBox />
+        <CurrencySelect />
         <button
           type="button"
           onClick={() => setWatchlistOpen(!watchlistOpen)}

@@ -3,7 +3,10 @@
 import { CoinIcon } from "@/components/ui/CoinIcon";
 import { WatchStar } from "@/components/ui/WatchStar";
 import { getCoinMeta } from "@/lib/coinMeta";
-import { formatCompact, formatPrice } from "@/lib/format";
+import { formatCompact, formatCurrency } from "@/lib/format";
+import { useUIStore } from "@/store/uiStore";
+import { useFiatRates } from "@/hooks/useFiatRates";
+import type { SupportedCurrency } from "@/lib/format";
 import type { Kline, LiveKline, TickerWS } from "@/types";
 
 interface CoinQuoteBarProps {
@@ -27,12 +30,14 @@ export function CoinQuoteBar({
   latestKline,
 }: CoinQuoteBarProps) {
   const { code, name } = getCoinMeta(symbol);
+  const currency = useUIStore((state) => state.currency) as SupportedCurrency;
+  const { data: rateData } = useFiatRates();
 
   const k = latestKline;
-  const open = k ? formatPrice(k.open) : "-";
-  const high = k ? formatPrice(k.high) : "-";
-  const low = k ? formatPrice(k.low) : "-";
-  const close = k ? formatPrice(k.close) : "-";
+  const open = k ? formatCurrency(k.open, currency, rateData?.rates) : "-";
+  const high = k ? formatCurrency(k.high, currency, rateData?.rates) : "-";
+  const low = k ? formatCurrency(k.low, currency, rateData?.rates) : "-";
+  const close = k ? formatCurrency(k.close, currency, rateData?.rates) : "-";
   const vol = ticker ? formatCompact(ticker.quoteVolume) : "-";
 
   return (

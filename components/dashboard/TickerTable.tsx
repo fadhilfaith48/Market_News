@@ -7,10 +7,12 @@ import { WatchStar } from "@/components/ui/WatchStar";
 import { useMarketDataContext } from "@/components/dashboard/marketDataContext";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { getCoinMeta } from "@/lib/coinMeta";
-import { formatCompact, formatPercent, formatPrice } from "@/lib/format";
+import { formatCompact, formatCurrency, formatPercent } from "@/lib/format";
 import { toneText } from "@/lib/market";
 import { useMarketStore } from "@/store/marketStore";
 import { useUIStore } from "@/store/uiStore";
+import { useFiatRates } from "@/hooks/useFiatRates";
+import type { SupportedCurrency } from "@/lib/format";
 import type { TickerWS } from "@/types";
 
 function flashTone(
@@ -26,9 +28,13 @@ function flashTone(
 function FlashPrice({
   ticker,
   previous,
+  currency,
+  rates,
 }: {
   ticker: TickerWS | undefined;
   previous: number | undefined;
+  currency: SupportedCurrency;
+  rates: Record<string, number> | undefined;
 }) {
   const tone = flashTone(ticker, previous);
   const flashClass =
@@ -42,7 +48,7 @@ function FlashPrice({
       key={ticker ? `${ticker.symbol}-${ticker.lastPrice}` : "empty"}
       className={`-mx-1 inline-block rounded-sm px-1 ${flashClass}`}
     >
-      {ticker ? formatPrice(ticker.lastPrice) : "-"}
+      {ticker ? formatCurrency(ticker.lastPrice, currency, rates) : "-"}
     </span>
   );
 }
@@ -52,6 +58,8 @@ export function TickerTable() {
   const tickers = useMarketStore((state) => state.tickers);
   const previousLastPrice = useMarketStore((state) => state.previousLastPrice);
   const connectionStatus = useUIStore((state) => state.connectionStatus);
+  const currency = useUIStore((state) => state.currency) as SupportedCurrency;
+  const { data: rateData } = useFiatRates();
   const { retryConnection } = useMarketDataContext();
 
   const symbols = [...DEFAULT_SYMBOLS];
@@ -116,7 +124,7 @@ export function TickerTable() {
               </div>
               <div className="text-right">
                 <div className="tabular-nums text-sm font-semibold">
-                  <FlashPrice ticker={ticker} previous={previous} />
+                  <FlashPrice ticker={ticker} previous={previous} currency={currency} rates={rateData?.rates} />
                 </div>
                 <div className={`text-xs tabular-nums ${toneText(change)}`}>
                   {ticker ? formatPercent(change ?? 0) : "-"}
@@ -158,7 +166,7 @@ export function TickerTable() {
                     </div>
                   </td>
                   <td className="px-4 py-2.5 text-right tabular-nums">
-                    <FlashPrice ticker={ticker} previous={previous} />
+                    <FlashPrice ticker={ticker} previous={previous} currency={currency} rates={rateData?.rates} />
                   </td>
                   <td
                     className={`px-4 py-2.5 text-right tabular-nums ${toneText(change)}`}

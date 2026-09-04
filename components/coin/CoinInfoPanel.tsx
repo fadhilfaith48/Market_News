@@ -1,7 +1,10 @@
 "use client";
 
-import { formatCompact, formatPercent, formatPrice } from "@/lib/format";
+import { formatCompact, formatCurrency, formatPercent } from "@/lib/format";
 import { toneText } from "@/lib/market";
+import { useUIStore } from "@/store/uiStore";
+import { useFiatRates } from "@/hooks/useFiatRates";
+import type { SupportedCurrency } from "@/lib/format";
 import type { TickerWS } from "@/types";
 
 interface CoinInfoPanelProps {
@@ -65,6 +68,8 @@ function getKeyFacts(
 export function CoinInfoPanel({ ticker, streamOpen }: CoinInfoPanelProps) {
   const change = ticker?.priceChangePercent;
   const changeText = toneText(change);
+  const currency = useUIStore((state) => state.currency) as SupportedCurrency;
+  const { data: rateData } = useFiatRates();
 
   const lastUpdate = ticker?.eventTime
     ? new Date(ticker.eventTime).toLocaleTimeString("en-GB", {
@@ -81,7 +86,7 @@ export function CoinInfoPanel({ ticker, streamOpen }: CoinInfoPanelProps) {
     <div className="flex flex-col gap-4">
       <div>
         <div className="text-3xl font-bold tabular-nums">
-          {ticker ? formatPrice(ticker.lastPrice) : "-"}
+          {ticker ? formatCurrency(ticker.lastPrice, currency, rateData?.rates) : "-"}
         </div>
         <div className={`text-sm font-medium tabular-nums ${changeText}`}>
           {change !== undefined
@@ -113,11 +118,11 @@ export function CoinInfoPanel({ ticker, streamOpen }: CoinInfoPanelProps) {
         />
         <StatRow
           label="Tertinggi 24j"
-          value={ticker ? formatPrice(ticker.highPrice) : "-"}
+          value={ticker ? formatCurrency(ticker.highPrice, currency, rateData?.rates) : "-"}
         />
         <StatRow
           label="Terendah 24j"
-          value={ticker ? formatPrice(ticker.lowPrice) : "-"}
+          value={ticker ? formatCurrency(ticker.lowPrice, currency, rateData?.rates) : "-"}
         />
         <StatRow
           label="Perubahan 24j"
