@@ -193,6 +193,22 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 4 September 2026 — E1 Tahap 4 (Styling umum TV — batch terakhir E1)
+
+### Status: Done
+- [x] **`SearchBox.tsx`**: dropdown `shadow-lg` → border 1px `bg-panel` (hilangkan shadow-heavy per gaya TV border-1px)
+- [x] **`PriceChart.tsx`**: grid lebih samar (opacity 0.09 dark / 0.12 light), **border scale dihapus** (`borderVisible: false` pada timeScale & rightPriceScale) — hanya grid tipis + harga sumbu kanan
+- [x] **`TickerTable.tsx`**: card list mobile & skeleton container `rounded-xl` → `rounded` (kesan datar TV), border-konsisten
+- [x] **Audit warna**: sisa warna hardcoded hanya dekoratif (`CoinIcon` fallback palette multi-warna) & `text-white` di tab aktif chart (`bg-interactive`) — keduanya disengaja
+- [x] Docs: `ARCHITECTURE.md` v1.2 (hapus marker [E1]/[belum] yang sudah selesai), `DECISIONS.md` (keputusan Tahap 4), `TASKS.md` (Tahap 0–4 + Milestone D no.4/6/7 + D13.7 ditandai selesai), `PROGRESS.md`
+- [x] Verifikasi: `tsc --noEmit` OK, `npm run lint` OK, `npm test` 12/12, `npm run build` OK (26 route), dev `/` & `/coin/BTC` HTTP 200, `/api/rate` 200
+
+### Catatan
+- **E1 Tahap 0–4 SELESAI.** Milestone D (no.1–7) juga tuntas.
+- Sisa backlog non-E1 (belum diprioritaskan): Fase 3 LiveTicker marquee & top gainers/losers section terpisah, Fase 4 footer + responsive menyeluruh, Fase 5/6 testing/deploy Vercel.
+
+---
+
 ## 4 September 2026 — E1 Tahap 3 (Search bar + Currency selector)
 
 ### Status: Done

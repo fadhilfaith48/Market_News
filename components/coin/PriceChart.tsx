@@ -65,9 +65,8 @@ export function PriceChart({ historical, live }: PriceChartProps) {
     const container = containerRef.current;
     if (!container) return;
 
-    const border = getCSSVar("--tv-border") || (isDark ? "#2a2e39" : "#e3e6ea");
     const muted = getCSSVar("--tv-muted") || "#787b86";
-    const grid = isDark ? `rgba(120,123,134,0.14)` : `rgba(120,123,134,0.16)`;
+    const grid = isDark ? `rgba(120,123,134,0.09)` : `rgba(120,123,134,0.12)`;
     const text = muted || (isDark ? "#d1d4dc" : "#131722");
     const up = getCSSVar("--tv-up") || (isDark ? "#26a69a" : "#089981");
     const down = getCSSVar("--tv-down") || (isDark ? "#ef5350" : "#f23645");
@@ -87,10 +86,10 @@ export function PriceChart({ historical, live }: PriceChartProps) {
       timeScale: {
         timeVisible: true,
         secondsVisible: false,
-        borderColor: border,
+        borderVisible: false,
       },
       rightPriceScale: {
-        borderColor: border,
+        borderVisible: false,
         scaleMargins: { top: 0.1, bottom: 0.2 },
       },
       crosshair: {

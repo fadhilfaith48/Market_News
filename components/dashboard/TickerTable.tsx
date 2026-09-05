@@ -110,7 +110,7 @@ export function TickerTable() {
             <div
               key={symbol}
               onClick={() => openCoin(symbol)}
-              className="flex cursor-pointer items-center justify-between rounded-xl border border-border p-3 hover:bg-hover"
+              className="flex cursor-pointer items-center justify-between rounded border border-border/60 p-3 hover:bg-hover"
             >
               <div className="flex min-w-0 items-center gap-2.5">
                 <WatchStar code={code} />
@@ -188,7 +188,7 @@ export function TickerTable() {
 
 function TickerTableSkeleton() {
   return (
-    <div className="overflow-hidden rounded-xl border border-border">
+    <div className="overflow-hidden rounded border border-border">
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">

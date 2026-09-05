@@ -88,7 +88,7 @@ export function SearchBox() {
       {open && (
         <div
           ref={listRef}
-          className="absolute left-0 top-full z-50 mt-1 max-h-64 w-64 overflow-y-auto rounded-lg border border-border bg-panel shadow-lg"
+          className="absolute left-0 top-full z-50 mt-1 max-h-64 w-64 overflow-y-auto rounded border border-border bg-panel"
         >
           {results.length === 0 ? (
             <div className="px-3 py-2 text-xs text-muted">

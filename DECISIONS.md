@@ -155,6 +155,13 @@ Format entri baru:
 - **Trade-off:** Panel overlay/dock memakan ruang layar (bisa di-toggle); tidak ada URL khusus watchlist.
 - **Alternatif ditolak:** Halaman `/watchlist` terpisah (sudah pernah direncanakan di Milestone D no.3), panel hanya di dashboard (kurang "global").
 
+## 4 September 2026 — E1 Tahap 4: styling umum TV (shadow→border, chart scale bersih)
+- **Status:** Approved
+- **Keputusan:** Tahap akhir rombak TV: audit seluruh komponen memakai token semantik; **hilangkan shadow-heavy** (`SearchBox` dropdown `shadow-lg` → border 1px `bg-panel`); card list mobile & skeleton dashboard `rounded-xl` → `rounded` (kesan datar); **`PriceChart` tanpa border scale** (`borderVisible: false` pada time & price scale) dengan grid lebih samar (opacity 0.09/0.12) — hanya grid tipis + harga sumbu kanan yang terlihat.
+- **Alasan:** Gaya TV clean = satu garis border 1px antar panel, tanpa bayangan; chart murni berisi candle + grid tipis agar harga mudah dibaca.
+- **Trade-off:** Border-radius lebih kecil & tanpa shadow membuat panel terasa lebih "kaku" tapi konsisten dengan visual platform trading.
+- **Alternatif ditolak:** Menambah elevation/shadow untuk dropdown dan kartu (menyimpang dari gaya TV).
+
 ## 30 Agustus 2026 — Search bar + currency selector dikerjakan di sesi E1
 - **Status:** Approved (merevisi keputusan "defer ke tahap fitur")
 - **Keputusan:** `SearchBox` + `CurrencySelect` dibangun sekarang di sesi rombak **E1 Tahap 3** (di Header, global) → menuntaskan D13.7 & Milestone D no.4 & 6. Sumber kurs tetap `open.er-api.com` (keputusan 29 Agustus) via `/api/rate`.

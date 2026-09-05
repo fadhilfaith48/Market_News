@@ -2,7 +2,7 @@
 
 Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` saat selesai. Setiap selesai, catat juga di [PROGRESS.md](./PROGRESS.md).
 
-**Status umum:** Milestone A–C selesai (scaffold Next.js 16, WS ticker real-time, tabel dashboard, logo/favicon, halaman detail koin + candlestick real-time). **Sedang berjalan: Milestone D — umpan balik user** + **E1 — Rombak gaya TradingView** (layout & styling; bagian paling bawah). Lihat [PROGRESS.md](./PROGRESS.md).
+**Status umum:** Milestone A–C selesai (scaffold Next.js 16, WS ticker real-time, tabel dashboard, logo/favicon, halaman detail koin + candlestick real-time). **Milestone D** (umpan balik user) + **E1 — Rombak gaya TradingView** (Tahap 0–4) **selesai**. Lihat [PROGRESS.md](./PROGRESS.md).
 
 ---
 
@@ -106,26 +106,26 @@ Diambil dari review user (29 Agustus 2026). Nomor tetap mengikuti urutan masukan
 - [x] (Refactor) `lib/market.ts` — helper `getMarketTone`/`toneText` + map `TONE_TEXT` (dedup warna 3 arah antara TickerTable & WatchlistPanel); `WatchlistPanel` → `toneText(change)`; `TickerTable` → `toneText(change)`
 - [x] (UX) Panel watchlist **tutup otomatis** saat navigasi ke `/coin/{code}`; `WatchStar` diberi `p-0.5` (area klik lebih besar); panel `max-w-[85vw]`
 
-### 4. [FITUR] Search bar di header *(dikerjakan di E1 Tahap 3)*
-- [ ] `components/layout/SearchBox.tsx` di `Header` (sebelah toggle tema)
-- [ ] Filter client-side atas `COIN_NAMES`/kode (code terkait `coinMeta.ts`), debounce ±150ms, dropdown hasil (logo + kode + nama), klik → `/coin/{code}`; tutup saat blur/Escape
+### 4. [FITUR] Search bar di header *(dikerjakan di E1 Tahap 3)* ✅
+- [x] `components/layout/SearchBox.tsx` di `Header` (sebelah toggle tema)
+- [x] Filter client-side atas `COIN_NAMES`/kode (code terkait `coinMeta.ts`), dropdown hasil (logo + kode + nama), navigasi keyboard (↑/↓/Enter), klik → `/coin/{code}`; tutup saat blur/Escape
 - [ ] Perluasan data pencarian (skala 20 koin saat ini; jika nanti > daftar, pindah ke REST `/api/coins`)
 
 ### 5. [FITUR] Tombol watchlist di halaman detail
 - [x] Pakai `WatchStar` yang sama di header `CoinDetail` (di samping nama koin `/ USDT`), storage/fungsi sama dgn dashboard (no. 3)
 
-### 6. [FITUR] Currency selector global (konversi kurs otomatis) *(dikerjakan di E1 Tahap 3)*
-- [ ] Dropdown mata uang di `Header` (USD / IDR / EUR / JPY / SGD) → simpan ke `uiStore.currency` (state + persist sudah ada)
-- [ ] API Route `app/api/rate/route.ts` → proxy `open.er-api.com/v6/latest/USD` (gratis tanpa key, CORS terbuka; backup `exchangerate.host`), cache via `fetch({ next: { revalidate: 3600 } })`
-- [ ] `hooks/useFiatRates.ts` (React Query, queryKey `["rates"]`)
-- [ ] Helper `formatCurrency(usd, currency, rate)` di `lib/format.ts`
-- [ ] Terapkan konversi di: tabel dashboard, harga & stats halaman detail
-- [ ] Pertahankan harga tersimpan dalam USD (Binance) — konversi hanya di lapisan tampilan
+### 6. [FITUR] Currency selector global (konversi kurs otomatis) *(dikerjakan di E1 Tahap 3)* ✅
+- [x] Dropdown mata uang di `Header` (USD / IDR / EUR / JPY / SGD) → simpan ke `uiStore.currency` (state + persist sudah ada) — `components/layout/CurrencySelect.tsx`
+- [x] API Route `app/api/rate/route.ts` → proxy `open.er-api.com/v6/latest/USD` (gratis tanpa key), cache via `fetch({ next: { revalidate: 3600 } })`
+- [x] `hooks/useFiatRates.ts` (React Query, queryKey `["rates"]`)
+- [x] Helper `formatCurrency`/`convertPrice` di `lib/format.ts`
+- [x] Terapkan konversi di: tabel dashboard (TickerTable), harga & stats halaman detail (CoinInfoPanel, CoinQuoteBar), watchlist panel
+- [x] Pertahankan harga tersimpan dalam USD (Binance) — konversi hanya di lapisan tampilan
 
-### 7. [CEK] Transisi timeframe chart (1M/5M/…/1W)
-- [ ] Hapus risiko candle basi TF lama masuk chart TF baru: `setLive(null)` saat ganti interval + render `PriceChart` dengan `key={interval}` (remount bersih)
-- [ ] Skeleton/loading state saat data historis TF baru di-fetch (pastikan tidak flicker)
-- [ ] Verifikasi WS reconnect otomatis ke `{symbol}@kline_{interval}` baru (rotasi endpoint + backoff sudah ada) dan indeks status "Grafik live / Menyambung ulang…" akurat
+### 7. [CEK] Transisi timeframe chart (1M/5M/…/1W) ✅
+- [x] Hapus risiko candle basi TF lama masuk chart TF baru: `setLive(null)` saat ganti interval + render `PriceChart` dengan `key={interval}` (remount bersih)
+- [x] Skeleton/loading state saat data historis TF baru di-fetch (`keepPreviousData` + shimmer)
+- [x] Verifikasi WS reconnect otomatis ke `{symbol}@kline_{interval}` baru (rotasi endpoint + backoff sudah ada) dan indeks status "Grafik live / Menyambung ulang…" akurat
 
 ### Standar Desain / UX (konvensi umum web market crypto)
 Spek baku tercatat di [PRD.md](./PRD.md) §13 "Standar Desain UI/UX"; daftar di bawah adalah ceklis implementasinya.
@@ -136,7 +136,7 @@ Spek baku tercatat di [PRD.md](./PRD.md) §13 "Standar Desain UI/UX"; daftar di 
 - [x] **D13.4 Skeleton loading**: shimmer skeleton saat data awal sedang di-fetch (dashboard, tabel, detail) — bukan halaman kosong/spinner biasa
 - [x] **D13.5 Empty & error state**: pesan jelas + tombol **Retry** saat WS gagal connect / API down; tabel tidak dibiarkan kosong tanpa penjelasan
 - [x] **D13.6 Responsive mobile**: tabel dashboard berubah menjadi **card list per koin** (bukan horizontal-scroll) agar tetap mudah dibaca
-- [ ] **D13.7 Navbar konsisten**: search bar + currency selector muncul di SEMUA halaman (dashboard, detail koin, watchlist) — Header sudah global; komponennya **sedang dikerjakan di E1 Tahap 3** (SearchBox + CurrencySelect)
+- [x] **D13.7 Navbar konsisten**: search bar + currency selector muncul di SEMUA halaman (dashboard, detail koin, watchlist) — Header global (SearchBox + CurrencySelect, E1 Tahap 3)
 - [x] **D13.8 Number formatting**: singkatan standar K/M/B/T untuk volume/market cap besar (`formatCompact`) — sudah diterapkan, cukup verifikasi
 
 ### E1 — Rombak Gaya TradingView (Layout & Styling)
@@ -160,12 +160,12 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
   - [x] Helper `convertPrice`/`formatCurrency` di `lib/format.ts` (SUPPORTED_CURRENCIES: USD/IDR/EUR/JPY/SGD)
   - [x] `components/layout/SearchBox.tsx` (filter `COIN_NAMES`, keyboard nav, dropdown → `/coin/{kode}`, blur/Escape) + `components/layout/CurrencySelect.tsx` (USD/IDR/EUR/JPY/SGD → `uiStore.currency`) di `Header.tsx`
   - [x] Terapkan konversi harga di TickerTable, CoinInfoPanel, CoinQuoteBar, WatchlistPanel (% & volume tetap USD)
-- **Tahap 4 — Styling umum TV** (PRD §13.12)
-  - [ ] Retune komponen lama (Header, TickerTable, ConnectionBadge, card list, skeleton) ke token TV; audit ganti shadow-heavy → border 1px
-  - [ ] `PriceChart.tsx`: grid sangat samar, price scale kanan, bg transparan, warna candle dari token up/down, hapus border scale
+- **Tahap 4 — Styling umum TV** (PRD §13.12) ✅
+  - [x] Retune komponen lama (Header, TickerTable, ConnectionBadge, card list, skeleton) ke token TV; audit ganti shadow-heavy → border 1px (`SearchBox` dropdown `shadow-lg` → plain border)
+  - [x] `PriceChart.tsx`: grid sangat samar (opacity 0.09/0.12), price scale kanan, bg transparan, warna candle dari token up/down, **border scale dihapus** (`borderVisible: false`)
 - **Docs & verifikasi**
-  - [ ] Update ARCHITECTURE.md (struktur komponen baru), DECISIONS.md (keputusan E1), TASKS.md tiap tahap, PROGRESS.md
-  - [ ] Build 25 route + lint; HTTP 200 `/` & `/coin/BTC`; cek visual 2 kolom → stack, sticky sidebar, toolbar bawah + clock, toggle panel + highlight, dropdown search/currency, harga IDR
+  - [x] Update ARCHITECTURE.md (struktur komponen baru), DECISIONS.md (keputusan E1), TASKS.md tiap tahap, PROGRESS.md
+  - [x] Build 25 + lint; HTTP 200 `/` & `/coin/BTC`; cek visual 2 kolom → stack, sticky sidebar, toolbar bawah + clock, toggle panel + highlight, dropdown search/currency, harga IDR
 
 ---
 

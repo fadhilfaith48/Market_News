@@ -1,8 +1,8 @@
 # Architecture — Crypto Market Web App
 
-**Versi Dokumen:** 1.1 (30 Agustus 2026 — update struktur E1)
+**Versi Dokumen:** 1.2 (4 September 2026 — E1 Tahap 0–4 selesai: token TV, detail 2 kolom, watchlist panel, search + currency, styling umum)
 **Tanggal:** 29 Agustus 2026
-**Status:** Aktif — sebagian terimplementasi (dashboard real-time, halaman detail koin, candlestick live)
+**Status:** Aktif — fitur inti terimplementasi (dashboard real-time, detail koin 2 kolom, candlestick live, watchlist panel, search & currency)
 
 Dokumen ini menjelaskan struktur teknis proyek. AI dan developer harus membaca dokumen ini agar tetap konsisten dengan pola yang sudah ditetapkan dan **tidak membuat struktur baru yang bertentangan**. Setiap perubahan arsitektur harus tercatat di [DECISIONS.md](./DECISIONS.md).
 
@@ -62,19 +62,19 @@ market-news/
 │       ├── coins/route.ts     # Daftar koin + market cap (cache ISR)   [belum]
 │       ├── coins/[symbol]/route.ts   # Metadata/detail koin (cache)     [belum]
 │       ├── klines/route.ts    # Data historis candlestick (cache)
-│       └── rate/route.ts      # Kurs mata uang (proxy open.er-api.com, cache)  [E1]
+│       └── rate/route.ts      # Kurs mata uang (proxy open.er-api.com, cache 1 jam)
 ├── components/                # Komponen React (atomic/feature-based)
-│   ├── layout/                #   Header/Navbar (berisi SearchBox + CurrencySelect + toggle Watchlist), Footer, Logo, ThemeToggle
+│   ├── layout/                #   Header (SearchBox + CurrencySelect + toggle Watchlist), Footer, Logo, ThemeToggle
 │   ├── dashboard/             #   TickerTable, MarketDataProvider, TopGainer/TopLoser [belum]
-│   ├── coin/                  #   PriceChart, CoinQuoteBar (E1), ChartToolbar (E1), CoinInfoPanel (E1)
-│   ├── watchlist/             #   WatchlistPanel — panel sidebar drawer (E1; menggantikan halaman /watchlist)
-│   └── ui/                    #   CoinIcon, ConnectionBadge, WatchStar (E1), SearchBox (E1), CurrencySelect (E1), skeleton
+│   ├── coin/                  #   PriceChart, CoinQuoteBar, ChartToolbar, CoinInfoPanel
+│   ├── watchlist/             #   WatchlistPanel — panel sidebar drawer (menggantikan halaman /watchlist)
+│   └── ui/                    #   CoinIcon, ConnectionBadge, WatchStar, SearchBox, CurrencySelect, skeleton
 ├── hooks/                     # Custom hooks
 │   ├── useBinanceWS.ts        # Koneksi WebSocket + auto-reconnect
 │   ├── useMarketData.ts       # Query React Query untuk data pasar    [belum]
 │   ├── useKlines.ts           # Query data historis chart
 │   ├── useKlineStream.ts      # Subskripsi candle live (WS) dari store
-│   ├── useFiatRates.ts        # Kurs mata uang via /api/rate          [E1]
+│   ├── useFiatRates.ts        # Kurs mata uang via /api/rate
 │   └── useWatchlist.ts        # CRUD watchlist di Local Storage       [belum — langsung via watchStore]
 ├── lib/                       # Utilitas & logika inti
 │   ├── binance/
@@ -84,12 +84,12 @@ market-news/
 │   │   ├── types.ts           # Interface Coin, PriceHistory, Kline, dsb.
 │   │   └── coingecko.ts / binance.ts
 │   ├── storage.ts             # Wrapper Local Storage (get/set/remove)
-│   ├── format.ts              # Format harga, persentase, compact (K/M/B/T), convertPrice/formatCurrency (E1)
+│   ├── format.ts              # Format harga, persentase, compact (K/M/B/T), convertPrice/formatCurrency
 │   └── constants.ts           # Daftar symbol, URL, interval, timeframes
 ├── store/                     # Zustand stores
 │   ├── marketStore.ts         # Harga real-time gabungan (dari WS)
 │   ├── uiStore.ts             # Theme, currency, watchlistOpen, status koneksi
-│   └── watchStore.ts          # State watchlist (persist `crypto-watchlist`)  [E1]
+│   └── watchStore.ts          # State watchlist (persist `crypto-watchlist`)
 ├── types/                     # TypeScript types global
 │   └── index.ts
 ├── public/                    # Asset statis
