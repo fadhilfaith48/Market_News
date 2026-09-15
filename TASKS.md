@@ -20,7 +20,7 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [x] Inisialisasi project Next.js 16 (TypeScript + Tailwind 4 + App Router)
 - [x] Setup ESLint (prettier/lint-staged masih pending)
   - [ ] Setup Prettier / lint-staged
-- [ ] Setup Vercel deployment (import repo, preview env)
+- [x] Setup Vercel deployment (import repo, preview env) ✅ `https://market-news-roan.vercel.app/` (GitHub Integration, auto-deploy tiap push)
 - [x] Setup struktur folder sesuai ARCHITECTURE.md (app, components, hooks, lib, store, types)
 - [x] Setup konfigurasi Tailwind (dark mode class strategy via `@custom-variant`)
 - [x] Setup constants & types dasar (TickerWS, Coin, Kline, dsb.)
@@ -70,10 +70,10 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [ ] Perf audit (Lighthouse: FCP < 2s)
 
 ## Fase 6 — Deployment & Monitoring
-- [ ] Deploy ke Vercel production
-- [ ] Verifikasi WSS/HTTPS di production
-- [ ] Monitoring uptime + error tracking (Vercel Analytics / Sentry)
-- [ ] Status indikator koneksi WS di UI (online/offline/reconnecting)
+- [x] Deploy ke Vercel production ✅ `https://market-news-roan.vercel.app/` (Hobby; auto-deploy tiap push ke main)
+- [x] Verifikasi WSS/HTTPS di production ✅ HTTPS+HSTS verifikasi curl; WSS pipeline check manual di browser (badge "Live")
+- [ ] Monitoring uptime + error tracking (Vercel Analytics / Sentry) — opsional: Web Analytics gratis via dashboard; Sentry skip
+- [x] Status indikator koneksi WS di UI (online/offline/reconnecting) ✅ `ConnectionBadge`
 - [ ] Release notes / changelog Fase 1
 
 ---

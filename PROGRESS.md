@@ -193,6 +193,31 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 4 September 2026 — Batch D (Deploy & Verifikasi Produksi — Vercel)
+
+### Status: Done
+- [x] **Deploy Vercel production** — GitHub Integration; repo `fadhilfaith48/Market_News` terhubung ke Vercel, auto-deploy tiap `git push` ke `main`
+- [x] **URL produksi:** `https://market-news-roan.vercel.app/`
+- [x] **Verifikasi produksi (curl):**
+  - `/` → 200, `<title>Market News — Crypto</title>`, konten SSR ("Ringkasan Pasar", "Harga real-time dari Binance", Footer batch B)
+  - `/api/rate` → 200, JSON kurs lengkap (USD base)
+  - `/api/klines` → 200
+  - `/coin/BTC` → 200
+  - `/coin/MATIC` → **404** (dynamicParams=false sesuai desain)
+  - Server `Vercel`, HTTPS + `Strict-Transport-Security`, edge `sin1`, `Cache-Control` OK
+- [x] Verifikasi WSS/HTTPS: HTTPS terverifikasi; cek live WS manual di browser (badge "Live", LiveTicker, chart)
+
+### Catatan
+- **Auto-deploy aktif**: setiap push ke main langsung mendeploy ke produksi (preview env per PR juga tersedia di GitHub Integration).
+- Vercel Hobby (gratis) — non-komersial; fungsi serverless di-hibernate saat idle → request pertama sedikit lambat (cold start), normal.
+- Monitoring: opsional Web Analytics gratis via dashboard (tanpa kode); Sentry tidak dipasang.
+
+### Checklist batch prioritas tuntas
+- Batch A (housekeeping) ✅ · Batch B (LiveTicker/gainers-losers/Footer) ✅ · Batch C (unit test 49) ✅ · **Batch D (deploy produksi) ✅**
+- Unit test: 49/49 (7 file) · build: 26 route.
+
+---
+
 ## 4 September 2026 — Batch C (Unit test — Fase 5)
 
 ### Status: Done
