@@ -2,25 +2,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ─── TradingView Semantic Tokens — Dark ─── */
-.dark {
-  --tv-page: #131722;
-  --tv-panel: #1e222d;
-  --tv-border: #2a2e39;
-  --tv-text: #d1d4dc;
-  --tv-muted: #787b86;
-  --tv-up: #26a69a;
-  --tv-down: #ef5350;
-  --tv-flat: #787b86;
-  --tv-interactive: #2962ff;
-  --tv-hover: #252832;
-  --tv-warning: #ff9800;
-
-  --shimmer-base: #1a1e2e;
-  --shimmer-hover: #252940;
-}
-
-/* ─── TradingView Semantic Tokens — Light ─── */
+/* ─── TradingView Semantic Tokens — Light (default) ─── */
 :root {
   --tv-page: #ffffff;
   --tv-panel: #f8f9fd;
@@ -36,6 +18,26 @@
 
   --shimmer-base: #e9ecef;
   --shimmer-hover: #dee2e6;
+}
+
+/* ─── TradingView Semantic Tokens — Dark ───
+   Ditulis SETELAH :root agar `html.dark` menang cascade
+   (spesifisitas sama, urutan sumber jadi penentu). */
+.dark {
+  --tv-page: #131722;
+  --tv-panel: #1e222d;
+  --tv-border: #2a2e39;
+  --tv-text: #d1d4dc;
+  --tv-muted: #787b86;
+  --tv-up: #26a69a;
+  --tv-down: #ef5350;
+  --tv-flat: #787b86;
+  --tv-interactive: #2962ff;
+  --tv-hover: #252832;
+  --tv-warning: #ff9800;
+
+  --shimmer-base: #1a1e2e;
+  --shimmer-hover: #252940;
 }
 
 /* ─── Tailwind v4 Theme Mapping ─── */

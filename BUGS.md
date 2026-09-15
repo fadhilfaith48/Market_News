@@ -20,6 +20,16 @@ Format entri baru:
 
 ## Daftar Bug
 
+## BUG-004 — Toggle tema Gelap/Terang tidak mengubah tampilan
+- **Tanggal ditemukan:** 4 September 2026
+- **Prioritas:** High
+- **Status:** Fixed — 4 September 2026
+- **Langkah reproduce:** Buka dashboard → klik tombol "Terang"/"Gelap" di pojok kanan Header → label berubah tetapi warna halaman tetap.
+- **Penyebab:** Token salah urut di `app/globals.css`. Blok `.dark` ditulis **sebelum** `:root`. Keduanya sama-sama match `<html>` dengan spesifisitas setara `(0,1,0)`, sehingga aturan yang **belakangan** (`:root` = nilai terang) menang di elemen `<html>` dan nilai light selalu diwariskan ke seluruh halaman → class `dark` jadi tidak berefek.
+- **Dampak:** Fitur ganti tema (dark/light) tidak berfungsi; tema terkunci terang.
+- **Solusi/rancangan perbaikan:** Pindahkan blok `:root` (terang/default) ke atas dan `.dark` ke bawah agar dark menang cascade saat class aktif; tambah regression test `tests/theme.test.ts` (urutan blok + nilai `--tv-page` berbeda) dan rapikan class body `bg-background text-foreground` → `bg-page text-text`.
+- **Diperbaiki tanggal/versi:** 4 September 2026 — urutan token dibalik di `globals.css`; verifikasi compiled CSS (`.dark{}` setelah `:root{}`); `tests/theme.test.ts`; build & lint OK.
+
 ## BUG-001 — Hydration mismatch pada atribut className `<html>` (dev Turbopack)
 - **Tanggal ditemukan:** 29 Agustus 2026
 - **Prioritas:** High

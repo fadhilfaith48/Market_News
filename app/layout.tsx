@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: initialThemeScript }} />
       </head>
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body className="flex min-h-full flex-col bg-page text-text">
         <ThemeSync />
         <QueryProvider>
           <MarketDataProvider>

@@ -193,6 +193,17 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 4 September 2026 — Fix BUG-004 (toggle tema tidak berfungsi)
+
+### Status: Done
+- [x] **Akar masalah:** token `.dark` ditulis sebelum `:root` di `globals.css` → spesifisitas setara `(0,1,0)` pada `<html>`, urutan sumber membuat `:root` (terang) selalu menang → class `dark` tidak berefek.
+- [x] **Fix:** urutkan `:root` (terang) dulu, `.dark` (gelap) setelahnya (komentar penjelas ditambahkan); body `bg-background text-foreground` → `bg-page text-text`.
+- [x] **Regression test:** `tests/theme.test.ts` (`.dark` setelah `:root`, `--tv-page` berbeda).
+- [x] Verifikasi compiled CSS: `.dark{` (idx 18118) > `:root{` (idx 17857). tsc/lint OK, test 51/51, build OK.
+- [x] BUGS.md: BUG-004 dicatat sebagai Fixed.
+
+---
+
 ## 4 September 2026 — Batch D (Deploy & Verifikasi Produksi — Vercel)
 
 ### Status: Done
