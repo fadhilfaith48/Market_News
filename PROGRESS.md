@@ -193,6 +193,20 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 4 September 2026 — Batch B (LiveTicker, Top Gainers/Losers, Footer)
+
+### Status: Done
+- [x] **LiveTicker marquee** — `components/dashboard/LiveTicker.tsx`: strip harga berjalan (ikon+kode+harga+chg%) dari `marketStore` (global WS), loop mulus via CSS `translateX(-50%)` dengan konten ganda, durasi skala jumlah koin, pause saat hover, hormati `prefers-reduced-motion`
+- [x] **Top Gainers & Top Losers** — `components/dashboard/TopMovers.tsx`: 2 kartu (desktop berdampingan, mobile bertumpuk), 5 peringkat teratas/terbawah perubahan %24 jam, klik baris → `/coin/{code}`, memberi peringkat + nama koin
+- [x] **Footer** — `components/layout/Footer.tsx`: info brand, sumber data (Binance WebSocket), disclaimer, timestamp "Terakhir diperbarui" dari `marketStore.lastUpdate` (baru); mount global di `app/layout.tsx`
+- [x] **marketStore** — tambah `lastUpdate` (setiap ticker masuk) untuk timestamp footer
+- [x] Verifikasi: `tsc --noEmit` OK, `npm run lint` OK, `npm test` 12/12, `npm run build` OK (26 route)
+
+### Catatan
+- Batch B selesai (Fase 3 LiveTicker + top gainers/losers + Fase 4 footer). Sisa backlog: CoinGecko integrasi, /api/coins, responsive audit, batch C (unit test) & D (deploy).
+
+---
+
 ## 4 September 2026 — Housekeeping batch A (BUGS.md, dead code, config clean)
 
 ### Status: Done

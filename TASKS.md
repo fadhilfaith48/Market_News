@@ -34,9 +34,9 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 
 ## Fase 3 — Pengembangan Fitur Inti
 - [x] Dashboard: komponen TickerTable dasar (harga, %24h, volume) — sumber WS Binance
-- [ ] Dashboard: komponen LiveTicker (marquee harga real-time)
-- [ ] Dashboard: highlight animasi naik/turun pada perubahan harga
-- [ ] Dashboard: top gainers & top losers section
+- [x] Dashboard: komponen LiveTicker (marquee harga real-time) ✅ `components/dashboard/LiveTicker.tsx`
+- [x] Dashboard: highlight animasi naik/turun pada perubahan harga ✅ `FlashPrice` + `animate-flash-up/down` di `TickerTable.tsx`
+- [x] Dashboard: top gainers & top losers section ✅ `components/dashboard/TopMovers.tsx` (5 teratas/terbawah 24 jam)
 - [ ] Integrasi data pasar via CoinGecko (REST) + live update via Binance WS
 - [x] Halaman detail koin `/coin/[symbol]`
 - [x] Grafik candlestick interaktif dengan TradingView Lightweight Charts
@@ -56,7 +56,7 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [ ] API Route `/api/rate` untuk kurs fiat dengan cache
 - [x] Dark/light mode toggle (persist preferensi) — toggle di Header + ThemeSync + inline script anti-flicker
 - [ ] Responsive design: dashboard, detail koin, watchlist (mobile & desktop)
-- [ ] Footer: sumber data, disclaimer, timestamp "last updated"
+- [x] Footer: sumber data, disclaimer, timestamp "last updated" ✅ `components/layout/Footer.tsx` (marketStore.lastUpdate)
 
 ## Fase 5 — Testing & QA
 - [ ] Unit test: parser WS message, formatter harga, adapter data
