@@ -32,12 +32,12 @@ Format entri baru:
 ## BUG-002 — MATIC menampilkan "-" di semua kolom (simbol sudah delisting)
 - **Tanggal ditemukan:** 29 Agustus 2026
 - **Prioritas:** High
-- **Status:** Open — penyebab terverifikasi; perbaikan belum dieksekusi (terjadwal Milestone D)
+- **Status:** Fixed — 4 September 2026 (Milestone D no.1): `MATICUSDT` → `POLUSDT`
 - **Langkah reproduce:** Buka dashboard → baris "MATIC" selalu "-" di kolom Harga, 24 Jam, dan Volume.
 - **Penyebab:** `MATICUSDT` **di-delist Binance sejak 2024-09-10** (token swap 1 MATIC = 1 POL ke Polygon/Pol); sejak 2024-09-13 trading dibuka sebagai **`POLUSDT`**. Tidak ada lagi ticker WS `MATICUSDT` → `tickers[MATICUSDT]` selalu undefined.
 - **Dampak:** Satu baris mati permanen di tabel; menu detail MATIC tidak ada datanya.
 - **Solusi/rancangan perbaikan:** Ganti `MATICUSDT` → `POLUSDT` di `DEFAULT_SYMBOLS` (`lib/constants.ts`); tambah `COIN_NAMES.POL` = "Polygon (POL)" di `lib/coinMeta.ts`; cek ketersediaan logo POL (atomiclabs kemungkinan tak punya `pol.svg` → override CoinGecko `polygon-ecosystem-token`); verifikasi WS ticker + REST klines `POLUSDT` hidup via `data-stream/data-api.binance.vision`.
-- **Diperbaiki tanggal/versi:** (belum; lihat Milestone D TASKS.md)
+- **Diperbaiki tanggal/versi:** 4 September 2026 — `DEFAULT_SYMBOLS` memakai `POLUSDT`; `COIN_NAMES.POL` = "Polygon (POL)"; logo `poly.svg` (atomiclabs) hidup; `dynamicParams = false` → `/coin/MATIC` **404**; `/coin/POL` 200; unit test & build OK.
 
 ## BUG-003 — SHIB menampilkan harga "0"
 - **Tanggal ditemukan:** 29 Agustus 2026

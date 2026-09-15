@@ -193,6 +193,19 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 4 September 2026 — Housekeeping batch A (BUGS.md, dead code, config clean)
+
+### Status: Done
+- [x] **BUGS.md**: BUG-002 (MATIC) di-mark **Fixed** (4 Sept 2026) — sudah diperbaiki ke `POLUSDT` di Milestone D no.1
+- [x] **Dead code**: `components/coin/CoinDetailStats.tsx` dihapus (sudah digantikan `CoinInfoPanel`, tidak di-import lagi)
+- [x] **vitest.config.mts**: `__dirname` → `import.meta.dirname` (hapus warning Vite `configLoader: native`)
+- [x] Verifikasi: `tsc --noEmit` OK, `npm run lint` OK, `npm test` 12/12, `npm run build` OK (26 route)
+
+### Catatan
+- Batch A selesai. Berikutnya (prioritas B): Footer, LiveTicker marquee, Top Losers section.
+
+---
+
 ## 4 September 2026 — E1 Tahap 4 (Styling umum TV — batch terakhir E1)
 
 ### Status: Done
