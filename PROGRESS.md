@@ -193,6 +193,23 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 4 September 2026 — Batch C (Unit test — Fase 5)
+
+### Status: Done
+- [x] **Parser WS** — `tests/ws.test.ts`: `buildStreamUrl`/`buildKlineStreamUrl` (lowercase + `@ticker`/`@kline_{interval}`), `parseTickerMessage` (map angka, non-`24hrTicker`→null, tanpa simbol→null, string non-numerik→NaN), `parseKlineMessage` (map + kline kosong/event salah→null)
+- [x] **Store Zustand** — `tests/store.test.ts`: `marketStore` (applyTicker, previousLastPrice, lastUpdate), `watchStore` (toggle tambah/hapus, anti-duplikat)
+- [x] **coinMeta** — `tests/coinMeta.test.ts`: kode hapus `USDT`, nama resmi, override logo POL/SHIB/NEAR, fallback atomiclabs, kode asing
+- [x] **Market helper** — `tests/market.test.ts`: `getMarketTone`/`toneText` (up/down/flat)
+- [x] **Currency** — `tests/currency.test.ts`: `convertPrice`, `formatCurrency` (passthrough USD, fallback rate kosong, locale IDR/EUR/SGD, compact besar)
+- [x] **Reconnect backoff (KI-002)** — ekstrak `getReconnectDelay` di `hooks/useBinanceWS.ts` + `tests/reconnect.test.ts` (eksponensial 1s→2s→4s→8s, cap 30s)
+- [x] Verifikasi: `tsc --noEmit` OK, `npm run lint` OK, `npm test` **49/49** (7 file), `npm run build` OK (26 route)
+
+### Catatan
+- Batch C selesai. Unit test dari 12 → **49 kasus** (7 file).
+- Masih ditunda: component test (butuh @testing-library — belum di-install), simulasi putus koneksi nyata (KI-002), load test, cross-browser, aksesibilitas & Lighthouse (Fase 5); deploy Vercel (Fase 6).
+
+---
+
 ## 4 September 2026 — Batch B (LiveTicker, Top Gainers/Losers, Footer)
 
 ### Status: Done

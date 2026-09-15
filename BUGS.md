@@ -61,7 +61,7 @@ Format entri baru:
 ## Known Issue 2 — Koneksi WebSocket dapat terputus / dibatasi jaringan
 - **ID:** KI-002
 - **Prioritas:** High
-- **Status:** In Progress — auto-reconnect sudah diimplementasikan di `hooks/useBinanceWS.ts` (backoff 1s→30s), **belum diuji** pada simulasi putus koneksi nyata
+- **Status:** In Progress — auto-reconnect sudah diimplementasikan di `hooks/useBinanceWS.ts` (backoff 1s→30s), **backoff diuji unit** (`tests/reconnect.test.ts`); **simulasi putus koneksi nyata masih manual**
 - **Dampak:** Data real-time berhenti update jika koneksi ke Binance WS terputus (jaringan tidak stabil, firewall, proxy).
 - **Solusi:** Implementasi `useBinanceWS` dengan auto-reconnect (exponential backoff), indikator status koneksi di UI (online/reconnecting/offline), dan fallback ke REST polling via API Route.
 - **Todo pengujian:** Matikan internet/koneksi saat dev → pastikan status "Menyambung ulang…" lalu kembali "Live"; cek tidak ada multiple reconnect berjalan bersamaan.

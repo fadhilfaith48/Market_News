@@ -59,8 +59,9 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [x] Footer: sumber data, disclaimer, timestamp "last updated" ✅ `components/layout/Footer.tsx` (marketStore.lastUpdate)
 
 ## Fase 5 — Testing & QA
-- [ ] Unit test: parser WS message, formatter harga, adapter data
-- [ ] Unit test: store Zustand (watchlist, market store)
+- [x] Unit test: parser WS message, formatter harga ✅ (tests/ws.test.ts, format.test.ts, currency.test.ts; adapter data — ditunda karena lib/adapters belum dibangun)
+- [x] Unit test: store Zustand (watchlist, market store) ✅ (tests/store.test.ts)
+- [x] Unit test: backoff auto-reconnect ✅ (tests/reconnect.test.ts; simulasi putus koneksi nyata → still manual, lihat KI-002)
 - [ ] Component test: MarketTable, PriceChart, WatchlistButton
 - [ ] Test auto-reconnect WebSocket (simulasi putus koneksi)
 - [ ] Load test WebSocket (banyak ticker subscribe di satu halaman)

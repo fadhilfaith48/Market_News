@@ -7,8 +7,11 @@ import { buildStreamUrl, parseTickerMessage } from "@/lib/binance/ws";
 import type { CombinedStreamMessage } from "@/lib/binance/ws";
 import type { ConnectionStatus, TickerWS } from "@/types";
 
-const RECONNECT_MIN_DELAY_MS = 1_000;
 const RECONNECT_MAX_DELAY_MS = 30_000;
+
+export function getReconnectDelay(attempts: number): number {
+  return Math.min(1_000 * 2 ** attempts, RECONNECT_MAX_DELAY_MS);
+}
 
 interface UseBinanceWSOptions {
   symbols: string[];
@@ -81,10 +84,7 @@ export function useBinanceWS({
           (endpointIndexRef.current + 1) % BINANCE_WS_ENDPOINTS.length;
 
         const attempts = reconnectAttemptsRef.current;
-        const delay = Math.min(
-          RECONNECT_MIN_DELAY_MS * 2 ** attempts,
-          RECONNECT_MAX_DELAY_MS,
-        );
+        const delay = getReconnectDelay(attempts);
         reconnectAttemptsRef.current += 1;
 
         setStatus("reconnecting");
