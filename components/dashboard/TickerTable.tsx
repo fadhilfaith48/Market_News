@@ -1,17 +1,21 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { CoinIcon } from "@/components/ui/CoinIcon";
 import { WatchStar } from "@/components/ui/WatchStar";
 import { useMarketDataContext } from "@/components/dashboard/marketDataContext";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
-import { getCoinMeta } from "@/lib/coinMeta";
+import { COINGECKO_IDS, getCoinMeta } from "@/lib/coinMeta";
 import { formatCompact, formatCurrency, formatPercent } from "@/lib/format";
 import { toneText } from "@/lib/market";
+import { applyRangeFilter, sortRows } from "@/lib/sort";
+import type { RangeFilter, SortDir, SortKey } from "@/lib/sort";
 import { useMarketStore } from "@/store/marketStore";
 import { useUIStore } from "@/store/uiStore";
 import { useFiatRates } from "@/hooks/useFiatRates";
+import { useCoinMarket } from "@/hooks/useCoinMarket";
 import type { SupportedCurrency } from "@/lib/format";
 import type { TickerWS } from "@/types";
 
@@ -53,6 +57,19 @@ function FlashPrice({
   );
 }
 
+const FILTERS: { key: RangeFilter; label: string }[] = [
+  { key: "all", label: "Semua" },
+  { key: "gainers", label: "Top Gainers" },
+  { key: "losers", label: "Top Losers" },
+];
+
+const SORT_COLUMNS: { key: SortKey; label: string }[] = [
+  { key: "price", label: "Harga" },
+  { key: "change", label: "24 Jam" },
+  { key: "volume", label: "Volume" },
+  { key: "marketCap", label: "Market Cap" },
+];
+
 export function TickerTable() {
   const router = useRouter();
   const tickers = useMarketStore((state) => state.tickers);
@@ -60,15 +77,48 @@ export function TickerTable() {
   const connectionStatus = useUIStore((state) => state.connectionStatus);
   const currency = useUIStore((state) => state.currency) as SupportedCurrency;
   const { data: rateData } = useFiatRates();
+  const { data: marketData } = useCoinMarket();
   const { retryConnection } = useMarketDataContext();
 
+  const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({
+    key: "marketCap",
+    dir: "desc",
+  });
+  const [filter, setFilter] = useState<RangeFilter>("all");
+
+  const baseCodeByGeckoId = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const [code, id] of Object.entries(COINGECKO_IDS)) map[id] = code;
+    return map;
+  }, []);
+
+  const marketCapByCode = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const coin of marketData?.coins ?? []) {
+      if (typeof coin.market_cap === "number") {
+        const base = baseCodeByGeckoId[coin.id];
+        if (base) map[base] = coin.market_cap;
+      }
+    }
+    return map;
+  }, [marketData, baseCodeByGeckoId]);
+
   const symbols = [...DEFAULT_SYMBOLS];
-  const rows = symbols.map((symbol) => ({
+
+  const rawRows = symbols.map((symbol) => ({
     symbol,
     ticker: tickers[symbol],
     previous: previousLastPrice[symbol],
+    marketCap: marketCapByCode[getCoinMeta(symbol).code] ?? null,
   }));
-  const hasData = rows.some((row) => row.ticker);
+
+  const orderedRows = sortRows(
+    applyRangeFilter(rawRows, filter),
+    sort.key,
+    sort.dir,
+  );
+
+  const hasData = rawRows.some((row) => row.ticker);
 
   if (!hasData) {
     if (connectionStatus === "offline") {
@@ -100,10 +150,35 @@ export function TickerTable() {
     router.push(`/coin/${code}`);
   };
 
+  const handleSort = (key: SortKey) => {
+    setSort((prev) =>
+      prev.key === key
+        ? { key, dir: prev.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: "desc" },
+    );
+  };
+
   return (
     <div>
+      <div className="mb-3 flex flex-wrap items-center gap-1">
+        {FILTERS.map((f) => (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => setFilter(f.key)}
+            className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+              filter === f.key
+                ? "bg-interactive text-white"
+                : "text-muted hover:bg-hover hover:text-text"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 gap-2 sm:hidden">
-        {rows.map(({ symbol, ticker, previous }) => {
+        {orderedRows.map(({ symbol, ticker, previous }) => {
           const change = ticker?.priceChangePercent;
           const { code, name } = getCoinMeta(symbol);
           return (
@@ -117,14 +192,17 @@ export function TickerTable() {
                 <CoinIcon symbol={symbol} size={28} />
                 <div className="min-w-0">
                   <div className="font-medium">{code}</div>
-                  <div className="truncate text-xs text-muted">
-                    {name}
-                  </div>
+                  <div className="truncate text-xs text-muted">{name}</div>
                 </div>
               </div>
               <div className="text-right">
                 <div className="tabular-nums text-sm font-semibold">
-                  <FlashPrice ticker={ticker} previous={previous} currency={currency} rates={rateData?.rates} />
+                  <FlashPrice
+                    ticker={ticker}
+                    previous={previous}
+                    currency={currency}
+                    rates={rateData?.rates}
+                  />
                 </div>
                 <div className={`text-xs tabular-nums ${toneText(change)}`}>
                   {ticker ? formatPercent(change ?? 0) : "-"}
@@ -143,13 +221,29 @@ export function TickerTable() {
           <thead>
             <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
               <th className="px-4 py-3">Koin</th>
-              <th className="px-4 py-3 text-right">Harga</th>
-              <th className="px-4 py-3 text-right">24 Jam</th>
-              <th className="px-4 py-3 text-right">Volume (24 Jam)</th>
+              {SORT_COLUMNS.map((col) => (
+                <th key={col.key} className="px-4 py-3 text-right">
+                  <button
+                    type="button"
+                    onClick={() => handleSort(col.key)}
+                    className="inline-flex cursor-pointer items-center gap-1 uppercase tracking-wide transition-colors hover:text-text"
+                  >
+                    {col.label}
+                    <span className="text-[9px]">
+                      {sort.key === col.key
+                        ? sort.dir === "asc"
+                          ? "▲"
+                          : "▼"
+                        : "↕"}
+                    </span>
+                  </button>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ symbol, ticker, previous }) => {
+            {orderedRows.map((row) => {
+              const { symbol, ticker, previous, marketCap } = row;
               const change = ticker?.priceChangePercent;
               const { code } = getCoinMeta(symbol);
               return (
@@ -166,7 +260,12 @@ export function TickerTable() {
                     </div>
                   </td>
                   <td className="px-4 py-2.5 text-right tabular-nums">
-                    <FlashPrice ticker={ticker} previous={previous} currency={currency} rates={rateData?.rates} />
+                    <FlashPrice
+                      ticker={ticker}
+                      previous={previous}
+                      currency={currency}
+                      rates={rateData?.rates}
+                    />
                   </td>
                   <td
                     className={`px-4 py-2.5 text-right tabular-nums ${toneText(change)}`}
@@ -175,6 +274,9 @@ export function TickerTable() {
                   </td>
                   <td className="px-4 py-2.5 text-right tabular-nums text-muted">
                     {ticker ? formatCompact(ticker.quoteVolume) : "-"}
+                  </td>
+                  <td className="px-4 py-2.5 text-right tabular-nums text-muted">
+                    {marketCap ? `$${formatCompact(marketCap)}` : "-"}
                   </td>
                 </tr>
               );
