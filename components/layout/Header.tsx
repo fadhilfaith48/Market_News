@@ -15,36 +15,47 @@ export function Header() {
   const hydrated = useHydrated();
 
   return (
-    <header className="flex items-center justify-between border-b border-border px-4 py-3">
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <Logo className="h-6 w-6 text-up" />
-          <span className="text-lg font-bold tracking-tight">Market News</span>
+    <header className="border-b border-border px-4 py-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <Logo className="h-6 w-6 flex-none text-up" />
+          <span className="flex-none text-base font-bold leading-tight tracking-tight sm:text-lg">
+            Market News
+          </span>
+          <ConnectionBadge compact className="lg:hidden" />
+          <ConnectionBadge className="hidden lg:inline-flex" />
         </div>
-        <ConnectionBadge />
+        <div className="flex flex-none items-center gap-2">
+          <div className="hidden sm:block">
+            <SearchBox />
+          </div>
+          <div className="hidden sm:block">
+            <CurrencySelect />
+          </div>
+          <button
+            type="button"
+            onClick={() => setWatchlistOpen(!watchlistOpen)}
+            aria-pressed={watchlistOpen}
+            className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+              watchlistOpen
+                ? "border-text bg-text text-page"
+                : "border-border hover:bg-hover"
+            }`}
+          >
+            {hydrated ? (watchlistOpen ? "Tutup Watchlist" : "Watchlist") : "Watchlist"}
+          </button>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-hover"
+          >
+            {hydrated ? (theme === "dark" ? "Terang" : "Gelap") : "Tema"}
+          </button>
+        </div>
       </div>
-      <div className="flex items-center gap-2">
-        <SearchBox />
+      <div className="mt-2 flex items-center gap-2 sm:hidden">
+        <SearchBox fluid />
         <CurrencySelect />
-        <button
-          type="button"
-          onClick={() => setWatchlistOpen(!watchlistOpen)}
-          aria-pressed={watchlistOpen}
-          className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-            watchlistOpen
-              ? "border-text bg-text text-page"
-              : "border-border hover:bg-hover"
-          }`}
-        >
-          {hydrated ? (watchlistOpen ? "Tutup Watchlist" : "Watchlist") : "Watchlist"}
-        </button>
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-hover"
-        >
-          {hydrated ? (theme === "dark" ? "Terang" : "Gelap") : "Tema"}
-        </button>
       </div>
     </header>
   );

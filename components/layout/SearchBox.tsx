@@ -18,7 +18,7 @@ const ITEMS: SearchItem[] = DEFAULT_SYMBOLS.map((s) => {
   return { code, name: COIN_NAMES[code] ?? code, symbol: s };
 });
 
-export function SearchBox() {
+export function SearchBox({ fluid = false }: { fluid?: boolean }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -83,7 +83,9 @@ export function SearchBox() {
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onKeyDown={handleKeyDown}
-        className="w-32 rounded-md border border-border bg-panel px-2.5 py-1.5 text-xs text-text placeholder-muted outline-none transition-colors focus:border-interactive sm:w-48"
+        className={`rounded-md border border-border bg-panel px-2.5 py-1.5 text-xs text-text placeholder-muted outline-none transition-colors focus:border-interactive ${
+          fluid ? "min-w-0 w-full" : "w-32 sm:w-48"
+        }`}
       />
       {open && (
         <div
