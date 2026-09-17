@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { formatCompact, formatPercent, formatPrice } from "@/lib/format";
+import {
+  formatCompact,
+  formatPercent,
+  formatPrice,
+  formatRelativeTime,
+} from "@/lib/format";
 
 describe("formatPrice — aturan bertingkat (staircase)", () => {
   it("nilai non-finite menghasilkan tanda strip", () => {
@@ -69,5 +74,33 @@ describe("formatCompact", () => {
 
   it("non-finite → '-'", () => {
     expect(formatCompact(Number.NaN)).toBe("-");
+  });
+});
+
+describe("formatRelativeTime", () => {
+  const now = Date.parse("2026-09-17T12:00:00Z");
+
+  it("kurang dari 1 menit → 'baru saja'", () => {
+    expect(formatRelativeTime(now - 30_000, now)).toBe("baru saja");
+  });
+
+  it("menit", () => {
+    expect(formatRelativeTime(now - 5 * 60_000, now)).toBe("5 mnt lalu");
+  });
+
+  it("jam", () => {
+    expect(formatRelativeTime(now - 3 * 3_600_000, now)).toBe("3 jam lalu");
+  });
+
+  it("hari", () => {
+    expect(formatRelativeTime(now - 2 * 86_400_000, now)).toBe("2 hari lalu");
+  });
+
+  it("satu hari lebih → bulan", () => {
+    expect(formatRelativeTime(now - 40 * 86_400_000, now)).toBe("1 bln lalu");
+  });
+
+  it("timestamp di masa depan → 'baru saja'", () => {
+    expect(formatRelativeTime(now + 60_000, now)).toBe("baru saja");
   });
 });
