@@ -10,9 +10,14 @@ describe("getReconnectDelay", () => {
     expect(getReconnectDelay(3)).toBe(8_000);
   });
 
-  it("di-batasi maksimal 30 detik", () => {
-    expect(getReconnectDelay(5)).toBe(30_000);
-    expect(getReconnectDelay(10)).toBe(30_000);
-    expect(getReconnectDelay(100)).toBe(30_000);
+  it("default di-batasi maksimal 15 detik (reconnect cepat)", () => {
+    expect(getReconnectDelay(4)).toBe(15_000);
+    expect(getReconnectDelay(5)).toBe(15_000);
+    expect(getReconnectDelay(10)).toBe(15_000);
+  });
+
+  it("mendukung cap/interval berbeda lewat argumen", () => {
+    expect(getReconnectDelay(4, 30_000)).toBe(16_000);
+    expect(getReconnectDelay(5, 30_000)).toBe(30_000);
   });
 });

@@ -3,6 +3,13 @@ export const BINANCE_WS_ENDPOINTS = [
   "wss://data-stream.binance.vision:9443/stream",
 ] as const;
 
+export const WS_ENDPOINT_STORAGE_KEY = "binance-ws-endpoint";
+export const WS_CONNECT_TIMEOUT_MS = 5_000;
+export const WS_RECONNECT_MIN_DELAY_MS = 1_000;
+export const WS_RECONNECT_MAX_DELAY_MS = 15_000;
+
+export const TICKER_POLL_INTERVAL_MS = 5_000;
+
 export const DEFAULT_SYMBOLS = [
   "BTCUSDT",
   "ETHUSDT",

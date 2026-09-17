@@ -2,15 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { BINANCE_WS_ENDPOINTS } from "@/lib/constants";
+import { WS_RECONNECT_MAX_DELAY_MS, WS_RECONNECT_MIN_DELAY_MS, WS_CONNECT_TIMEOUT_MS } from "@/lib/constants";
 import { buildStreamUrl, parseTickerMessage } from "@/lib/binance/ws";
 import type { CombinedStreamMessage } from "@/lib/binance/ws";
+import { endpointIndexOf, endpointOf, loadSavedEndpoint, saveGoodEndpoint } from "@/lib/wsEndpoint";
 import type { ConnectionStatus, TickerWS } from "@/types";
 
-const RECONNECT_MAX_DELAY_MS = 30_000;
-
-export function getReconnectDelay(attempts: number): number {
-  return Math.min(1_000 * 2 ** attempts, RECONNECT_MAX_DELAY_MS);
+export function getReconnectDelay(
+  attempts: number,
+  max = WS_RECONNECT_MAX_DELAY_MS,
+): number {
+  return Math.min(WS_RECONNECT_MIN_DELAY_MS * 2 ** attempts, max);
 }
 
 interface UseBinanceWSOptions {
@@ -30,8 +32,9 @@ export function useBinanceWS({
 
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectAttemptsRef = useRef(0);
-  const endpointIndexRef = useRef(0);
+  const endpointIndexRef = useRef<number>(endpointIndexOf(loadSavedEndpoint()));
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const manualCloseRef = useRef(false);
 
   const onTickerRef = useRef(onTicker);
@@ -49,16 +52,19 @@ export function useBinanceWS({
       setStatus("connecting");
       onStatusChangeRef.current("connecting");
 
-      const endpoint =
-        BINANCE_WS_ENDPOINTS[
-          endpointIndexRef.current % BINANCE_WS_ENDPOINTS.length
-        ];
+      const endpoint = endpointOf(endpointIndexRef.current);
       const socket = new WebSocket(buildStreamUrl(endpoint, symbols));
       socketRef.current = socket;
 
+      connectTimerRef.current = setTimeout(() => {
+        if (socket.readyState === WebSocket.OPEN) return;
+        socket.close();
+      }, WS_CONNECT_TIMEOUT_MS);
+
       socket.onopen = () => {
+        if (connectTimerRef.current) clearTimeout(connectTimerRef.current);
         reconnectAttemptsRef.current = 0;
-        endpointIndexRef.current = 0;
+        saveGoodEndpoint(endpoint);
         setStatus("online");
         onStatusChangeRef.current("online");
       };
@@ -79,9 +85,9 @@ export function useBinanceWS({
 
       socket.onclose = () => {
         if (manualCloseRef.current) return;
+        if (connectTimerRef.current) clearTimeout(connectTimerRef.current);
 
-        endpointIndexRef.current =
-          (endpointIndexRef.current + 1) % BINANCE_WS_ENDPOINTS.length;
+        endpointIndexRef.current += 1;
 
         const attempts = reconnectAttemptsRef.current;
         const delay = getReconnectDelay(attempts);
@@ -99,6 +105,7 @@ export function useBinanceWS({
     return () => {
       manualCloseRef.current = true;
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+      if (connectTimerRef.current) clearTimeout(connectTimerRef.current);
       socketRef.current?.close();
       setStatus("offline");
       onStatusChangeRef.current("offline");

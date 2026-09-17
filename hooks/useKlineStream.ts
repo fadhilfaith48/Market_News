@@ -4,11 +4,18 @@ import { useEffect, useRef, useState } from "react";
 
 import { buildKlineStreamUrl, parseKlineMessage } from "@/lib/binance/ws";
 import type { CombinedStreamMessage, RawKlineMessage } from "@/lib/binance/ws";
-import { BINANCE_WS_ENDPOINTS } from "@/lib/constants";
+import {
+  WS_CONNECT_TIMEOUT_MS,
+  WS_RECONNECT_MAX_DELAY_MS,
+  WS_RECONNECT_MIN_DELAY_MS,
+} from "@/lib/constants";
+import {
+  endpointIndexOf,
+  endpointOf,
+  loadSavedEndpoint,
+  saveGoodEndpoint,
+} from "@/lib/wsEndpoint";
 import type { LiveKline } from "@/types";
-
-const RECONNECT_MIN_DELAY_MS = 1_000;
-const RECONNECT_MAX_DELAY_MS = 30_000;
 
 export function useKlineStream(
   symbol: string,
@@ -18,9 +25,10 @@ export function useKlineStream(
   const [open, setOpen] = useState(false);
 
   const socketRef = useRef<WebSocket | null>(null);
-  const endpointIndexRef = useRef(0);
+  const endpointIndexRef = useRef<number>(endpointIndexOf(loadSavedEndpoint()));
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const manualCloseRef = useRef(false);
 
   const onCandleRef = useRef(onCandle);
@@ -34,18 +42,21 @@ export function useKlineStream(
       manualCloseRef.current = false;
       setOpen(false);
 
-      const endpoint =
-        BINANCE_WS_ENDPOINTS[
-          endpointIndexRef.current % BINANCE_WS_ENDPOINTS.length
-        ];
+      const endpoint = endpointOf(endpointIndexRef.current);
       const socket = new WebSocket(
         buildKlineStreamUrl(endpoint, symbol, interval),
       );
       socketRef.current = socket;
 
+      connectTimerRef.current = setTimeout(() => {
+        if (socket.readyState === WebSocket.OPEN) return;
+        socket.close();
+      }, WS_CONNECT_TIMEOUT_MS);
+
       socket.onopen = () => {
+        if (connectTimerRef.current) clearTimeout(connectTimerRef.current);
         reconnectAttemptsRef.current = 0;
-        endpointIndexRef.current = 0;
+        saveGoodEndpoint(endpoint);
         setOpen(true);
       };
 
@@ -69,14 +80,14 @@ export function useKlineStream(
 
       socket.onclose = () => {
         if (manualCloseRef.current) return;
+        if (connectTimerRef.current) clearTimeout(connectTimerRef.current);
 
-        endpointIndexRef.current =
-          (endpointIndexRef.current + 1) % BINANCE_WS_ENDPOINTS.length;
+        endpointIndexRef.current += 1;
 
         const attempts = reconnectAttemptsRef.current;
         const delay = Math.min(
-          RECONNECT_MIN_DELAY_MS * 2 ** attempts,
-          RECONNECT_MAX_DELAY_MS,
+          WS_RECONNECT_MIN_DELAY_MS * 2 ** attempts,
+          WS_RECONNECT_MAX_DELAY_MS,
         );
         reconnectAttemptsRef.current += 1;
 
@@ -90,6 +101,7 @@ export function useKlineStream(
     return () => {
       manualCloseRef.current = true;
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+      if (connectTimerRef.current) clearTimeout(connectTimerRef.current);
       socketRef.current?.close();
       setOpen(false);
     };
