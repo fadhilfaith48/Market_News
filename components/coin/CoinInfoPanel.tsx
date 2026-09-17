@@ -4,10 +4,13 @@ import { formatCompact, formatCurrency, formatPercent } from "@/lib/format";
 import { toneText } from "@/lib/market";
 import { useUIStore } from "@/store/uiStore";
 import { useFiatRates } from "@/hooks/useFiatRates";
+import { useCoinMarket } from "@/hooks/useCoinMarket";
+import { getCoinGeckoId } from "@/lib/coinMeta";
 import type { SupportedCurrency } from "@/lib/format";
 import type { TickerWS } from "@/types";
 
 interface CoinInfoPanelProps {
+  code: string;
   ticker: TickerWS | null;
   streamOpen: boolean;
 }
@@ -65,11 +68,20 @@ function getKeyFacts(
   return facts;
 }
 
-export function CoinInfoPanel({ ticker, streamOpen }: CoinInfoPanelProps) {
+export function CoinInfoPanel({ code, ticker, streamOpen }: CoinInfoPanelProps) {
   const change = ticker?.priceChangePercent;
   const changeText = toneText(change);
   const currency = useUIStore((state) => state.currency) as SupportedCurrency;
   const { data: rateData } = useFiatRates();
+  const { data: marketData } = useCoinMarket();
+
+  const coin = getCoinGeckoId(code)
+    ? marketData?.coins.find((c) => c.id === getCoinGeckoId(code))
+    : undefined;
+
+  const marketCap = coin?.market_cap ?? null;
+  const supply =
+    coin?.circulating_supply ?? coin?.total_supply ?? coin?.max_supply ?? null;
 
   const lastUpdate = ticker?.eventTime
     ? new Date(ticker.eventTime).toLocaleTimeString("en-GB", {
@@ -129,8 +141,15 @@ export function CoinInfoPanel({ ticker, streamOpen }: CoinInfoPanelProps) {
           value={ticker ? formatPercent(change ?? 0) : "-"}
           tone={changeText}
         />
-        <StatRow label="Market Cap" value="n/a" />
-        <StatRow label="Supply" value="n/a" />
+        <StatRow label="Market Cap" value={marketCap ? `$${formatCompact(marketCap)}` : "n/a"} />
+        <StatRow
+          label="Supply"
+          value={
+            supply
+              ? `${formatCompact(supply)} ${code}`
+              : "n/a"
+          }
+        />
       </div>
 
       {keyFacts.length > 0 && (

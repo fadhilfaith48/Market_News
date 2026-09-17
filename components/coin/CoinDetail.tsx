@@ -87,7 +87,7 @@ export function CoinDetail({ code }: { code: string }) {
         {/* Right column — Info Panel */}
         <div className="mt-4 border-t border-border pt-4 lg:mt-0 lg:border-t-0 lg:border-l lg:border-border lg:pl-4 lg:pt-0">
           <div className="lg:sticky lg:top-4">
-            <CoinInfoPanel ticker={ticker ?? null} streamOpen={streamOpen} />
+            <CoinInfoPanel code={code} ticker={ticker ?? null} streamOpen={streamOpen} />
           </div>
         </div>
       </div>

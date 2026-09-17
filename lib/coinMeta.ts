@@ -7,6 +7,33 @@ const LOGO_OVERRIDES: Record<string, string> = {
   POL: `${ICON_BASE}/poly.svg`,
 };
 
+export const COINGECKO_IDS: Record<string, string> = {
+  BTC: "bitcoin",
+  ETH: "ethereum",
+  BNB: "binancecoin",
+  SOL: "solana",
+  XRP: "ripple",
+  ADA: "cardano",
+  DOGE: "dogecoin",
+  AVAX: "avalanche-2",
+  LINK: "chainlink",
+  POL: "polygon-ecosystem-token",
+  DOT: "polkadot",
+  LTC: "litecoin",
+  UNI: "uniswap",
+  SHIB: "shiba-inu",
+  TRX: "tron",
+  ATOM: "cosmos",
+  NEAR: "near",
+  FIL: "filecoin",
+  ALGO: "algorand",
+  VET: "vechain",
+};
+
+export function getCoinGeckoId(code: string): string | undefined {
+  return COINGECKO_IDS[code];
+}
+
 export const COIN_NAMES: Record<string, string> = {
   BTC: "Bitcoin",
   ETH: "Ethereum",

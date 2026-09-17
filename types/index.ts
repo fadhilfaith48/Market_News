@@ -35,6 +35,19 @@ export interface Kline {
   volume: number;
 }
 
+export interface CoinMarketData {
+  id: string;
+  symbol: string;
+  name: string;
+  image?: string;
+  market_cap?: number | null;
+  market_cap_rank?: number | null;
+  circulating_supply?: number | null;
+  total_supply?: number | null;
+  max_supply?: number | null;
+  total_volume?: number | null;
+}
+
 export interface LiveKline {
   symbol: string;
   interval: string;
