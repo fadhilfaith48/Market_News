@@ -22,8 +22,7 @@ export function Header() {
           <span className="flex-none text-base font-bold leading-tight tracking-tight sm:text-lg">
             Market News
           </span>
-          <ConnectionBadge compact className="lg:hidden" />
-          <ConnectionBadge className="hidden lg:inline-flex" />
+          <ConnectionBadge className="flex-none" />
         </div>
         <div className="flex flex-none items-center gap-2">
           <div className="hidden sm:block">
