@@ -37,13 +37,13 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [x] Dashboard: komponen LiveTicker (marquee harga real-time) ✅ `components/dashboard/LiveTicker.tsx`
 - [x] Dashboard: highlight animasi naik/turun pada perubahan harga ✅ `FlashPrice` + `animate-flash-up/down` di `TickerTable.tsx`
 - [x] Dashboard: top gainers & top losers section ✅ `components/dashboard/TopMovers.tsx` (5 teratas/terbawah 24 jam)
-- [ ] Integrasi data pasar via CoinGecko (REST) + live update via Binance WS
+- [x] Integrasi data pasar via CoinGecko (REST) ✅ market cap & supply via `/api/coins` + `useCoinMarket` (17 Sep 2026, scope 20 koin, cache 300s) + live update via Binance WS
 - [x] Halaman detail koin `/coin/[symbol]`
 - [x] Grafik candlestick interaktif dengan TradingView Lightweight Charts
 - [x] Penggabungan data historis (REST) + live update (WS) dalam satu chart
 - [x] Timeframe switcher (1m, 5m, 15m, 1h, 4h, 1d, 1w)
-- [x] Stats card detail koin (high/low 24h, volume; market cap & supply masih nanti)
-- [ ] Loading skeleton & error state di seluruh halaman
+- [x] Stats card detail koin (high/low 24h, volume; market cap & supply ✅ 17 Sep 2026)
+- [x] Loading skeleton & error state di seluruh halaman ✅ skeleton shimmer + error/Retry (dashboard & detail) + global `error.tsx`/`loading.tsx`/`not-found.tsx` (17 Sep 2026)
 
 ## Fase 4 — Fitur Tambahan
 > Item watchlist, search bar, dan konversi mata uang di bawah ditindaklanjuti secara eksplisit di **Milestone D** (bagian bawah) sesuai umpan balik user.
@@ -51,7 +51,7 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [ ] Watchlist: store lokal (Zustand persist → Local Storage)
 - [ ] Watchlist: halaman khusus menampilkan koin favorit dengan data real-time
 - [ ] Search bar + autocomplete (debounce + client-side filtering)
-- [ ] Filter koin: top gainers, top losers, market cap tertinggi
+- [x] Filter koin: top gainers, top losers, market cap tertinggi ✅ sort & filter di tabel dashboard (`lib/sort.ts` + pill Semua/Gainers/Losers + kolom Market Cap, 17 Sep 2026)
 - [ ] Konversi mata uang (USD/IDR/dll) — dropdown di navbar
 - [ ] API Route `/api/rate` untuk kurs fiat dengan cache
 - [x] Dark/light mode toggle (persist preferensi) — toggle di Header + ThemeSync + inline script anti-flicker
@@ -73,7 +73,8 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [x] Deploy ke Vercel production ✅ `https://market-news-roan.vercel.app/` (Hobby; auto-deploy tiap push ke main)
 - [x] Verifikasi WSS/HTTPS di production ✅ HTTPS+HSTS verifikasi curl; WSS pipeline check manual di browser (badge "Live")
 - [ ] Monitoring uptime + error tracking (Vercel Analytics / Sentry) — opsional: Web Analytics gratis via dashboard; Sentry skip
-- [x] Status indikator koneksi WS di UI (online/offline/reconnecting) ✅ `ConnectionBadge`
+- [x] Status indikator koneksi WS di UI (online/offline/reconnecting) ✅ `ConnectionBadge` + fallback REST polling (`/api/tickers` + `useTickerPolling`, 17 Sep 2026) — indikator "· REST" saat WS offline
+- [x] Reliability WS: timeout connect 5s + remember endpoint + backoff 1s→15s ✅ Paket A (17 Sep 2026, lihat DECISIONS/PROGRESS)
 - [ ] Release notes / changelog Fase 1
 
 ---

@@ -170,6 +170,44 @@ Format entri baru:
 
 ---
 
+## 17 September 2026 — Market Cap & Supply dari CoinGecko (proxy + cache, scope 20 koin)
+- **Status:** Approved
+- **Keputusan:** Tambah `/api/coins` (proxy `api.coingecko.com/api/v3/coins/markets` untuk 20 koin, `vs_currency=usd`, cache `next.revalidate: 300`) + hook `useCoinMarket` (React Query). `CoinInfoPanel` menampilkan **Market Cap** & **Supply** (circulating, fallback total/max) dari data ini — menggantikan placeholder "n/a". Market Cap ditampilkan dalam **USD** (konsisten dengan keputusan volume tetap USD), Supply `formatCompact` + kode koin.
+- **Alasan:** PRD Fase 3 "Integrasi data pasar via CoinGecko" + melengkapi Key Stats detail; REST wajib via API Route (pola serverless yang sudah ditetapkan; `api.binance.com` diblokir di jaringan dev).
+- **Trade-off:** Batas rate-limit CoinGecko gratis → cache 300 detik; bila API down/tidak konsisten, UI fallback "n/a" (tidak crash). Data maket cap bukan real-time (refresh ~5 menit).
+- **Alternatif ditolak:** Fetch CoinGecko dari client (expose rate-limit/CORS), menambah koin >20 sekarang (ditunda — commit berikutnya).
+
+## 17 September 2026 — Sort & filter tabel dashboard
+- **Status:** Approved
+- **Keputusan:** `lib/sort.ts` berisi helper pure `sortRows(rows, key, dir)` (key: price/change/volume/marketCap) & `applyRangeFilter(rows, filter)` (filter: all/gainers/losers). Tabel dashboard memakai keduanya: header kolom bisa diklik untuk sort (▲/▼), pill filter "Semua / Top Gainers / Top Losers", kolom **Market Cap** baru (dari `/api/coins`). Default sort = market cap desc. Berlaku juga untuk card list mobile (urutan saja, tanpa kolom MCap).
+- **Alasan:** PRD §4.4 (filter & sort); menuntaskan kategori "market cap tertinggi / top gainers / losers" langsung di tabel.
+- **Trade-off:** Dua jalur render (card & tabel) berbagi urutan yang sama; state sort/filter lokal per halaman (tidak di-persist).
+- **Alternatif ditolak:** Memindahkan filter ke URL query (belum perlu), library tabel pihak ketiga (berat untuk kebutuhan kecil).
+
+## 17 September 2026 — Error boundary, loading, & not-found global
+- **Status:** Approved
+- **Keputusan:** Tambah `app/error.tsx` (client, prop `retry` sesuai doc Next 16), `app/loading.tsx` (shimmer), `app/not-found.tsx` (404 TV-styled + CTA). `/coin/{kode}?` tak dikenal **tetap memakai `dynamicParams = false`** (HTTP 404 terverifikasi) dengan UI dari `app/not-found.tsx` — halaman `app/coin/[code]/not-found.tsx` **dibatalkan** karena segment not-found hanya terpakai saat `notFound()` dilempar di render, dan itu menghasilkan **HTTP 200** pada halaman dinamis ber-streaming (lihat BUG-005).
+- **Alasan:** Menaikkan kualitas empty/error state (D13.5) selaras gaya TradingView; menjaga status 404 yang benar untuk SEO.
+- **Trade-off:** Pesan 404 untuk koin tak dikenal bersifat generik ("Halaman tidak ditemukan"), bukan khusus koin.
+
+---
+
+## 17 September 2026 — Harden koneksi WS: timeout 5s + remember endpoint + backoff 1s→15s
+- **Status:** Approved
+- **Keputusan:** Pengganti keputusan reconnect 29 Agustus (backoff 1s→30s, reset index ke 0 saat `open`): connect WS diberi **timeout 5s** (`WS_CONNECT_TIMEOUT_MS`) — jika belum `onopen`, socket ditutup → rotasi endpoint; mulai dari **endpoint tersimpan** (`lib/wsEndpoint.ts`, localStorage key `binance-ws-endpoint`); endpoint yang sukses `onopen` **disimpan ulang**; index endpoint **tidak di-reset ke 0** saat open (rotasi lanjut setelah kegagalan); backoff menjadi `min(1000ms * 2^attempts, 15s)` (`WS_RECONNECT_MAX_DELAY_MS`, `getReconnectDelay(attempts, max?)` di-export). Berlaku sama untuk `useBinanceWS` (ticker) & `useKlineStream` (chart).
+- **Alasan:** Pengukuran 17/09 — kedua endpoint `stream.binance.com` & `data-stream.binance.vision` **hang 15s** di jaringan dev (http 000) dan koneksi "Menghubungkan…" berjalan sangat lama. Timeout 5s membuat kegagalan terdeteksi cepat; menyimpan endpoint yang berhasil menghindari mencoba endpoint mati berulang; backoff maks 15s mempercepat pemulihan saat jaringan kembali.
+- **Trade-off:** Percobaan tiap endpoint tetap serial (satu gagal → coba lain); cap 15s lebih agresif → risk more frequent reconnect per receiver yang benar-benar down (acceptable mengingat fallback REST sudah ada).
+- **Alternatif ditolak:** Timeout di tingkat browser sudah ada tapi tak terlihat; menunggu `close` alami tanpa timeout membuat UI "Menghubungkan…" bertahan sangat lama.
+
+## 17 September 2026 — Fallback REST polling 5s saat WS offline (Paket B)
+- **Status:** Approved
+- **Keputusan:** Tambah `/api/tickers` (proxy `data-api.binance.vision/api/v3/ticker/24hr?symbols=[20 koin]`, `next.revalidate: 5`, **timeout AbortController 6s** agar gagal-cepat, validasi respons array) + `parseTickersRest` di `lib/binance/ws.ts`. `hooks/useTickerPolling.ts` (React Query, `enabled` + `refetchInterval` **hanya saat `connectionStatus !== "online"`**, interval `TICKER_POLL_INTERVAL_MS` 5s) meng-apply snapshot ke `marketStore` yang sama dan menandai `uiStore.dataSource = "rest"` → `ConnectionBadge` menampilkan "· REST". Polling berhenti otomatis dan `dataSource` kembali `"ws"` begitu WS online.
+- **Alasan:** Memenuhi NFR reliability + keputusan lama "fallback REST polling jika WS gagal"; di jaringan yang memblokir WS Binance, halaman tetap menampilkan data 24j yang segar (refresh 5 detik) alih-alih "Menghubungkan…" tanpa akhir.
+- **Trade-off:** Saat fallback aktif, update bukan real-time (5 detik) dan indikator "· REST" ditampilkan; REST Binance **memakai nama field verbose** (`symbol`/`lastPrice`/…) — tidak sama dengan format singkat WS (`s`/`c`/…) — parsing harus terpisah (temuan debug 17/09).
+- **Alternatif ditolak:** Polling jalur paralel terus-menerus (boros), polling ke `/api/klines` sebagai ticker (tidak pas skema harga), keep polling saat WS online (duplikasi data).
+
+---
+
 ## Keputusan yang Pernah Dibahas & Ditutup
 - Backend Express/Fastify untuk WebSocket server → **ditolak** (lihat keputusan #1).
 - Use local state (useState) saja untuk data real-time → **diganti** Zustand + marketStore untuk berbagi antar halaman.

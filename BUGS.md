@@ -59,6 +59,15 @@ Format entri baru:
 - **Solusi/rancangan perbaikan:** `formatPrice` aturan bertingkat (staircase): `≥ 1` → 2 desimal; `< 1 && ≥ 0.01` → 4 desimal; `< 0.01` → hingga digit signifikan pertama non-nol (gaya CoinMarketCap, mis. `0.00001234`); `≥ 1000` → compact. Berlaku di tabel + detail + stats. Tambah unit test rentang: 0, < 0.01, 0.01–1, ≥ 1, ≥ 1000, NaN.
 - **Diperbaiki tanggal/versi:** 29 Agustus 2026 — `lib/format.ts` (`formatPrice` staircase + `formatMicroPrice`); verifikasi build & lint lolos. Unit test formatter masih ditunda (Fase 5).
 
+## BUG-005 — `notFound()` di halaman dinamis menghasilkan HTTP 200 (bukan 404)
+- **Tanggal ditemukan:** 17 September 2026
+- **Prioritas:** Low
+- **Status:** Won't Fix (keputusan desain) — `dynamicParams = false` dipertahankan
+- **Langkah reproduce:** Ubah `/coin/[code]` ke `dynamicParams` default lalu panggil `notFound()` untuk kode tak dikenal (`/coin/MATIC`) → UI not-found tampil tetapi status HTTP **200** (respons streamed).
+- **Dampak:** Mesin pencari/API tidak mendapat kode 404 → status tidak benar untuk URL tak dikenal.
+- **Solusi/rancangan perbaikan:** Pertahankan `dynamicParams = false` (halaman `/coin/{kode}` hanya untuk 20 koin yang di-generate → kode lain 404 di level routing). Halaman `app/coin/[code]/not-found.tsx` dibatalkan (segment not-found tak terpakai); UI 404 memakai `app/not-found.tsx` global.
+- **Diperbaiki tanggal/versi:** 17 September 2026 — dikembalikan ke `dynamicParams = false`; verifikasi `/coin/MATIC` → 404.
+
 ## Known Issues / Risiko yang Dipantau (dari perencanaan)
 
 ## Known Issue 1 — Watchlist & preferensi tidak tersinkron antar device
@@ -71,9 +80,10 @@ Format entri baru:
 ## Known Issue 2 — Koneksi WebSocket dapat terputus / dibatasi jaringan
 - **ID:** KI-002
 - **Prioritas:** High
-- **Status:** In Progress — auto-reconnect sudah diimplementasikan di `hooks/useBinanceWS.ts` (backoff 1s→30s), **backoff diuji unit** (`tests/reconnect.test.ts`); **simulasi putus koneksi nyata masih manual**
+- **Status:** In Progress — lihat entri PROGRESS.md 17/09/2026 (Paket A+B)
 - **Dampak:** Data real-time berhenti update jika koneksi ke Binance WS terputus (jaringan tidak stabil, firewall, proxy).
 - **Solusi:** Implementasi `useBinanceWS` dengan auto-reconnect (exponential backoff), indikator status koneksi di UI (online/reconnecting/offline), dan fallback ke REST polling via API Route.
+- **Update 17/09/2026:** Paket A — connect timeout **5s** (`WS_CONNECT_TIMEOUT_MS`), mulai dari endpoint tersimpan (`lib/wsEndpoint.ts`), endpoint sukses diingat (`localStorage "binance-ws-endpoint"`), tidak reset index saat `onopen`, backoff dipercepat **1s→15s** (`WS_RECONNECT_MAX_DELAY_MS`, `getReconnectDelay` cap default baru; `tests/reconnect.test.ts` di-update). Paket B — fallback polling REST **5s** (`TICKER_POLL_INTERVAL_MS`) via `app/api/tickers/route.ts` (proxy `data-api.binance.vision/api/v3/ticker/24hr`, field verbose, `next.revalidate: 5`, timeout 6s, `parseTickersRest` di `lib/binance/ws.ts`) saat WS bukan `online`, di-apply ke `marketStore` + indikator "· REST" di `ConnectionBadge` (state `dataSource` di `uiStore`). Catatan: REST Binance memakai **nama field penjang** (`symbol`/`lastPrice`/…), bukan kode singkat seperti WS (`s`/`c`/…) — mahal habits kalau menyalin format WS ke REST (sudah difix & diuji `tests/rest.test.ts`). Verifikasi penuh di production (Vercel) masih menunggu push (Binance diblokir di jaringan dev).
 - **Todo pengujian:** Matikan internet/koneksi saat dev → pastikan status "Menyambung ulang…" lalu kembali "Live"; cek tidak ada multiple reconnect berjalan bersamaan.
 
 ## Known Issue 3 — Rate limit / downtime API pihak ketiga (Binance/CoinGecko)
@@ -83,6 +93,7 @@ Format entri baru:
 - **Dampak:** Jika provider rate-limit atau down, data real-time/historis terhenti atau gagal fetch.
 - **Solusi:** Caching ISR/revalidate pada API Route; fallback provider (CoinCap sebagai backup CoinGecko); adapter pattern agar mudah beralih; tampilkan timestamp "last updated" + sumber data.
 - **Update 29/08/2026:** Terbukti jaringan user memblokir `stream.binance.com` & `api.binance.com` (WS → ERROR, REST → GAGAL). Endpoint `data-stream.binance.vision` jalan → fallback multi-endpoint WS sudah diimplementasikan. REST Binance ke depan via API Route (serverless), bukan dari client.
+- **Update 17/09/2026:** `/api/coins` (proxy CoinGecko `coins/markets`) sudah dibangun — terverifikasi 200 di dev (`api.coingecko.com` tidak diblokir jaringan dev), `next.revalidate: 300` menekan rate-limit; UI fallback "n/a" bila error/429. Catatan: `assets.coingecko.com` (CDN gambar) sempat 403 di jaringan dev — logo tetap pakai atomiclabs + fallback huruf.
 
 ## Known Issue 4 — Batasan Vercel Hobby plan
 - **ID:** KI-004

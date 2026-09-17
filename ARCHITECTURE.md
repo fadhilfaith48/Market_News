@@ -1,8 +1,8 @@
 # Architecture — Crypto Market Web App
 
-**Versi Dokumen:** 1.2 (4 September 2026 — E1 Tahap 0–4 selesai: token TV, detail 2 kolom, watchlist panel, search + currency, styling umum)
+**Versi Dokumen:** 1.4 (17 September 2026 — fallback REST polling `/api/tickers`, harden koneksi WS)
 **Tanggal:** 29 Agustus 2026
-**Status:** Aktif — fitur inti terimplementasi (dashboard real-time, detail koin 2 kolom, candlestick live, watchlist panel, search & currency)
+**Status:** Aktif — fitur inti terimplementasi (dashboard real-time, detail koin 2 kolom, candlestick live, watchlist panel, search & currency, market cap/supply, sort & filter tabel, fallback REST saat WS gagal)
 
 Dokumen ini menjelaskan struktur teknis proyek. AI dan developer harus membaca dokumen ini agar tetap konsisten dengan pola yang sudah ditetapkan dan **tidak membuat struktur baru yang bertentangan**. Setiap perubahan arsitektur harus tercatat di [DECISIONS.md](./DECISIONS.md).
 
@@ -56,36 +56,43 @@ market-news/
 ├── app/                       # Next.js App Router
 │   ├── layout.tsx             # Root layout (navbar, theme provider, MarketDataProvider)
 │   ├── page.tsx               # Dashboard real-time (halaman utama)
+│   ├── error.tsx              # Global error boundary (TV-styled, tombol retry)
+│   ├── loading.tsx            # Fallback loading global (shimmer)
+│   ├── not-found.tsx          # Halaman 404 global (TV-styled)
 │   ├── coin/
-│   │   └── [symbol]/page.tsx  # Halaman detail koin + chart (2 kolom, E1)
+│   │   └── [code]/page.tsx    # Halaman detail koin + chart (2 kolom, E1) — dynamicParams=false
 │   └── api/                   # API Routes (REST proxy & cache)
-│       ├── coins/route.ts     # Daftar koin + market cap (cache ISR)   [belum]
-│       ├── coins/[symbol]/route.ts   # Metadata/detail koin (cache)     [belum]
+│       ├── coins/route.ts     # Market cap/supply CoinGecko (proxy + cache 300s)
 │       ├── klines/route.ts    # Data historis candlestick (cache)
+│       ├── tickers/route.ts   # Snapshot harga 24j Binance (fallback REST, cache 5s, timeout 6s)
 │       └── rate/route.ts      # Kurs mata uang (proxy open.er-api.com, cache 1 jam)
 ├── components/                # Komponen React (atomic/feature-based)
 │   ├── layout/                #   Header (SearchBox + CurrencySelect + toggle Watchlist), Footer, Logo, ThemeToggle
-│   ├── dashboard/             #   TickerTable, MarketDataProvider, TopGainer/TopLoser [belum]
+│   ├── dashboard/             #   TickerTable (sort&filter), MarketDataProvider, LiveTicker, TopMovers
 │   ├── coin/                  #   PriceChart, CoinQuoteBar, ChartToolbar, CoinInfoPanel
 │   ├── watchlist/             #   WatchlistPanel — panel sidebar drawer (menggantikan halaman /watchlist)
 │   └── ui/                    #   CoinIcon, ConnectionBadge, WatchStar, SearchBox, CurrencySelect, skeleton
 ├── hooks/                     # Custom hooks
-│   ├── useBinanceWS.ts        # Koneksi WebSocket + auto-reconnect
-│   ├── useMarketData.ts       # Query React Query untuk data pasar    [belum]
+│   ├── useBinanceWS.ts        # Koneksi WebSocket + auto-reconnect (timeout 5s, saved endpoint)
 │   ├── useKlines.ts           # Query data historis chart
 │   ├── useKlineStream.ts      # Subskripsi candle live (WS) dari store
 │   ├── useFiatRates.ts        # Kurs mata uang via /api/rate
+│   ├── useCoinMarket.ts       # Market cap/supply via /api/coins
+│   ├── useTickerPolling.ts    # Fallback REST polling 5s saat WS offline (via /api/tickers)
 │   └── useWatchlist.ts        # CRUD watchlist di Local Storage       [belum — langsung via watchStore]
 ├── lib/                       # Utilitas & logika inti
 │   ├── binance/
-│   │   ├── ws.ts              # Build URL stream, parser message
+│   │   ├── ws.ts              # Build URL stream, parser WS + parser REST 24hr ticker (parseTickersRest)
 │   │   └── rest.ts            # Client REST Binance
 │   ├── adapters/              # Abstraksi data provider (adapter pattern)  [belum]
 │   │   ├── types.ts           # Interface Coin, PriceHistory, Kline, dsb.
 │   │   └── coingecko.ts / binance.ts
+│   ├── coinMeta.ts            # COIN_NAMES, LOGO_OVERRIDES, COINGECKO_IDS, getCoinMeta/getCoinGeckoId
+│   ├── sort.ts                # sortRows & applyRangeFilter (tabel dashboard)
+│   ├── wsEndpoint.ts          # loadSavedEndpoint/saveGoodEndpoint/endpointOf (ingat endpoint WS yang berhasil)
 │   ├── storage.ts             # Wrapper Local Storage (get/set/remove)
 │   ├── format.ts              # Format harga, persentase, compact (K/M/B/T), convertPrice/formatCurrency
-│   └── constants.ts           # Daftar symbol, URL, interval, timeframes
+│   └── constants.ts           # Daftar symbol, URL, interval, timeframes, konstanta WS/polling
 ├── store/                     # Zustand stores
 │   ├── marketStore.ts         # Harga real-time gabungan (dari WS)
 │   ├── uiStore.ts             # Theme, currency, watchlistOpen, status koneksi
@@ -109,15 +116,16 @@ market-news/
 ## 4. Alur Data
 
 ### 4.1 Real-Time (WebSocket Binance)
-1. App `useBinanceWS` membuka koneksi ke `wss://stream.binance.com:9443/stream?streams=btcusdt@ticker/ethusdt@ticker/...`.
+1. App `useBinanceWS` membuka koneksi ke `wss://stream.binance.com:9443/stream?streams=...` (mulai dari endpoint tersimpan di localStorage `binance-ws-endpoint`; connect **timeout 5s** → tutup & rotasi endpoint bila belum `onopen`; endpoint yang berhasil disimpan ulang).
 2. Server Binance mengirim message JSON tiap perubahan harga (ticker / bookTicker / kline).
 3. Hook mem-parsing message dan menulis ke `marketStore` (Zustand).
 4. Komponen tabel/ticker subscribe ke store dan re-render (dengan throttling bila perlu — lihat NFR performa).
-5. Jika koneksi putus → **auto-reconnect** + indikator status koneksi di UI.
+5. Jika koneksi putus → **auto-reconnect** (backoff 1s→15s, rotasi endpoint, tidak reset index di tiap open) + indikator status koneksi di UI.
+6. **Fallback REST polling** — jika WS belum `online`, `useTickerPolling` mem-fetch `/api/tickers` tiap 5s dan mengisi `marketStore` yang sama (indikator "· REST" di `ConnectionBadge`; state `dataSource` di `uiStore`).
 
 ### 4.2 Historis & Metadata (REST)
-1. Client memanggil **API Route** Next.js (`/api/klines`, `/api/coins`).
-2. API Route meneruskan ke provider (Binance/CoinGecko) dengan **cache ISR/revalidate**.
+1. Client memanggil **API Route** Next.js (`/api/klines`, `/api/coins`, `/api/tickers`).
+2. API Route meneruskan ke provider (Binance/CoinGecko) dengan **cache ISR/revalidate** (`/api/tickers`: cache 5s + timeout 6s agar gagal-cepat bila provider diblokir).
 3. Halaman detail koin menggabungkan data historis (satu kali fetch) + update live (WS) dalam satu chart.
 
 ### 4.3 Watchlist

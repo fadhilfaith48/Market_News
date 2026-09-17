@@ -331,3 +331,40 @@ Template entri selanjutnya — salin & isi di atas baris ini:
 -->
 
 ---
+
+## 17 September 2026 — Perbaikan koneksi lambat (Paket A: harden WS + Paket B: fallback REST)
+
+### Status: Done (kode + verifikasi dev — belum di-commit/push atas instruksi user; verifikasi production menunggu push)
+
+**Latar:** WS Binance (kedua endpoint `stream.binance.com` & `data-api.binance.vision`) **diblokir/hang di jaringan dev** (15s timeout) → "Menghubungkan…"/"Menyambung ulang…" tak kunjung Live. Solusi sesuai kesepakatan A+B.
+
+- [x] **Paket A — harden koneksi WS**: `lib/constants.ts` + `WS_ENDPOINT_STORAGE_KEY`, `WS_CONNECT_TIMEOUT_MS=5_000`, `WS_RECONNECT_MIN_DELAY_MS=1_000`, `WS_RECONNECT_MAX_DELAY_MS=15_000`, `TICKER_POLL_INTERVAL_MS=5_000`; `lib/wsEndpoint.ts` baru (`loadSavedEndpoint`/`saveGoodEndpoint`/`endpointOf`/`endpointIndexOf`); `useBinanceWS.ts` — mulai dari endpoint tersimpan, **connect timeout 5s** (tutup & rotasi bila belum `onopen`), `saveGoodEndpoint` saat `onopen`, **tidak reset index ke 0 saat open**, backoff 1s→15s (`getReconnectDelay(attempts, max?)` di-export, cap default 15s); `useKlineStream.ts` — pola sama (timeout + saved endpoint + backoff cepat).
+- [x] **Paket B — fallback REST polling**: `app/api/tickers/route.ts` (proxy `data-api.binance.vision/api/v3/ticker/24hr?symbols=[...DEFAULT_SYMBOLS]`, `next.revalidate: 5`, **timeout AbortController 6s** agar gagal-cepat, validasi array, map `parseTickersRest`); `lib/binance/ws.ts` + `parseTickersRest` + `RawTickerRest` (field **verbose** Binance REST: `symbol`/`lastPrice`/`priceChange`/… — bukan kode singkat WS `s`/`c`/…; `eventTime` = waktu parsing); `hooks/useTickerPolling.ts` — `useQuery(["rest-tickers"])`, polling 5s hanya saat `connectionStatus !== "online"`, apply ke `marketStore`, set `dataSource`; `store/uiStore.ts` + `dataSource: "ws" | "rest"` + setter; `MarketDataProvider` mount `useTickerPolling()`; `ConnectionBadge` menambah label **"· REST"** kala fallback aktif.
+- [x] **Tes**: `tests/wsEndpoint.test.ts` baru (fallback tanpa LS, wrap index, indexOf) + `tests/rest.test.ts` baru (map verbose, eventTime waktu parsing, baris tanpa simbol diabaikan) + `tests/reconnect.test.ts` di-update (cap default 15s, argumen `max` opsional); **68/68** (11 file).
+- [x] Verifikasi: `tsc --noEmit` OK · `npm run lint` OK · `npm test` 68/68 · `npm run build` OK (28 route, `/api/tickers` baru) · smoke dev: `/` 200, `/coin/BTC` 200, `/api/tickers` **20 ticker** (dua kali; req pertama fetch, kedua cache 0.02s).
+- [x] Docs: BUGS.md (KI-002 update status + catatan field verbose REST).
+
+### Catatan
+- **Temuan debugging**: `parseTickersRest` awal memakai format singkat (seperti WS) → respons REST asli memakai nama penjang sehingga parsing mengembalikan `[]` (route log `len: 20` tapi body `{"tickers":[]}`). Diperbaiki dengan memetakan field verbose; ditambah tes.
+- Endpoint Binance sudah kadang-kadang hidup di jaringan dev (curl `/api/tickers` 200 dengan 20 item) — konsistensi akhir tetap diverifikasi via Vercel.
+- Dev saat ini masih rawan blokir; di production (`data-api.binance.vision` lewat serverless Vercel) fallback REST diharapkan jalan, memberi indikator "· REST" di ConnectionBadge.
+- **Belum di-commit/push** (tunggu instruksi user). Catatan sebelumnya: seluruh rangkaian 17 September (CoinGecko + sort/filter + error pages + perbaikan koneksi) masih uncommitted.
+
+---
+
+## 17 September 2026 — CoinGecko Market Cap/Supply, Sort & Filter tabel, Error/Not-Found/Loading
+
+### Status: Done (3 paket — belum di-commit/push atas instruksi user)
+
+- [x] **Paket 1 — CoinGecko**: `COINGECKO_IDS` + `getCoinGeckoId()` di `lib/coinMeta.ts`; tipe `CoinMarketData`; `app/api/coins/route.ts` (proxy `api.coingecko.com/api/v3/coins/markets`, `vs_currency=usd`, `next.revalidate: 300`, tangani 429/error); `hooks/useCoinMarket.ts` (React Query `["coin-market"]`); `CoinInfoPanel` isi **Market Cap** (USD `$formatCompact`) & **Supply** (`formatCompact` + kode, fallback circulating→total→max); pass `code` dari `CoinDetail`. UI tetap fallback "n/a" bila query gagal.
+- [x] **Paket 2 — Sort & Filter**: `lib/sort.ts` (helper pure generik `sortRows` + `applyRangeFilter`) + `tests/sort.test.ts` (10 tes); `TickerTable` — kolom Market Cap baru, header sortable (Harga/24J/Volume/Market Cap, ▲/▼), pill filter "Semua / Top Gainers / Top Losers", default sort market-cap desc; urutan/filter berlaku juga untuk card list mobile.
+- [x] **Paket 3 — Error/Not-Found/Loading**: `app/error.tsx` (client, prop `retry`, TV-styled, tombol Coba Lagi); `app/not-found.tsx` (404 TV-styled + CTA "Kembali ke Dashboard"); `app/loading.tsx` (shimmer). `app/coin/[code]/not-found.tsx` dibuat lalu **dibatalkan** — `notFound()` di halaman dinamis memberi HTTP 200 (streaming); `/coin/{kode}` tak dikenal tetap 404 via `dynamicParams = false` (lihat BUG-005).
+- [x] Verifikasi: `tsc --noEmit` OK · `npm run lint` OK · `npm test` **59/59** (9 file) · `npm run build` OK (27 route, `/api/coins` baru) · smoke dev: `/` 200, `/api/coins` 200 (data BTC real), `/coin/BTC` 200, `/coin/MATIC` **404**, `/acak` **404**, not-found berisi CTA, dashboard memuat kolom "Market Cap".
+- [x] Docs: ARCHITECTURE v1.3 (hapus `[belum]` `/api/coins`, `useCoinMarket`, `lib/sort.ts`, error/loading/not-found), DECISIONS (3 keputusan baru), TASKS (Fase 3 CoinGecko & skeleton/error, Fase 4 filter), BUGS (BUG-005 + KI-003 update).
+
+### Catatan
+- Market cap/supply **USD & cache 5 menit** (keputusan: konsisten dgn volume tetap USD); scope tetap 20 koin (`/api/coins` siap diperluas nanti).
+- Perluasan daftar koin >20, component-test (`@testing-library`), audit aksesibilitas/Lighthouse, dan throttle WS (KI-005) masih backlog.
+- **Belum di-commit/push** (tunggu instruksi user).
+
+---
