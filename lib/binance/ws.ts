@@ -55,6 +55,41 @@ export function parseTickerMessage(raw: RawTickerMessage): TickerWS | null {
   };
 }
 
+export interface RawTickerRest {
+  symbol: string;
+  priceChange: string;
+  priceChangePercent: string;
+  weightedAvgPrice: string;
+  lastPrice: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  volume: string;
+  quoteVolume: string;
+}
+
+export function parseTickersRest(rows: RawTickerRest[]): TickerWS[] {
+  const now = Date.now();
+  const tickers: TickerWS[] = [];
+  for (const raw of rows) {
+    if (!raw || !raw.symbol) continue;
+    tickers.push({
+      symbol: raw.symbol,
+      lastPrice: Number.parseFloat(raw.lastPrice),
+      priceChange: Number.parseFloat(raw.priceChange),
+      priceChangePercent: Number.parseFloat(raw.priceChangePercent),
+      weightedAvgPrice: Number.parseFloat(raw.weightedAvgPrice),
+      openPrice: Number.parseFloat(raw.openPrice),
+      highPrice: Number.parseFloat(raw.highPrice),
+      lowPrice: Number.parseFloat(raw.lowPrice),
+      quoteVolume: Number.parseFloat(raw.quoteVolume),
+      volume: Number.parseFloat(raw.volume),
+      eventTime: now,
+    });
+  }
+  return tickers;
+}
+
 export interface RawKlineMessage {
   e: "kline";
   E: number;

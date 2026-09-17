@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { useBinanceWS } from "@/hooks/useBinanceWS";
+import { useTickerPolling } from "@/hooks/useTickerPolling";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { useMarketStore } from "@/store/marketStore";
 import { useUIStore } from "@/store/uiStore";
@@ -35,6 +36,8 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
     onStatusChange: setConnectionStatus,
     retryCounter,
   });
+
+  useTickerPolling();
 
   return (
     <MarketDataContext.Provider value={contextValue}>

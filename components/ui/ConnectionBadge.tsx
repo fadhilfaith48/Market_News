@@ -12,12 +12,14 @@ const CONFIG: Record<ConnectionStatus, { label: string; dot: string }> = {
 
 export function ConnectionBadge() {
   const status = useUIStore((state) => state.connectionStatus);
+  const dataSource = useUIStore((state) => state.dataSource);
   const { label, dot } = CONFIG[status];
 
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted">
       <span className={`size-2 animate-pulse rounded-full ${dot}`} />
       {label}
+      {dataSource === "rest" && <span className="text-muted">· REST</span>}
     </span>
   );
 }

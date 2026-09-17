@@ -16,6 +16,8 @@ interface UIState {
   setWatchlistOpen: (open: boolean) => void;
   connectionStatus: ConnectionStatus;
   setConnectionStatus: (status: ConnectionStatus) => void;
+  dataSource: "ws" | "rest";
+  setDataSource: (source: "ws" | "rest") => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -31,6 +33,8 @@ export const useUIStore = create<UIState>()(
       setWatchlistOpen: (watchlistOpen) => set({ watchlistOpen }),
       connectionStatus: "connecting",
       setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
+      dataSource: "ws",
+      setDataSource: (dataSource) => set({ dataSource }),
     }),
     {
       name: UI_STORAGE_KEY,
