@@ -6,13 +6,19 @@ export default function Home() {
   return (
     <>
       <LiveTicker />
-      <div className="mx-auto max-w-4xl px-4 py-6">
+      <div className="mx-auto max-w-7xl px-4 py-6">
         <h1 className="mb-1 text-xl font-bold">Ringkasan Pasar</h1>
         <p className="mb-4 text-sm text-muted">
           Harga real-time dari Binance WebSocket.
         </p>
-        <TickerTable />
-        <TopMovers />
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="order-2 xl:order-none">
+            <TopMovers layout="stack" />
+          </aside>
+          <div className="order-1 min-w-0 xl:order-none">
+            <TickerTable />
+          </div>
+        </div>
       </div>
     </>
   );

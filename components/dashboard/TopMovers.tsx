@@ -78,7 +78,11 @@ function MoversCard({
   );
 }
 
-export function TopMovers() {
+export function TopMovers({
+  layout = "grid",
+}: {
+  layout?: "grid" | "stack";
+}) {
   const tickers = useMarketStore((state) => state.tickers);
   const hasData = DEFAULT_SYMBOLS.some((symbol) => tickers[symbol]);
 
@@ -90,11 +94,13 @@ export function TopMovers() {
   const gainers = rankSymbols(changeOf, "desc");
   const losers = rankSymbols(changeOf, "asc");
 
+  const sectionClass =
+    layout === "stack"
+      ? "grid grid-cols-1 gap-4"
+      : "mt-6 grid grid-cols-1 gap-4 md:grid-cols-2";
+
   return (
-    <section
-      aria-label="Pergerakan harga 24 jam"
-      className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2"
-    >
+    <section aria-label="Pergerakan harga 24 jam" className={sectionClass}>
       <MoversCard title="Top Gainers" symbols={gainers} />
       <MoversCard title="Top Losers" symbols={losers} />
     </section>
