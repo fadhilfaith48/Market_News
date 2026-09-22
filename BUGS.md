@@ -78,6 +78,16 @@ Format entri baru:
 - **Solusi/rancangan perbaikan:** Sanitasi di `store/watchStore.ts`: (1) `toggle` hanya menerima kode dari `VALID_CODES` (`DEFAULT_SYMBOLS` tanpa sufiks `USDT`) — kode tak dikenal diabaikan; (2) `merge` persist membuang kode invalid/non-string saat rehydrate dari `localStorage`; (3) helper `sanitizeCodes` diekspor & diuji (memberi jalan keluar bersih dari storage lama).
 - **Diperbaiki tanggal/versi:** 22 September 2026 — `store/watchStore.ts` + `tests/store.test.ts` (9 test, 87 total hijau) + lint OK.
 
+## BUG-007 — State koin sebelumnya tersisa saat pindah antar /coin/[code]
+- **Tanggal ditemukan:** 22 September 2026
+- **Prioritas:** Medium
+- **Status:** Fixed — 22 September 2026
+- **Langkah reproduce:** Buka `/coin/BTC`, tunggu candle live masuk, klik koin lain (mis. `/coin/ETH`) → grafik sesaat menampilkan candle live milik BTC yang tercampur dengan data historis baru ETH; interval/timeframe juga tidak di-reset antar koin.
+- **Penyebab:** Navigasi antar dua URL pada segmen dinamis yang sama (`/coin/[code]`) **tidak me-remount** komponen `CoinDetail` (client component bertahan, `useState` tidak di-reset). Candle `live` dari koin lama masih tersimpan sampai pesan WS koin baru pertama tiba (dan `PriceChart` sempat mencampurnya ke data koin baru).
+- **Dampak:** Data grafik/live koin baru terkontaminasi data koin lama sesaat setelah navigasi.
+- **Solusi/rancangan perbaikan:** Beri `key={code}` pada `<CoinDetail>` di `app/coin/[code]/page.tsx` → React me-remount instance untuk tiap kode (interval & candle live di-reset, WS kline dibuka ulang). Catatan: interval/timeframe ikut di-reset ke default per koin.
+- **Diperbaiki tanggal/versi:** 22 September 2026 — `key={code}`; verifikasi lint & build OK (50 koin tetap SSG).
+
 ## Known Issues / Risiko yang Dipantau (dari perencanaan)
 
 ## Known Issue 1 — Watchlist & preferensi tidak tersinkron antar device

@@ -32,5 +32,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CoinPage({ params }: Props) {
   const code = (await params).code.toUpperCase();
   if (!VALID_CODES.has(code)) notFound();
-  return <CoinDetail code={code} />;
+  return <CoinDetail key={code} code={code} />;
 }
