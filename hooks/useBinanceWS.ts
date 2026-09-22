@@ -2,10 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { WS_RECONNECT_MAX_DELAY_MS, WS_RECONNECT_MIN_DELAY_MS, WS_CONNECT_TIMEOUT_MS } from "@/lib/constants";
+import {
+  WS_RECONNECT_MAX_DELAY_MS,
+  WS_RECONNECT_MIN_DELAY_MS,
+  WS_CONNECT_TIMEOUT_MS,
+  TICKER_BATCH_FLUSH_MS,
+} from "@/lib/constants";
 import { buildStreamUrl, parseTickerMessage } from "@/lib/binance/ws";
 import type { CombinedStreamMessage } from "@/lib/binance/ws";
 import { endpointIndexOf, endpointOf, loadSavedEndpoint, saveGoodEndpoint } from "@/lib/wsEndpoint";
+import { createBatchFlusher, type BatchFlusher } from "@/lib/batcher";
 import type { ConnectionStatus, TickerWS } from "@/types";
 
 export function getReconnectDelay(
@@ -17,14 +23,14 @@ export function getReconnectDelay(
 
 interface UseBinanceWSOptions {
   symbols: string[];
-  onTicker: (ticker: TickerWS) => void;
+  onTickers: (tickers: TickerWS[]) => void;
   onStatusChange: (status: ConnectionStatus) => void;
   retryCounter?: number;
 }
 
 export function useBinanceWS({
   symbols,
-  onTicker,
+  onTickers,
   onStatusChange,
   retryCounter = 0,
 }: UseBinanceWSOptions) {
@@ -36,17 +42,24 @@ export function useBinanceWS({
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const connectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const manualCloseRef = useRef(false);
+  const batcherRef = useRef<BatchFlusher<TickerWS> | null>(null);
 
-  const onTickerRef = useRef(onTicker);
+  const onTickersRef = useRef(onTickers);
   const onStatusChangeRef = useRef(onStatusChange);
   const symbolsKey = symbols.join(",");
 
   useEffect(() => {
-    onTickerRef.current = onTicker;
+    onTickersRef.current = onTickers;
     onStatusChangeRef.current = onStatusChange;
-  }, [onTicker, onStatusChange]);
+  }, [onTickers, onStatusChange]);
 
   useEffect(() => {
+    const batcher = createBatchFlusher<TickerWS>(
+      (batch) => onTickersRef.current(batch),
+      TICKER_BATCH_FLUSH_MS,
+    );
+    batcherRef.current = batcher;
+
     const connect = () => {
       manualCloseRef.current = false;
       setStatus("connecting");
@@ -73,7 +86,7 @@ export function useBinanceWS({
         try {
           const raw = JSON.parse(event.data) as CombinedStreamMessage;
           const ticker = parseTickerMessage(raw.data);
-          if (ticker) onTickerRef.current(ticker);
+          if (ticker) batcher.enqueue(ticker);
         } catch {
           // Pesan tidak valid — abaikan.
         }
@@ -107,6 +120,9 @@ export function useBinanceWS({
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
       if (connectTimerRef.current) clearTimeout(connectTimerRef.current);
       socketRef.current?.close();
+      batcher.flushNow();
+      batcher.dispose();
+      batcherRef.current = null;
       setStatus("offline");
       onStatusChangeRef.current("offline");
     };

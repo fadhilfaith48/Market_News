@@ -10,6 +10,8 @@ export const WS_RECONNECT_MAX_DELAY_MS = 15_000;
 
 export const TICKER_POLL_INTERVAL_MS = 5_000;
 
+export const TICKER_BATCH_FLUSH_MS = 250;
+
 export const DEFAULT_SYMBOLS = [
   "BTCUSDT",
   "ETHUSDT",

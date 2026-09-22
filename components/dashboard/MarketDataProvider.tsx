@@ -11,7 +11,7 @@ import type { TickerWS } from "@/types";
 import { MarketDataContext } from "@/components/dashboard/marketDataContext";
 
 export function MarketDataProvider({ children }: { children: React.ReactNode }) {
-  const applyTicker = useMarketStore((state) => state.applyTicker);
+  const applyTickers = useMarketStore((state) => state.applyTickers);
   const setConnectionStatus = useUIStore((state) => state.setConnectionStatus);
 
   const [retryCounter, setRetryCounter] = useState(0);
@@ -25,14 +25,14 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
     [retryConnection],
   );
 
-  const handleTicker = useCallback(
-    (ticker: TickerWS) => applyTicker(ticker),
-    [applyTicker],
+  const handleTickers = useCallback(
+    (tickers: TickerWS[]) => applyTickers(tickers),
+    [applyTickers],
   );
 
   useBinanceWS({
     symbols: [...DEFAULT_SYMBOLS],
-    onTicker: handleTicker,
+    onTickers: handleTickers,
     onStatusChange: setConnectionStatus,
     retryCounter,
   });

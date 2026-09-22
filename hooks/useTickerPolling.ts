@@ -20,7 +20,7 @@ async function fetchTickers(): Promise<TickersResponse> {
 
 export function useTickerPolling() {
   const connectionStatus = useUIStore((state) => state.connectionStatus);
-  const applyTicker = useMarketStore((state) => state.applyTicker);
+  const applyTickers = useMarketStore((state) => state.applyTickers);
   const setDataSource = useUIStore((state) => state.setDataSource);
 
   const shouldPoll = connectionStatus !== "online";
@@ -41,8 +41,8 @@ export function useTickerPolling() {
       return;
     }
     if (data && data.tickers.length > 0) {
-      for (const ticker of data.tickers) applyTicker(ticker);
+      applyTickers(data.tickers);
       setDataSource("rest");
     }
-  }, [shouldPoll, data, applyTicker, setDataSource]);
+  }, [shouldPoll, data, applyTickers, setDataSource]);
 }

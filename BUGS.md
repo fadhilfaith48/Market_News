@@ -134,9 +134,10 @@ Format entri baru:
 ## Known Issue 5 — Rendering chart saat data streaming berfrekuensi tinggi
 - **ID:** KI-005
 - **Prioritas:** Medium
-- **Status:** Open (belum diimplementasikan)
+- **Status:** Partial — batching ticker WS diterapkan (22/09/2026); memoization & throttle chart kline belum
 - **Dampak:** Potensi lag/jank pada chart & tabel jika update WS masuk terlalu banyak sekaligus.
-- **Solusi:** Throttle/batch update store (mis. update maks N kali per detik), memoization komponen, dan manfaatkan API incremental TradingView Lightweight Charts.
+- **Solusi:** Throttle/batch update store (maks N kali per detik), memoization komponen, dan manfaatkan API incremental TradingView Lightweight Charts.
+- **Update 22/09/2026:** Batching diterapkan — `lib/batcher.ts` (`createBatchFlusher`, dedup per simbol, flush 250ms `TICKER_BATCH_FLUSH_MS`), `store/marketStore.ts` (`applyTickers`, satu `set` per batch), `hooks/useBinanceWS.ts` (`onTickers` + batcher, flush saat cleanup), `useTickerPolling.ts` ikut memakai `applyTickers`. Test: `tests/batcher.test.ts` baru + `tests/store.test.ts` (`applyTickers`), 95 test hijau, lint & build OK. Belum: throttle update kline/`useKlineStream`, `React.memo` pada baris tabel, dan kompresi re-render `FlashPrice`.
 
 ---
 

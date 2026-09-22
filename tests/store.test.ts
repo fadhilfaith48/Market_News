@@ -63,6 +63,32 @@ describe("marketStore", () => {
     expect(previousLastPrice.BTCUSDT).toBe(64000);
     expect(previousLastPrice.ETHUSDT).toBeUndefined();
   });
+
+  it("applyTickers menerapkan satu batch dan menyimpan previousLastPrice tiap simbol", () => {
+    useMarketStore.getState().applyTicker(makeTicker("BTCUSDT", 64000));
+    useMarketStore.getState().applyTickers([
+      makeTicker("BTCUSDT", 64100),
+      makeTicker("ETHUSDT", 3100),
+      makeTicker("BNBUSDT", 500),
+    ]);
+
+    const { tickers, previousLastPrice } = useMarketStore.getState();
+    expect(tickers.BTCUSDT.lastPrice).toBe(64100);
+    expect(tickers.ETHUSDT.lastPrice).toBe(3100);
+    expect(tickers.BNBUSDT.lastPrice).toBe(500);
+    expect(previousLastPrice.BTCUSDT).toBe(64000);
+    expect(previousLastPrice.ETHUSDT).toBeUndefined();
+    expect(previousLastPrice.BNBUSDT).toBeUndefined();
+    expect(useMarketStore.getState().lastUpdate).toBeTypeOf("number");
+  });
+
+  it("applyTickers mempertahankan previousLastPrice untuk batch berikutnya", () => {
+    useMarketStore.getState().applyTickers([makeTicker("ETHUSDT", 3000)]);
+    useMarketStore.getState().applyTickers([makeTicker("ETHUSDT", 3050)]);
+
+    const { previousLastPrice } = useMarketStore.getState();
+    expect(previousLastPrice.ETHUSDT).toBe(3000);
+  });
 });
 
 describe("watchStore", () => {

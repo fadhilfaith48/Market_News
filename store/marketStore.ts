@@ -7,6 +7,7 @@ interface MarketState {
   previousLastPrice: Record<string, number>;
   lastUpdate: number | null;
   applyTicker: (ticker: TickerWS) => void;
+  applyTickers: (tickers: TickerWS[]) => void;
 }
 
 export const useMarketStore = create<MarketState>()((set) => ({
@@ -23,6 +24,21 @@ export const useMarketStore = create<MarketState>()((set) => ({
           prev !== undefined
             ? { ...state.previousLastPrice, [ticker.symbol]: prev }
             : state.previousLastPrice,
+      };
+    }),
+  applyTickers: (tickers) =>
+    set((state) => {
+      const nextTickers = { ...state.tickers };
+      const nextPreviousLastPrice = { ...state.previousLastPrice };
+      for (const ticker of tickers) {
+        const prev = nextTickers[ticker.symbol]?.lastPrice;
+        if (prev !== undefined) nextPreviousLastPrice[ticker.symbol] = prev;
+        nextTickers[ticker.symbol] = ticker;
+      }
+      return {
+        tickers: nextTickers,
+        previousLastPrice: nextPreviousLastPrice,
+        lastUpdate: Date.now(),
       };
     }),
 }));
