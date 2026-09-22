@@ -69,6 +69,15 @@ Format entri baru:
 - **Diperbaiki tanggal/versi:** 17 September 2026 — dikembalikan ke `dynamicParams = false`; verifikasi `/coin/MATIC` → 404.
 - **Update 22 September 2026:** Keputusan dibalik. `dynamicParams = false` membuat kode tak dikenal (mis. dari watchlist `localStorage` lama) **hard navigation / reload penuh** saat diklik (fetch RSC 404 → fallback full-page load, vercel/next.js#79057). Kini `dynamicParams` default (`true`) + validasi `VALID_CODES` (`DEFAULT_SYMBOLS` tanpa sufiks `USDT`) + `notFound()` di `generateMetadata` dan page → kode tak dikenal dirender sebagai 404 **soft** (tanpa reload penuh). Trade-off: status HTTP kembali **200 streamed** untuk `/coin/{kode tak dikenal}`. Verifikasi: `npm run lint` & `npm run build` OK; 50 koin tetap SSG.
 
+## BUG-006 — Watchlist menyimpan kode lama/delisted dari localStorage
+- **Tanggal ditemukan:** 22 September 2026
+- **Prioritas:** Medium
+- **Status:** Fixed — 22 September 2026
+- **Langkah reproduce:** Isi `localStorage["crypto-watchlist"]` dengan kode yang tidak ada di `DEFAULT_SYMBOLS` (mis. `MATIC`) → (sebelum BUG-001 diperbaiki) klik baris itu dari "Watchlist Saya" → **hard navigation/reload penuh** menuju 404. Saat ini baris mati sudah tak dirender (WatchlistPanel sudah memfilter `DEFAULT_SYMBOLS`), tetapi kode stale tetap tersimpan di storage.
+- **Dampak:** Data watchlist mengandung kode usang; berpotensi menyulut reload bila UI lain membaca `codes` mentah; daftar "Watchlist Saya" bisa menampilkan angka/isi yang tidak sinkron dengan daftar koin.
+- **Solusi/rancangan perbaikan:** Sanitasi di `store/watchStore.ts`: (1) `toggle` hanya menerima kode dari `VALID_CODES` (`DEFAULT_SYMBOLS` tanpa sufiks `USDT`) — kode tak dikenal diabaikan; (2) `merge` persist membuang kode invalid/non-string saat rehydrate dari `localStorage`; (3) helper `sanitizeCodes` diekspor & diuji (memberi jalan keluar bersih dari storage lama).
+- **Diperbaiki tanggal/versi:** 22 September 2026 — `store/watchStore.ts` + `tests/store.test.ts` (9 test, 87 total hijau) + lint OK.
+
 ## Known Issues / Risiko yang Dipantau (dari perencanaan)
 
 ## Known Issue 1 — Watchlist & preferensi tidak tersinkron antar device

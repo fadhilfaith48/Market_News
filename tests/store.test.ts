@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { useMarketStore } from "@/store/marketStore";
-import { useWatchStore } from "@/store/watchStore";
+import { sanitizeCodes, useWatchStore } from "@/store/watchStore";
 import type { TickerWS } from "@/types";
 
 function makeTicker(
@@ -86,5 +86,19 @@ describe("watchStore", () => {
     store.toggle("BTC");
     store.toggle("ETH");
     expect(useWatchStore.getState().codes).toEqual(["BTC", "ETH"]);
+  });
+
+  it("toggle mengabaikan kode yang tidak dikenal (stale/delisted)", () => {
+    useWatchStore.getState().toggle("MATIC");
+    expect(useWatchStore.getState().codes).toEqual([]);
+  });
+
+  it("sanitizeCodes membuang kode lama dan nilai non-string saat rehydrate", () => {
+    expect(sanitizeCodes(["BTC", "MATIC", 123, null, "ETH"])).toEqual([
+      "BTC",
+      "ETH",
+    ]);
+    expect(sanitizeCodes(null)).toEqual([]);
+    expect(sanitizeCodes(undefined)).toEqual([]);
   });
 });
