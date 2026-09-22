@@ -88,6 +88,15 @@ Format entri baru:
 - **Solusi/rancangan perbaikan:** Beri `key={code}` pada `<CoinDetail>` di `app/coin/[code]/page.tsx` → React me-remount instance untuk tiap kode (interval & candle live di-reset, WS kline dibuka ulang). Catatan: interval/timeframe ikut di-reset ke default per koin.
 - **Diperbaiki tanggal/versi:** 22 September 2026 — `key={code}`; verifikasi lint & build OK (50 koin tetap SSG).
 
+## BUG-008 — Tidak ada loading/error UI khusus segmen koin
+- **Tanggal ditemukan:** 22 September 2026
+- **Prioritas:** Low
+- **Status:** Fixed — 22 September 2026
+- **Langkah reproduce:** Navigasi ke `/coin/{kode}` → transisi memakai skeleton global `app/loading.tsx` (berupa tabel dashboard) yang tidak mirip layout detail koin; bila terjadi error tak tertangkap di segmen koin, menampilkan UI error global.
+- **Dampak:** Skeleton tidak menggambarkan konten detail koin (kesan aplikasi lambat/pindah halaman aneh); error tak tertangkap di segmen koin menampilkan UI error yang generik.
+- **Solusi/rancangan perbaikan:** Tambah `app/coin/[code]/loading.tsx` (skeleton chart + info panel menyerupai `CoinDetail`) dan `app/coin/[code]/error.tsx` (client boundary dengan tombol "Coba Lagi"). Sesuai panduan Next: dynamic route tanpa `loading.tsx` memberi kesan "app not responding".
+- **Diperbaiki tanggal/versi:** 22 September 2026 — buat 2 file di `app/coin/[code]/`; verifikasi lint & build OK, 50 koin tetap SSG.
+
 ## Known Issues / Risiko yang Dipantau (dari perencanaan)
 
 ## Known Issue 1 — Watchlist & preferensi tidak tersinkron antar device
