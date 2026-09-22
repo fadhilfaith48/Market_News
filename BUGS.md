@@ -62,11 +62,12 @@ Format entri baru:
 ## BUG-005 — `notFound()` di halaman dinamis menghasilkan HTTP 200 (bukan 404)
 - **Tanggal ditemukan:** 17 September 2026
 - **Prioritas:** Low
-- **Status:** Won't Fix (keputusan desain) — `dynamicParams = false` dipertahankan
+- **Status:** Fixed — 22 September 2026 (`dynamicParams` dikembalikan ke default; lihat catatan bawah)
 - **Langkah reproduce:** Ubah `/coin/[code]` ke `dynamicParams` default lalu panggil `notFound()` untuk kode tak dikenal (`/coin/MATIC`) → UI not-found tampil tetapi status HTTP **200** (respons streamed).
 - **Dampak:** Mesin pencari/API tidak mendapat kode 404 → status tidak benar untuk URL tak dikenal.
 - **Solusi/rancangan perbaikan:** Pertahankan `dynamicParams = false` (halaman `/coin/{kode}` hanya untuk 20 koin yang di-generate → kode lain 404 di level routing). Halaman `app/coin/[code]/not-found.tsx` dibatalkan (segment not-found tak terpakai); UI 404 memakai `app/not-found.tsx` global.
 - **Diperbaiki tanggal/versi:** 17 September 2026 — dikembalikan ke `dynamicParams = false`; verifikasi `/coin/MATIC` → 404.
+- **Update 22 September 2026:** Keputusan dibalik. `dynamicParams = false` membuat kode tak dikenal (mis. dari watchlist `localStorage` lama) **hard navigation / reload penuh** saat diklik (fetch RSC 404 → fallback full-page load, vercel/next.js#79057). Kini `dynamicParams` default (`true`) + validasi `VALID_CODES` (`DEFAULT_SYMBOLS` tanpa sufiks `USDT`) + `notFound()` di `generateMetadata` dan page → kode tak dikenal dirender sebagai 404 **soft** (tanpa reload penuh). Trade-off: status HTTP kembali **200 streamed** untuk `/coin/{kode tak dikenal}`. Verifikasi: `npm run lint` & `npm run build` OK; 50 koin tetap SSG.
 
 ## Known Issues / Risiko yang Dipantau (dari perencanaan)
 
