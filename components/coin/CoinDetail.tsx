@@ -7,6 +7,7 @@ import { CoinQuoteBar } from "@/components/coin/CoinQuoteBar";
 import { ChartToolbar } from "@/components/coin/ChartToolbar";
 import { CoinInfoPanel } from "@/components/coin/CoinInfoPanel";
 import { PriceChart } from "@/components/coin/PriceChart";
+import { HoldingEditor } from "@/components/portfolio/HoldingEditor";
 import { KLINE_DEFAULT_INTERVAL } from "@/lib/constants";
 import { useKlines } from "@/hooks/useKlines";
 import { useKlineStream } from "@/hooks/useKlineStream";
@@ -88,6 +89,9 @@ export function CoinDetail({ code }: { code: string }) {
         <div className="mt-4 border-t border-border pt-4 lg:mt-0 lg:border-t-0 lg:border-l lg:border-border lg:pl-4 lg:pt-0">
           <div className="lg:sticky lg:top-4">
             <CoinInfoPanel code={code} ticker={ticker ?? null} streamOpen={streamOpen} />
+            <div className="mt-4">
+              <HoldingEditor code={code} />
+            </div>
           </div>
         </div>
       </div>

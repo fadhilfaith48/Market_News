@@ -5,6 +5,7 @@ import { Logo } from "@/components/layout/Logo";
 import { SearchBox } from "@/components/layout/SearchBox";
 import { CurrencySelect } from "@/components/layout/CurrencySelect";
 import { useHydrated } from "@/hooks/useHydrated";
+import { usePortfolioStore } from "@/store/portfolioStore";
 import { useUIStore } from "@/store/uiStore";
 
 export function Header() {
@@ -12,7 +13,22 @@ export function Header() {
   const toggleTheme = useUIStore((state) => state.toggleTheme);
   const watchlistOpen = useUIStore((state) => state.watchlistOpen);
   const setWatchlistOpen = useUIStore((state) => state.setWatchlistOpen);
+  const portfolioOpen = useUIStore((state) => state.portfolioOpen);
+  const setPortfolioOpen = useUIStore((state) => state.setPortfolioOpen);
+  const holdingsCount = Object.keys(
+    usePortfolioStore((state) => state.holdings),
+  ).length;
   const hydrated = useHydrated();
+
+  const toggleWatchlist = () => {
+    setPortfolioOpen(false);
+    setWatchlistOpen(!watchlistOpen);
+  };
+
+  const togglePortfolio = () => {
+    setWatchlistOpen(false);
+    setPortfolioOpen(!portfolioOpen);
+  };
 
   return (
     <header className="border-b border-border px-4 py-2.5">
@@ -33,7 +49,7 @@ export function Header() {
           </div>
           <button
             type="button"
-            onClick={() => setWatchlistOpen(!watchlistOpen)}
+            onClick={toggleWatchlist}
             aria-pressed={watchlistOpen}
             className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
               watchlistOpen
@@ -42,6 +58,24 @@ export function Header() {
             }`}
           >
             {hydrated ? (watchlistOpen ? "Tutup Watchlist" : "Watchlist") : "Watchlist"}
+          </button>
+          <button
+            type="button"
+            onClick={togglePortfolio}
+            aria-pressed={portfolioOpen}
+            className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+              portfolioOpen
+                ? "border-text bg-text text-page"
+                : "border-border hover:bg-hover"
+            }`}
+          >
+            {hydrated
+              ? portfolioOpen
+                ? "Tutup Portofolio"
+                : holdingsCount > 0
+                  ? `Portofolio (${holdingsCount})`
+                  : "Portofolio"
+              : "Portofolio"}
           </button>
           <button
             type="button"

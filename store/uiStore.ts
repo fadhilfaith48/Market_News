@@ -14,6 +14,8 @@ interface UIState {
   setCurrency: (currency: string) => void;
   watchlistOpen: boolean;
   setWatchlistOpen: (open: boolean) => void;
+  portfolioOpen: boolean;
+  setPortfolioOpen: (open: boolean) => void;
   connectionStatus: ConnectionStatus;
   setConnectionStatus: (status: ConnectionStatus) => void;
   dataSource: "ws" | "rest";
@@ -31,6 +33,8 @@ export const useUIStore = create<UIState>()(
       setCurrency: (currency) => set({ currency }),
       watchlistOpen: false,
       setWatchlistOpen: (watchlistOpen) => set({ watchlistOpen }),
+      portfolioOpen: false,
+      setPortfolioOpen: (portfolioOpen) => set({ portfolioOpen }),
       connectionStatus: "connecting",
       setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
       dataSource: "ws",
