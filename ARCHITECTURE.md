@@ -71,6 +71,7 @@ market-news/
 │   ├── dashboard/             #   TickerTable (sort&filter), MarketDataProvider, LiveTicker, TopMovers
 │   ├── coin/                  #   PriceChart, CoinQuoteBar, ChartToolbar, CoinInfoPanel
 │   ├── watchlist/             #   WatchlistPanel — panel sidebar drawer (menggantikan halaman /watchlist)
+│   ├── portfolio/             #   PortfolioPanel (drawer) + HoldingEditor (form posisi di halaman koin)
 │   └── ui/                    #   CoinIcon, ConnectionBadge, WatchStar, SearchBox, CurrencySelect, skeleton
 ├── hooks/                     # Custom hooks
 │   ├── useBinanceWS.ts        # Koneksi WebSocket + auto-reconnect (timeout 5s, saved endpoint)

@@ -208,6 +208,21 @@ Format entri baru:
 
 ---
 
+## 27 September 2026 — Portofolio tracker: localStorage + drawer, tanpa transaksi & tanpa backend
+- **Status:** Approved
+- **Keputusan:** Tambah `store/portfolioStore.ts` (Zustand persist key `crypto-portfolio`) menyimpan holding per kode `{ qty, avgCost }`. Nilai/P&L dihitung client-side dari harga live `marketStore` via pure helper `lib/portfolio.ts` (`computePosition`/`computeSummary`). UI: drawer kanan `PortfolioPanel` (gaya WatchlistPanel) di-toggle dari Header + form `HoldingEditor` di sidebar halaman koin. Data disimpan per-device (tanpa akun/login), konsisten dengan keputusan watchlist localStorage.
+- **Alasan:** PRD §1.1 menetapkan produk sebagai "pemantauan portofolio pribadi" — watchlist saja belum memenuhi; biaya $0 tanpa backend; P&L real-time akurat karena memakai harga live dari store yang sudah ada.
+- **Trade-off:** Tidak sinkron antar device; tidak menghitung biaya transaksi/fee (catatan: avgCost dimasukkan manual oleh pengguna).
+- **Alternatif ditolak:** Halaman `/portofolio` terpisah (menyimpang dari arah panel; Watchlist dijadikan panel dengan alasan sama), integrasi wallet/akun (out of scope Phase 1), "modal untuk buat harga" (perlu backend).
+
+---
+
+## 27 September 2026 — Roadmap fitur A–D (portfolio, price alert, fallback CoinCap, monitoring)
+- **Status:** Approved (rencana eksekusi bertahap, 1 fitur = 1 commit)
+- **Keputusan:** Gap analysis terhadap PRD (persona & NFR) menghasilkan 4 prioritas: A Portofolio tracker, B Price alert client-side (Notification API), C Fallback CoinCap di `/api/coins` + implementasi `lib/adapters`, D Monitoring & error-log lokal tanpa dependency. Dilakukan berurutan A→B→C→D.
+- **Alasan:** Menutup pain point persona (trader butuh alert level harga, pemula butuh portofolio), risiko keandalan (fallback market cap), dan NFR (tak bisa mengukur error rate/FCP tanpa instrumentasi).
+- **Trade-off:** Monitoring lokal tidak punya dashboard cloud; alert hanya berfungsi saat browser terbuka.
+
 ## Keputusan yang Pernah Dibahas & Ditutup
 - Backend Express/Fastify untuk WebSocket server → **ditolak** (lihat keputusan #1).
 - Use local state (useState) saja untuk data real-time → **diganti** Zustand + marketStore untuk berbagi antar halaman.

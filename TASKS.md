@@ -171,7 +171,24 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 
 ---
 
+## Roadmap Fitur A–D (dikerjakan bertahap, 1 fitur = 1 commit)
+> Disusun dari analisis gap terhadap PRD (27 Sep 2026). Dikerjakan berurutan A→B→C→D.
+
+### A — Portofolio Tracker (PRD §1.1 "pemantauan portofolio pribadi") ✅
+- [x] `lib/portfolio.ts` (baru) — `Holding`/`Position`/`PortfolioSummary`, pure `getSymbol`/`computePosition`/`computeSummary`
+- [x] `lib/constants.ts` — `PORTFOLIO_STORAGE_KEY` + `VALID_CODES` (dipindah dari `watchStore` agar dipakai bersama)
+- [x] `store/portfolioStore.ts` (baru) — Zustand persist `crypto-portfolio`, `upsert`/`remove`, `sanitizeHoldings` di `merge`; `store/watchStore.ts` refactor pakai `VALID_CODES`
+- [x] `store/uiStore.ts` — state `portfolioOpen`/`setPortfolioOpen`
+- [x] `components/portfolio/PortfolioPanel.tsx` (baru) — drawer kanan gaya WatchlistPanel: baris logo+kode | nama | nilai | P/L% | qty@avgCost, tombol hapus; footer Total Nilai / Total Biaya / Total P/L; mount di `app/layout.tsx`
+- [x] `components/portfolio/HoldingEditor.tsx` (baru) — form "Kepemilikan Saya" di sidebar halaman koin (`CoinDetail`): ringkasan posisi live + input qty & harga beli + Simpan/Hapus
+- [x] `components/layout/Header.tsx` — tombol "Portofolio" (badge jumlah) toggle drawer; drawer Watchlist & Portofolio saling eksklusif
+- [x] Tests: `tests/portfolio.test.ts` (computePosition/Summary) + `tests/portfolioStore.test.ts` (upsert/remove/sanitize) — total 109 hijau, lint & build OK, 50 koin tetap SSG
+- [x] Update DECISIONS.md (portofolio localStorage, drawer)
+
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device
 - [ ] Opsional: notifikasi harga (ketika harga menyentuh level tertentu)
 - [ ] Opsional: notifikasi push email/SMS
+- [ ] **B — Price Alert** client-side (Notification API + `previousLastPrice`, store `crypto-alerts`, bel 🔔 di Header) — dijadwalkan sesi berikutnya
+- [ ] **C — Fallback CoinCap** di `/api/coins` + implementasi `lib/adapters` (wujudkan keputusan adapter 29 Agt)
+- [ ] **D — Monitoring & error-log lokal** (ring localStorage + onerror/unhandledrejection + perf observer, tanpa dependency)
