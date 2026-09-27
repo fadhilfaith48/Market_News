@@ -66,7 +66,12 @@ export const DEFAULT_SYMBOLS = [
 ] as const;
 
 export const WATCHLIST_STORAGE_KEY = "crypto-watchlist";
+export const PORTFOLIO_STORAGE_KEY = "crypto-portfolio";
 export const UI_STORAGE_KEY = "crypto-ui";
+
+export const VALID_CODES = new Set(
+  DEFAULT_SYMBOLS.map((symbol) => symbol.replace("USDT", "")),
+);
 
 export const TIMEFRAMES = ["1m", "5m", "15m", "1h", "4h", "1d", "1w"] as const;
 

@@ -3,11 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { DEFAULT_SYMBOLS, WATCHLIST_STORAGE_KEY } from "@/lib/constants";
-
-const VALID_CODES = new Set(
-  DEFAULT_SYMBOLS.map((symbol) => symbol.replace("USDT", "")),
-);
+import { VALID_CODES, WATCHLIST_STORAGE_KEY } from "@/lib/constants";
 
 interface WatchState {
   codes: string[];
