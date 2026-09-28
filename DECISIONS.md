@@ -223,6 +223,13 @@ Format entri baru:
 - **Alasan:** Menutup pain point persona (trader butuh alert level harga, pemula butuh portofolio), risiko keandalan (fallback market cap), dan NFR (tak bisa mengukur error rate/FCP tanpa instrumentasi).
 - **Trade-off:** Monitoring lokal tidak punya dashboard cloud; alert hanya berfungsi saat browser terbuka.
 
+## 28 September 2026 — Price alert client-side (fitur B): Notification API + deteksi cross localStorage
+- **Status:** Approved
+- **Keputusan:** Tambah `store/alertStore.ts` (Zustand persist key `crypto-alerts`, cap `MAX_ALERTS` 20) menyimpan alert `{code, symbol, target, direction: above|below}`. Deteksi trigger via `lib/alerts.ts` `evaluateAlerts` yang membandingkan harga **sebelumnya** (`marketStore.previousLastPrice`) dengan harga **baru** (last) — alert "above" menyala saat `prev < target && last >= target` (demikian sebaliknya untuk below) sehingga trigger terjadi tepat saat harga **menyeberang**, bukan saat sudah berada di atas target. One-shot (`triggeredAt` diisi saat trigger). Notifikasi via **Notification API** (diminta saat user gesture menambah alert; fallback hanya status di panel bila ditolak). Watcher dipasang di `MarketDataProvider` (global, satu store — konsisten keputusan "satu koneksi WS").
+- **Alasan:** Menutup pain point persona trader "alert level harga"; murni client-side (biaya $0, tanpa backend, konsisten keputusan localStorage); pakai data ticker + price-history yang sudah ada di store.
+- **Trade-off:** Hanya aktif saat browser/ tab terbuka; tidak sinkron antar device; notifikasi bergantung izin browser (bila ditolak, alert tetap terlihat di panel sebagai "Trigger").
+- **Alternatif ditolak:** Peringatan dilakukan lewat server/push (perlu backend + subscription), polling REST eksternal untuk memeriksa level (boros, Twitter/telecharger), alert "saat konsisten di atas/bawah target" tanpa deteksi cross (menyala setelah harga lewat, tidak tepat momen menyeberang).
+
 ## Keputusan yang Pernah Dibahas & Ditutup
 - Backend Express/Fastify untuk WebSocket server → **ditolak** (lihat keputusan #1).
 - Use local state (useState) saja untuk data real-time → **diganti** Zustand + marketStore untuk berbagi antar halaman.

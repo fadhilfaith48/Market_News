@@ -185,10 +185,19 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] Tests: `tests/portfolio.test.ts` (computePosition/Summary) + `tests/portfolioStore.test.ts` (upsert/remove/sanitize) — total 109 hijau, lint & build OK, 50 koin tetap SSG
 - [x] Update DECISIONS.md (portofolio localStorage, drawer)
 
+### B — Price Alert client-side (persona: "trader butuh alert level harga") ✅
+- [x] `lib/alerts.ts` (baru) — tipe `PriceAlert`, pure `evaluateAlerts(alerts, tickers, previousLastPrice)` (above: `prev < target && last >= target`; below: `prev > target && last <= target`; skip saat `previousLastPrice` belum ada = payload pertama; **one-shot** via `triggeredAt`), `requestNotificationPermission`/`isNotificationGranted`
+- [x] `lib/constants.ts` — `ALERT_STORAGE_KEY` = `crypto-alerts`; `store/uiStore.ts` — state `alertsOpen`/`setAlertsOpen`
+- [x] `store/alertStore.ts` (baru) — Zustand persist `crypto-alerts`, `MAX_ALERTS` 20, `add` (validasi kode/target, dedup kode+arah+target aktif, cap) / `remove` / `markTriggered`, `sanitizeAlerts` di `merge`
+- [x] `hooks/usePriceAlertWatcher.ts` (baru) — subscribe `marketStore.tickers`, evaluasi dengan `previousLastPrice`, `markTriggered` + `new Notification` (try/catch); dipasang di `MarketDataProvider` (global, mengikuti keputusan "satu koneksi WS")
+- [x] `components/alerts/AlertsPanel.tsx` (baru) — drawer kanan: form koin/arah/target + tombol Tambah, list alert aktif/trigger + hapus, badge count, hint izin notifikasi; dipasang di `app/layout.tsx`
+- [x] `components/alerts/AlertQuickAdd.tsx` (baru) — tombol ▲ +1% / ▼ −1% di halaman koin (`CoinDetail`, di bawah `HoldingEditor`; render hanya jika ticker ada → aman SSR)
+- [x] `components/layout/Header.tsx` — tombol bel SVG + badge jumlah alert aktif; drawer Watchlist/Portofolio/Alert saling eksklusif
+- [x] Tests: `tests/alerts.test.ts` (lintas naik/turun, anti-trigger, one-shot) + `tests/alertStore.test.ts` (add/dedup/cap/remove/markTriggered/sanitize) — total 127 hijau, lint & build OK, 50 koin tetap SSG
+- [x] Update DECISIONS.md (alert client-side, one-shot)
+
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device
-- [ ] Opsional: notifikasi harga (ketika harga menyentuh level tertentu)
 - [ ] Opsional: notifikasi push email/SMS
-- [ ] **B — Price Alert** client-side (Notification API + `previousLastPrice`, store `crypto-alerts`, bel 🔔 di Header) — dijadwalkan sesi berikutnya
 - [ ] **C — Fallback CoinCap** di `/api/coins` + implementasi `lib/adapters` (wujudkan keputusan adapter 29 Agt)
 - [ ] **D — Monitoring & error-log lokal** (ring localStorage + onerror/unhandledrejection + perf observer, tanpa dependency)
