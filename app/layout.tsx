@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WatchlistPanel } from "@/components/watchlist/WatchlistPanel";
 import { PortfolioPanel } from "@/components/portfolio/PortfolioPanel";
+import { AlertsPanel } from "@/components/alerts/AlertsPanel";
 import { MarketDataProvider } from "@/components/dashboard/MarketDataProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ThemeSync } from "@/components/ThemeSync";
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Footer />
             <WatchlistPanel />
             <PortfolioPanel />
+            <AlertsPanel />
           </MarketDataProvider>
         </QueryProvider>
       </body>

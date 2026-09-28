@@ -8,6 +8,7 @@ import { ChartToolbar } from "@/components/coin/ChartToolbar";
 import { CoinInfoPanel } from "@/components/coin/CoinInfoPanel";
 import { PriceChart } from "@/components/coin/PriceChart";
 import { HoldingEditor } from "@/components/portfolio/HoldingEditor";
+import { AlertQuickAdd } from "@/components/alerts/AlertQuickAdd";
 import { KLINE_DEFAULT_INTERVAL } from "@/lib/constants";
 import { useKlines } from "@/hooks/useKlines";
 import { useKlineStream } from "@/hooks/useKlineStream";
@@ -91,6 +92,9 @@ export function CoinDetail({ code }: { code: string }) {
             <CoinInfoPanel code={code} ticker={ticker ?? null} streamOpen={streamOpen} />
             <div className="mt-4">
               <HoldingEditor code={code} />
+            </div>
+            <div className="mt-4">
+              <AlertQuickAdd code={code} />
             </div>
           </div>
         </div>
