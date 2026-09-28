@@ -16,6 +16,8 @@ interface UIState {
   setWatchlistOpen: (open: boolean) => void;
   portfolioOpen: boolean;
   setPortfolioOpen: (open: boolean) => void;
+  alertsOpen: boolean;
+  setAlertsOpen: (open: boolean) => void;
   connectionStatus: ConnectionStatus;
   setConnectionStatus: (status: ConnectionStatus) => void;
   dataSource: "ws" | "rest";
@@ -35,6 +37,8 @@ export const useUIStore = create<UIState>()(
       setWatchlistOpen: (watchlistOpen) => set({ watchlistOpen }),
       portfolioOpen: false,
       setPortfolioOpen: (portfolioOpen) => set({ portfolioOpen }),
+      alertsOpen: false,
+      setAlertsOpen: (alertsOpen) => set({ alertsOpen }),
       connectionStatus: "connecting",
       setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
       dataSource: "ws",
