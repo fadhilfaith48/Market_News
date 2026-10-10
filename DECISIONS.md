@@ -223,6 +223,13 @@ Format entri baru:
 - **Alasan:** Menutup pain point persona (trader butuh alert level harga, pemula butuh portofolio), risiko keandalan (fallback market cap), dan NFR (tak bisa mengukur error rate/FCP tanpa instrumentasi).
 - **Trade-off:** Monitoring lokal tidak punya dashboard cloud; alert hanya berfungsi saat browser terbuka.
 
+## 28 September 2026 — Fallback market cap: CoinPaprika (pengganti CoinCap v2 yang sudah mati)
+- **Status:** Approved (merevisi "CoinCap sebagai backup CoinGecko" dari 29 Agt)
+- **Keputusan:** Data market cap/supply memakai arsitektur **adapter** (`lib/adapters`): CoinGecko (primary) → fallback otomatis **CoinPaprika** (`api.coinpaprika.com/v1/tickers?quotes=USD`, gratis tanpa key). Output **dinormalisasi berbasis kode** (`CoinMarketAsset { code, marketCap, circulatingSupply, maxSupply }`) alih-alih id provider; `/api/coins` mengembalikan `{ coins, source }`; UI menampilkan label kecil "Sumber: CoinPaprika" saat fallback.
+- **Alasan:** CoinCap v2 free/keyless **resmi mati 31 Mar 2025** (`api.coincap.io` NXDOMAIN; v3 `rest.coincap.io` berbayar + wajib API key) → keputusan lama sudah tidak valid. CoinPaprika gratis, tanpa kunci, terverifikasi HTTP 200 live.
+- **Trade-off:** Payload bulk CoinPaprika besar (~1.6MB, cache 5 menit, hanya diambil saat CoinGecko gagal); **TON & DOT tidak punya data valid** di CoinPaprika → dikecualikan (tampil "n/a" saat fallback).
+- **Alternatif ditolak:** CoinCap v3 (bayar + kelola key), tanpa fallback (data kosong saat CoinGecko down), fetch per-koin (50 request vs 1 request bulk).
+
 ## 28 September 2026 — Price alert client-side (fitur B): Notification API + deteksi cross localStorage
 - **Status:** Approved
 - **Keputusan:** Tambah `store/alertStore.ts` (Zustand persist key `crypto-alerts`, cap `MAX_ALERTS` 20) menyimpan alert `{code, symbol, target, direction: above|below}`. Deteksi trigger via `lib/alerts.ts` `evaluateAlerts` yang membandingkan harga **sebelumnya** (`marketStore.previousLastPrice`) dengan harga **baru** (last) — alert "above" menyala saat `prev < target && last >= target` (demikian sebaliknya untuk below) sehingga trigger terjadi tepat saat harga **menyeberang**, bukan saat sudah berada di atas target. One-shot (`triggeredAt` diisi saat trigger). Notifikasi via **Notification API** (diminta saat user gesture menambah alert; fallback hanya status di panel bila ditolak). Watcher dipasang di `MarketDataProvider` (global, satu store — konsisten keputusan "satu koneksi WS").

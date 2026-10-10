@@ -123,6 +123,7 @@ Format entri baru:
 - **Solusi:** Caching ISR/revalidate pada API Route; fallback provider (CoinCap sebagai backup CoinGecko); adapter pattern agar mudah beralih; tampilkan timestamp "last updated" + sumber data.
 - **Update 29/08/2026:** Terbukti jaringan user memblokir `stream.binance.com` & `api.binance.com` (WS → ERROR, REST → GAGAL). Endpoint `data-stream.binance.vision` jalan → fallback multi-endpoint WS sudah diimplementasikan. REST Binance ke depan via API Route (serverless), bukan dari client.
 - **Update 17/09/2026:** `/api/coins` (proxy CoinGecko `coins/markets`) sudah dibangun — terverifikasi 200 di dev (`api.coingecko.com` tidak diblokir jaringan dev), `next.revalidate: 300` menekan rate-limit; UI fallback "n/a" bila error/429. Catatan: `assets.coingecko.com` (CDN gambar) sempat 403 di jaringan dev — logo tetap pakai atomiclabs + fallback huruf.
+- **Update 28/09/2026:** **Fallback provider kini HIDUP** — `/api/coins` lewat `lib/adapters` (CoinGecko → **CoinPaprika** saat gagal/429/empty, output `{ coins, source }`). CoinCap v2 sudah mati global (dipakai CoinPaprika, terverifikasi 200 dari jaringan dev). TON & DOT tidak punya data valid di CoinPaprika → "n/a" saat fallback. Baris "Sumber: CoinPaprika" tampil bila fallback aktif.
 
 ## Known Issue 4 — Batasan Vercel Hobby plan
 - **ID:** KI-004

@@ -26,7 +26,7 @@ Daftar tugas mengikuti Milestones pada [PRD.md](./PRD.md) §12. Centang `[x]` sa
 - [x] Setup constants & types dasar (TickerWS, Coin, Kline, dsb.)
 - [x] Setup lib/binance/ws.ts (parser + builder URL stream)
 - [x] Setup hooks/useBinanceWS dengan auto-reconnect (exponential backoff)
-- [ ] Setup lib/adapter: interface + implementasi Binance & CoinGecko
+- [x] Setup lib/adapters: interface + implementasi CoinGecko & CoinPaprika ✅ (market cap/supply; provider lain menyusul — C, 28 Sep 2026)
 - [x] Setup lib/storage.ts (wrapper Local Storage)
 - [x] Setup store Zustand: uiStore (theme, currency, connection status) + marketStore (ticker real-time)
 - [x] Setup React Query provider + query client di root layout
@@ -196,8 +196,16 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] Tests: `tests/alerts.test.ts` (lintas naik/turun, anti-trigger, one-shot) + `tests/alertStore.test.ts` (add/dedup/cap/remove/markTriggered/sanitize) — total 127 hijau, lint & build OK, 50 koin tetap SSG
 - [x] Update DECISIONS.md (alert client-side, one-shot)
 
+### C — Fallback CoinPaprika (provider market cap/supply + adapter pattern) ✅
+- [x] `lib/adapters/` (baru — wujudkan keputusan adapter 29 Agt): `types.ts` (`CoinMarketAsset`, `MarketSource`, `CoinsResult`), `coingecko.ts` (`normalizeCoinGecko` + fetch, timeout 6s, `revalidate:300`), `coinpaprika.ts` (`COINPAPRIKA_IDS` + `normalizeCoinPaprika` + fetch bulk `/v1/tickers?quotes=USD`, timeout 6s), `index.ts` (`getCoinMarketAssets` = CoinGecko → fallback CoinPaprika, DI `fetchers` utk test)
+- [x] `app/api/coins/route.ts` — orkestrasi via adapter; respons `{ coins, source }`; 502 bila kedua provider gagal
+- [x] Konsumen dinormalisasi **berbasis kode** (bukan id provider): `CoinInfoPanel` cari `by code` + `TickerTable` `marketCapByCode` langsung (hapus reverse-map id→kode); `hooks/useCoinMarket.ts` → `CoinsResult`; `types/index.ts` `CoinMarketData` → `CoinMarketAsset`
+- [x] Label kecil **"Sumber: CoinPaprika"** di `CoinInfoPanel` saat fallback aktif
+- [x] ⚠️ **CoinCap v2 (gratis) RESMI MATI 31 Mar 2025** (`api.coincap.io` → NXDOMAIN; v3 `rest.coincap.io` berbayar + wajib key) → backup jadi **CoinPaprika** (gratis tanpa key). Keterbatasan CoinPaprika: **TON & DOT tidak punya data valid** → dikecualikan (tampil "n/a"), diverifikasi langsung ke API live
+- [x] Tests `tests/adapters.test.ts` (normalize 2 provider + fallback orchestrator via DI) — total **138 hijau**, lint & build OK, 50 koin tetap SSG; verifikasi live fallback: ≥46 koin, BTC mcap > $1T, TON/DOT absen
+- [x] Update DECISIONS.md (pengganti CoinCap) · BUGS.md (KI-003) · ARCHITECTURE.md
+
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device
 - [ ] Opsional: notifikasi push email/SMS
-- [ ] **C — Fallback CoinCap** di `/api/coins` + implementasi `lib/adapters` (wujudkan keputusan adapter 29 Agt)
 - [ ] **D — Monitoring & error-log lokal** (ring localStorage + onerror/unhandledrejection + perf observer, tanpa dependency)

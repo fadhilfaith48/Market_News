@@ -23,7 +23,7 @@ Arsitektur mengadopsi pendekatan **"Vercel-Only" (serverless, tanpa backend terp
 └──────────────┘                                └──────────────┘
        │  ▲
        │  │
-       └──┘  API Route (proxy/cache) → CoinGecko / currency API
+       └──┘  API Route (proxy/cache) → CoinGecko (fallback CoinPaprika) / currency API
 ```
 
 Poin kunci:
@@ -62,7 +62,7 @@ market-news/
 │   ├── coin/
 │   │   └── [code]/page.tsx    # Halaman detail koin + chart (2 kolom, E1) — dynamicParams=false
 │   └── api/                   # API Routes (REST proxy & cache)
-│       ├── coins/route.ts     # Market cap/supply CoinGecko (proxy + cache 300s)
+│       ├── coins/route.ts     # Market cap/supply via lib/adapters: CoinGecko → fallback CoinPaprika (cache 300s, timeout 6s)
 │       ├── klines/route.ts    # Data historis candlestick (cache)
 │       ├── tickers/route.ts   # Snapshot harga 24j Binance (fallback REST, cache 5s, timeout 6s)
 │       └── rate/route.ts      # Kurs mata uang (proxy open.er-api.com, cache 1 jam)
@@ -85,10 +85,12 @@ market-news/
 │   ├── binance/
 │   │   ├── ws.ts              # Build URL stream, parser WS + parser REST 24hr ticker (parseTickersRest)
 │   │   └── rest.ts            # Client REST Binance
-│   ├── adapters/              # Abstraksi data provider (adapter pattern)  [belum]
-│   │   ├── types.ts           # Interface Coin, PriceHistory, Kline, dsb.
-│   │   └── coingecko.ts / binance.ts
-│   ├── coinMeta.ts            # COIN_NAMES, LOGO_OVERRIDES, COINGECKO_IDS, getCoinMeta/getCoinGeckoId
+│   ├── adapters/              # Abstraksi data provider (adapter pattern) — provider market cap/supply (C)
+│   │   ├── types.ts           # CoinMarketAsset, MarketSource, CoinsResult
+│   │   ├── coingecko.ts       # Provider #1: normalizeCoinGecko + fetch CoinGecko (timeout 6s, revalidate 300)
+│   │   ├── coinpaprika.ts     # Provider #2 (fallback): COINPAPRIKA_IDS + normalize + fetch bulk /v1/tickers
+│   │   └── index.ts           # getCoinMarketAssets: CoinGecko → CoinPaprika (DI `fetchers` utk unit test)
+│   ├── coinMeta.ts            # COIN_NAMES, LOGO_OVERRIDES, COINGECKO_IDS, getCoinMeta
 │   ├── sort.ts                # sortRows & applyRangeFilter (tabel dashboard)
 │   ├── wsEndpoint.ts          # loadSavedEndpoint/saveGoodEndpoint/endpointOf (ingat endpoint WS yang berhasil)
 │   ├── storage.ts             # Wrapper Local Storage (get/set/remove)
@@ -126,7 +128,7 @@ market-news/
 
 ### 4.2 Historis & Metadata (REST)
 1. Client memanggil **API Route** Next.js (`/api/klines`, `/api/coins`, `/api/tickers`).
-2. API Route meneruskan ke provider (Binance/CoinGecko) dengan **cache ISR/revalidate** (`/api/tickers`: cache 5s + timeout 6s agar gagal-cepat bila provider diblokir).
+2. API Route meneruskan ke provider (Binance/CoinGecko) dengan **cache ISR/revalidate** (`/api/tickers`: cache 5s + timeout 6s agar gagal-cepat bila provider diblokir; `/api/coins`: CoinGecko → fallback CoinPaprika, cache 300s + timeout 6s).
 3. Halaman detail koin menggabungkan data historis (satu kali fetch) + update live (WS) dalam satu chart.
 
 ### 4.3 Watchlist
@@ -171,7 +173,7 @@ market-news/
 
 | Risiko | Mitigasi |
 |---|---|
-| Binance/CoinGecko rate-limit / down | Caching ISR; fallback provider CoinCap; adapter pattern agar mudah ganti provider. |
+| Binance/CoinGecko rate-limit / down | Caching ISR; fallback provider CoinPaprika (via lib/adapters); adapter pattern agar mudah ganti provider. |
 | WS client terputus | Auto-reconnect + fallback REST polling via API Route. |
 | Watchlist hilang antar device | Komunikasi sebagai batasan Fase 1; opsi akun di fase berikutnya. |
 
