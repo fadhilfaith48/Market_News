@@ -2,13 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import type { CoinMarketData } from "@/types";
+import type { CoinsResult } from "@/lib/adapters/types";
 
-interface CoinMarketResponse {
-  coins: CoinMarketData[];
-}
-
-async function fetchCoinMarket(): Promise<CoinMarketResponse> {
+async function fetchCoinMarket(): Promise<CoinsResult> {
   const res = await fetch("/api/coins");
   if (!res.ok) throw new Error("Failed to fetch coin market data");
   return res.json();

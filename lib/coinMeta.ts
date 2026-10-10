@@ -65,10 +65,6 @@ export const COINGECKO_IDS: Record<string, string> = {
   DYDX: "dydx",
 };
 
-export function getCoinGeckoId(code: string): string | undefined {
-  return COINGECKO_IDS[code];
-}
-
 export const COIN_NAMES: Record<string, string> = {
   BTC: "Bitcoin",
   ETH: "Ethereum",
