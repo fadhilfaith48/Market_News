@@ -7,7 +7,7 @@ import { CoinIcon } from "@/components/ui/CoinIcon";
 import { WatchStar } from "@/components/ui/WatchStar";
 import { useMarketDataContext } from "@/components/dashboard/marketDataContext";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
-import { COINGECKO_IDS, getCoinMeta } from "@/lib/coinMeta";
+import { getCoinMeta } from "@/lib/coinMeta";
 import { formatCompact, formatCurrency, formatPercent } from "@/lib/format";
 import { toneText } from "@/lib/market";
 import { applyRangeFilter, sortRows } from "@/lib/sort";
@@ -86,22 +86,15 @@ export function TickerTable() {
   });
   const [filter, setFilter] = useState<RangeFilter>("all");
 
-  const baseCodeByGeckoId = useMemo(() => {
-    const map: Record<string, string> = {};
-    for (const [code, id] of Object.entries(COINGECKO_IDS)) map[id] = code;
-    return map;
-  }, []);
-
   const marketCapByCode = useMemo(() => {
     const map: Record<string, number> = {};
     for (const coin of marketData?.coins ?? []) {
-      if (typeof coin.market_cap === "number") {
-        const base = baseCodeByGeckoId[coin.id];
-        if (base) map[base] = coin.market_cap;
+      if (typeof coin.marketCap === "number") {
+        map[coin.code] = coin.marketCap;
       }
     }
     return map;
-  }, [marketData, baseCodeByGeckoId]);
+  }, [marketData]);
 
   const symbols = [...DEFAULT_SYMBOLS];
 

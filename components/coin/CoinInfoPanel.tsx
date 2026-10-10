@@ -5,7 +5,6 @@ import { toneText } from "@/lib/market";
 import { useUIStore } from "@/store/uiStore";
 import { useFiatRates } from "@/hooks/useFiatRates";
 import { useCoinMarket } from "@/hooks/useCoinMarket";
-import { getCoinGeckoId } from "@/lib/coinMeta";
 import type { SupportedCurrency } from "@/lib/format";
 import type { TickerWS } from "@/types";
 
@@ -75,13 +74,10 @@ export function CoinInfoPanel({ code, ticker, streamOpen }: CoinInfoPanelProps) 
   const { data: rateData } = useFiatRates();
   const { data: marketData } = useCoinMarket();
 
-  const coin = getCoinGeckoId(code)
-    ? marketData?.coins.find((c) => c.id === getCoinGeckoId(code))
-    : undefined;
+  const coin = marketData?.coins.find((c) => c.code === code);
 
-  const marketCap = coin?.market_cap ?? null;
-  const supply =
-    coin?.circulating_supply ?? coin?.total_supply ?? coin?.max_supply ?? null;
+  const marketCap = coin?.marketCap ?? null;
+  const supply = coin?.circulatingSupply ?? coin?.maxSupply ?? null;
 
   const lastUpdate = ticker?.eventTime
     ? new Date(ticker.eventTime).toLocaleTimeString("en-GB", {
@@ -150,6 +146,9 @@ export function CoinInfoPanel({ code, ticker, streamOpen }: CoinInfoPanelProps) 
               : "n/a"
           }
         />
+        {marketData?.source === "coinpaprika" && (
+          <p className="pt-1 text-[10px] text-muted">Sumber: CoinPaprika</p>
+        )}
       </div>
 
       {keyFacts.length > 0 && (
