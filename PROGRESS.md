@@ -368,3 +368,17 @@ Template entri selanjutnya — salin & isi di atas baris ini:
 - **Belum di-commit/push** (tunggu instruksi user).
 
 ---
+## 28 September 2026 — Fitur C: Fallback CoinPaprika + lib/adapters (adapter pattern)
+
+### Status: Done (kode + verifikasi penuh — belum di-commit/push atas instruksi user)
+
+- [x] **`lib/adapters/` baru** (wujudkan keputusan adapter 29 Agt): `types.ts` (`CoinMarketAsset` keyed-by-code, `MarketSource`, `CoinsResult`), `coingecko.ts` (`normalizeCoinGecko` pure + `fetchCoinGeckoAssets` timeout 6s/revalidate 300), `coinpaprika.ts` (`COINPAPRIKA_IDS` 48 kode + `normalizeCoinPaprika` + bulk `?quotes=USD` timeout 6s), `index.ts` (`getCoinMarketAssets` CoinGecko → CoinPaprika, param DI `fetchers` utk unit test).
+- [x] **`app/api/coins/route.ts`** dirombak pakai orkestrator; respons baru `{ coins, source }`; 502 bila kedua provider gagal.
+- [x] **Konsumen dinormalisasi**: `CoinInfoPanel` cari `by code` + label **"Sumber: CoinPaprika"** saat fallback; `TickerTable` `marketCapByCode` langsung (hapus reverse-map id→kode + `getCoinGeckoId`); `hooks/useCoinMarket` → `CoinsResult`; `types/index.ts` `CoinMarketData` → `CoinMarketAsset` (dihapus).
+- [x] **Temuan penting:** CoinCap v2 (backdrop rencana lama) **RESMI MATI 31 Mar 2025** (`api.coincap.io` NXDOMAIN, v3 bayar+key) → fallback diganti **CoinPaprika** (gratis, tanpa key, live 200). CoinPaprika tidak punya data valid utk **TON & DOT** (yang ada hanya koin berbeda berlabel sama) → dikecualikan, tampil "n/a".
+- [x] **Tes**: `tests/adapters.test.ts` baru (11 tes: normalize kedua provider + fallback orchestrator via DI) → total **138/138**; lint OK; build OK (50 koin tetap SSG).
+- [x] **Verifikasi live**: `/api/coins` 200 `source:coingecko` 50/50 kode; tes live sementara (CoinGecko dimock gagal → CoinPaprika asli) = ≥46 koin, BTC mcap > $1T, TON/DOT absen (dihapus setelah jalan).
+- [x] **Docs**: DECISIONS (keputusan CoinPaprika menggantikan CoinCap), TASKS (roadmap C ✅ + Fase 2 adapters), BUGS (KI-003 fallback hidup), ARCHITECTURE (struktur `lib/adapters`, `/api/coins`, alur 4.2), PROGRESS (entry ini).
+
+### Catatan
+- **Belum di-commit/push** (tunggu instruksi user).
