@@ -382,3 +382,19 @@ Template entri selanjutnya — salin & isi di atas baris ini:
 
 ### Catatan
 - **Belum di-commit/push** (tunggu instruksi user).
+
+## 29 September 2026 — Fitur D: Monitoring & error-log lokal (observability tanpa dependency)
+
+### Status: Done (kode + verifikasi penuh — belum di-commit/push atas instruksi user)
+
+- [x] **`lib/monitoring.ts` baru** — pure: `DiagnosticEntry`, `createLogEntry` (truncate pesan 300/detail 1000), `appendLog` (ring buffer cap 200), `describeError`/`errorToEntry`, `captureErrorContext` (route/online/UA + extra), `isLogLevel`, `countErrors`/`countUnseenErrors`, `sanitizeLogs`.
+- [x] **`lib/constants.ts`** — `DIAGNOSTICS_STORAGE_KEY` = `crypto-diagnostics`, `MAX_LOG_ENTRIES` = 200.
+- [x] **`store/monitoringStore.ts` baru** — Zustand persist: `entries`, `viewedAt`, `add`, `addEntry`, `clear`, `markViewed`; sanitize di `merge`. **`store/uiStore.ts`** — `diagnosticsOpen`/setter.
+- [x] **`hooks/useMonitoring.ts` baru** — `window.onerror` + `unhandledrejection` → log error ber-stack; `PerformanceObserver` (paint/LCP/CLS) → log info; log boot sekali; dipasang di `MarketDataProvider`.
+- [x] **`components/monitoring/DiagnosticsPanel.tsx` baru** — drawer kanan: list log (klik buka detail), filter Semua/info/warn/error, Salin & Bersihkan; buka panel → `markViewed`. **`Header.tsx`** tombol ke-4 ikon gauge + badge error belum dibaca (4 drawer eksklusif); **`app/layout.tsx`** mount panel.
+- [x] **Tes**: `tests/monitoring.test.ts` baru (18 tes) → total **156/156**; lint OK; build OK (50 koin tetap SSG).
+- [x] **Smoke dev** (`localhost:3111`): `/` 200, `/coin/BTC` 200, tombol `aria-label="Diagnostics"` SSR ada.
+- [x] **Docs**: DECISIONS (monitoring lokal), TASKS (D ✅), ARCHITECTURE (§4.4 + tree + store/hooks), PROGRESS (entry ini). BUGS tidak diubah (tidak ada bug baru).
+
+### Catatan
+- **Belum di-commit/push** (tunggu instruksi user).
