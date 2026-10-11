@@ -68,6 +68,8 @@ export const DEFAULT_SYMBOLS = [
 export const WATCHLIST_STORAGE_KEY = "crypto-watchlist";
 export const PORTFOLIO_STORAGE_KEY = "crypto-portfolio";
 export const ALERT_STORAGE_KEY = "crypto-alerts";
+export const DIAGNOSTICS_STORAGE_KEY = "crypto-diagnostics";
+export const MAX_LOG_ENTRIES = 200;
 export const UI_STORAGE_KEY = "crypto-ui";
 
 export const VALID_CODES = new Set(

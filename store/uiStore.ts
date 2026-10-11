@@ -18,6 +18,8 @@ interface UIState {
   setPortfolioOpen: (open: boolean) => void;
   alertsOpen: boolean;
   setAlertsOpen: (open: boolean) => void;
+  diagnosticsOpen: boolean;
+  setDiagnosticsOpen: (open: boolean) => void;
   connectionStatus: ConnectionStatus;
   setConnectionStatus: (status: ConnectionStatus) => void;
   dataSource: "ws" | "rest";
@@ -39,6 +41,8 @@ export const useUIStore = create<UIState>()(
       setPortfolioOpen: (portfolioOpen) => set({ portfolioOpen }),
       alertsOpen: false,
       setAlertsOpen: (alertsOpen) => set({ alertsOpen }),
+      diagnosticsOpen: false,
+      setDiagnosticsOpen: (diagnosticsOpen) => set({ diagnosticsOpen }),
       connectionStatus: "connecting",
       setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
       dataSource: "ws",
