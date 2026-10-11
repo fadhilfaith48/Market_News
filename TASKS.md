@@ -205,7 +205,17 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] Tests `tests/adapters.test.ts` (normalize 2 provider + fallback orchestrator via DI) — total **138 hijau**, lint & build OK, 50 koin tetap SSG; verifikasi live fallback: ≥46 koin, BTC mcap > $1T, TON/DOT absen
 - [x] Update DECISIONS.md (pengganti CoinCap) · BUGS.md (KI-003) · ARCHITECTURE.md
 
+### D — Monitoring & error-log lokal (observability tanpa dependency) ✅
+- [x] `lib/monitoring.ts` (baru) — pure: `DiagnosticEntry {id, ts, level, scope, message, detail}`, `createLogEntry` (truncate pesan/detail), `appendLog` (**ring buffer** cap `MAX_LOG_ENTRIES`), `describeError`, `errorToEntry`, `captureErrorContext` (route/online/UA + extra), `isLogLevel`, `countErrors`, `countUnseenErrors`, `sanitizeLogs` (validasi saat merge)
+- [x] `lib/constants.ts` — `DIAGNOSTICS_STORAGE_KEY` = `crypto-diagnostics`, `MAX_LOG_ENTRIES` = 200
+- [x] `store/monitoringStore.ts` (baru) — Zustand persist (pola alertStore): `entries`, `viewedAt`, `add`, `addEntry`, `clear`, `markViewed`, `sanitizeLogs` di `merge`
+- [x] `store/uiStore.ts` — state `diagnosticsOpen`/`setDiagnosticsOpen` (drawer eksklusif dgn watchlist/portofolio/alert)
+- [x] `hooks/useMonitoring.ts` (baru) — `window.onerror` + `unhandledrejection` → log error; `PerformanceObserver` (paint/LCP/CLS) → log info; log boot sekali; dipasang di `MarketDataProvider`
+- [x] `components/monitoring/DiagnosticsPanel.tsx` (baru) — drawer kanan: list log (waktu·level·scope·pesan, klik untuk detail), filter Semua/info/warn/error, tombol **Salin** & **Bersihkan**; buka panel → `markViewed`
+- [x] `components/layout/Header.tsx` — tombol ke-4 ikon gauge + badge error belum dibaca; 4 drawer saling eksklusif; `app/layout.tsx` mount `DiagnosticsPanel`
+- [x] Tests `tests/monitoring.test.ts` (append/trim ring, describeError/errorToEntry, sanitize, count, store) — total **156 hijau**, lint & build OK, 50 koin tetap SSG
+- [x] Update DECISIONS.md · ARCHITECTURE.md (§4.4 observability + tree)
+
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device
 - [ ] Opsional: notifikasi push email/SMS
-- [ ] **D — Monitoring & error-log lokal** (ring localStorage + onerror/unhandledrejection + perf observer, tanpa dependency)

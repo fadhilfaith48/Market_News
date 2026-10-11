@@ -230,6 +230,13 @@ Format entri baru:
 - **Trade-off:** Payload bulk CoinPaprika besar (~1.6MB, cache 5 menit, hanya diambil saat CoinGecko gagal); **TON & DOT tidak punya data valid** di CoinPaprika → dikecualikan (tampil "n/a" saat fallback).
 - **Alternatif ditolak:** CoinCap v3 (bayar + kelola key), tanpa fallback (data kosong saat CoinGecko down), fetch per-koin (50 request vs 1 request bulk).
 
+## 29 September 2026 — Monitoring & error-log lokal (observability tanpa dependency)
+- **Status:** Approved (menutup item D roadmap A–D)
+- **Keputusan:** Observability ringan 100% client-side: `lib/monitoring.ts` (util pure) + `monitoringStore` (Zustand persist, **ring buffer 200 entri** di `crypto-diagnostics`) + `hooks/useMonitoring` (tangkap `window.onerror`, `unhandledrejection`, `PerformanceObserver` paint/LCP/CLS) + `DiagnosticsPanel` (drawer, tombol gauge di Header + badge error belum dibaca).
+- **Alasan:** Gap analysis PRD — perlu jejak error & sinyal performa tanpa infrastruktur/berlangganan; konsisten dengan pola "tanpa DB, localStorage" (D3). Tanpa dependency tambahan.
+- **Trade-off:** Log hanya lokal (per-device, hilang bila storage dibersihkan); metrik performa dilaporkan setelah `load`/hidden (bukan real-time); hanya error/perf — bukan full session replay.
+- **Alternatif ditolak:** Sentry/APM (butuh akun + biaya, di luar non-komersial), console-only (hilang saat tab tutup, sulit dibaca), logging server (butuh backend penyimpanan).
+
 ## 28 September 2026 — Price alert client-side (fitur B): Notification API + deteksi cross localStorage
 - **Status:** Approved
 - **Keputusan:** Tambah `store/alertStore.ts` (Zustand persist key `crypto-alerts`, cap `MAX_ALERTS` 20) menyimpan alert `{code, symbol, target, direction: above|below}`. Deteksi trigger via `lib/alerts.ts` `evaluateAlerts` yang membandingkan harga **sebelumnya** (`marketStore.previousLastPrice`) dengan harga **baru** (last) — alert "above" menyala saat `prev < target && last >= target` (demikian sebaliknya untuk below) sehingga trigger terjadi tepat saat harga **menyeberang**, bukan saat sudah berada di atas target. One-shot (`triggeredAt` diisi saat trigger). Notifikasi via **Notification API** (diminta saat user gesture menambah alert; fallback hanya status di panel bila ditolak). Watcher dipasang di `MarketDataProvider` (global, satu store — konsisten keputusan "satu koneksi WS").

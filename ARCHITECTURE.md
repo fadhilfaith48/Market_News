@@ -72,6 +72,8 @@ market-news/
 │   ├── coin/                  #   PriceChart, CoinQuoteBar, ChartToolbar, CoinInfoPanel
 │   ├── watchlist/             #   WatchlistPanel — panel sidebar drawer (menggantikan halaman /watchlist)
 │   ├── portfolio/             #   PortfolioPanel (drawer) + HoldingEditor (form posisi di halaman koin)
+│   ├── alerts/                #   AlertsPanel (drawer) + AlertQuickAdd (tombol ▲/▼ di halaman koin)
+│   ├── monitoring/            #   DiagnosticsPanel — drawer log error & performa (ring localStorage)
 │   └── ui/                    #   CoinIcon, ConnectionBadge, WatchStar, SearchBox, CurrencySelect, skeleton
 ├── hooks/                     # Custom hooks
 │   ├── useBinanceWS.ts        # Koneksi WebSocket + auto-reconnect (timeout 5s, saved endpoint)
@@ -80,6 +82,7 @@ market-news/
 │   ├── useFiatRates.ts        # Kurs mata uang via /api/rate
 │   ├── useCoinMarket.ts       # Market cap/supply via /api/coins
 │   ├── useTickerPolling.ts    # Fallback REST polling 5s saat WS offline (via /api/tickers)
+│   ├── useMonitoring.ts       # Tangkap onerror/unhandledrejection + PerformanceObserver → monitoringStore
 │   └── useWatchlist.ts        # CRUD watchlist di Local Storage       [belum — langsung via watchStore]
 ├── lib/                       # Utilitas & logika inti
 │   ├── binance/
@@ -92,13 +95,17 @@ market-news/
 │   │   └── index.ts           # getCoinMarketAssets: CoinGecko → CoinPaprika (DI `fetchers` utk unit test)
 │   ├── coinMeta.ts            # COIN_NAMES, LOGO_OVERRIDES, COINGECKO_IDS, getCoinMeta
 │   ├── sort.ts                # sortRows & applyRangeFilter (tabel dashboard)
+│   ├── monitoring.ts          # createLogEntry/appendLog (ring buffer), errorToEntry, sanitizeLogs, captureErrorContext
 │   ├── wsEndpoint.ts          # loadSavedEndpoint/saveGoodEndpoint/endpointOf (ingat endpoint WS yang berhasil)
 │   ├── storage.ts             # Wrapper Local Storage (get/set/remove)
 │   ├── format.ts              # Format harga, persentase, compact (K/M/B/T), convertPrice/formatCurrency
 │   └── constants.ts           # Daftar symbol, URL, interval, timeframes, konstanta WS/polling
 ├── store/                     # Zustand stores
 │   ├── marketStore.ts         # Harga real-time gabungan (dari WS)
-│   ├── uiStore.ts             # Theme, currency, watchlistOpen, status koneksi
+│   ├── uiStore.ts             # Theme, currency, watchlistOpen/portfolioOpen/alertsOpen/diagnosticsOpen, status koneksi
+│   ├── portfolioStore.ts      # State portofolio (persist `crypto-portfolio`)
+│   ├── alertStore.ts          # State price alert (persist `crypto-alerts`)
+│   ├── monitoringStore.ts     # Ring buffer log diagnostik (persist `crypto-diagnostics`)
 │   └── watchStore.ts          # State watchlist (persist `crypto-watchlist`)
 ├── types/                     # TypeScript types global
 │   └── index.ts
@@ -137,6 +144,11 @@ market-news/
 3. **Tampilan watchlist = panel sidebar drawer** (`WatchlistPanel`) yang di-toggle global — **bukan halaman `/watchlist`** (keputusan 30 Agustus 2026, E1). Data live koin favorit diambil dari `marketStore` (WS global 20 ticker), dengan grouping "Watchlist Saya / Top Gainers / Semua Koin".
 4. **Batasan Fase 1:** per-device/browser, tidak tersinkron antar device.
 
+### 4.4 Observability (monitoring lokal)
+1. `useMonitoring` (dipasang sekali di `MarketDataProvider`) menangkap `window.onerror`, `unhandledrejection`, dan `PerformanceObserver` (paint, LCP, CLS).
+2. Setiap catatan masuk ke `monitoringStore` sebagai **ring buffer 200 entri terakhir** (persist `crypto-diagnostics`) — tanpa pengiriman ke server (tanpa dependency).
+3. `DiagnosticsPanel` (drawer; tombol gauge di Header + badge error yang belum dibaca) menampilkan, memfilter, menyalin, dan membersihkan log; membuka panel menandai log sebagai "dibaca" (`markViewed`).
+
 ---
 
 ## 5. Keputusan Desain Sistem Utama
@@ -155,7 +167,7 @@ market-news/
 
 - **Latensi update < 1 detik** → WS + throttled re-render.
 - **FCP < 2 detik** → SSG/SSR, code-splitting, minimal bundle.
-- **Reliability** → auto-reconnect WS (exponential backoff), fallback REST polling jika WS gagal, indikator status koneksi.
+- **Reliability** → auto-reconnect WS (exponential backoff), fallback REST polling jika WS gagal, indikator status koneksi, dan **log error/performa lokal** (`monitoringStore`) untuk diagnosa tanpa infrastruktur.
 - **Keamanan** → hanya WSS/HTTPS, validasi input, rate-limit pada API Route.
 - **Kompatibilitas** → browser modern + responsive mobile/desktop.
 
