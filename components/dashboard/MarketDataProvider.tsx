@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useBinanceWS } from "@/hooks/useBinanceWS";
 import { useTickerPolling } from "@/hooks/useTickerPolling";
 import { usePriceAlertWatcher } from "@/hooks/usePriceAlertWatcher";
+import { useMonitoring } from "@/hooks/useMonitoring";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { useMarketStore } from "@/store/marketStore";
 import { useUIStore } from "@/store/uiStore";
@@ -41,6 +42,8 @@ export function MarketDataProvider({ children }: { children: React.ReactNode }) 
   useTickerPolling();
 
   usePriceAlertWatcher();
+
+  useMonitoring();
 
   return (
     <MarketDataContext.Provider value={contextValue}>
