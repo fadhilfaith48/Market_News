@@ -197,3 +197,67 @@ export async function fetchNews(): Promise<Article[]> {
 
   return mergeNews(collected);
 }
+
+const NEWS_STOPWORDS = new Set([
+  "the",
+  "and",
+  "for",
+  "with",
+  "token",
+  "protocol",
+  "coin",
+  "coins",
+  "network",
+  "ecosystem",
+  "finance",
+  "smart",
+  "market",
+  "based",
+  "platform",
+  "max",
+  "index",
+]);
+
+function escapeRegExp(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function addTerm(terms: Set<string>, raw: string): void {
+  const clean = raw.toLowerCase().trim();
+  if (clean.length >= 3 && !NEWS_STOPWORDS.has(clean)) terms.add(clean);
+}
+
+export function coinSearchTerms(
+  code: string,
+  name: string,
+  id?: string,
+): string[] {
+  const terms = new Set<string>([code.toLowerCase()]);
+  if (name) {
+    for (const word of name.split(/[\s()]+/)) addTerm(terms, word);
+  }
+  if (id) {
+    for (const word of id.split(/[-_\s]+/)) addTerm(terms, word);
+  }
+  return [...terms];
+}
+
+function matchesTerm(text: string, term: string): boolean {
+  return new RegExp(`(^|[^a-z0-9])${escapeRegExp(term)}([^a-z0-9]|$)`).test(
+    text,
+  );
+}
+
+export function filterArticlesByCoin(
+  articles: Article[],
+  code: string,
+  name: string,
+  id?: string,
+): Article[] {
+  const terms = coinSearchTerms(code, name, id);
+  if (terms.length === 0) return [];
+  return articles.filter((article) => {
+    const text = `${article.title} ${article.summary ?? ""}`.toLowerCase();
+    return terms.some((term) => matchesTerm(text, term));
+  });
+}

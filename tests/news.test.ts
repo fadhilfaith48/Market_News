@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   decodeEntities,
+  filterArticlesByCoin,
   mergeNews,
   NEWS_LIMIT,
   parseRss,
@@ -128,5 +129,49 @@ describe("mergeNews", () => {
       article(`https://example.com/${i}`, 9000 - i),
     );
     expect(mergeNews(many)).toHaveLength(NEWS_LIMIT);
+  });
+});
+
+describe("filterArticlesByCoin", () => {
+  const feed: Article[] = [
+    { ...article("https://example.com/btc", 1000), title: "Bitcoin tembus harga rekornya" },
+    { ...article("https://example.com/btc2", 900), title: "Analisis BTC minggu ini" },
+    { ...article("https://example.com/eth", 800), title: "Ethereum upgrade sukses" },
+    { ...article("https://example.com/sol", 700), title: "Solana ramai digunakan" },
+    { ...article("https://example.com/mix", 600), title: "Update pasar: bitcoin dan ethereum", summary: "bitcoin dan ethereum naik." },
+  ];
+
+  it("cocokkan berdasarkan nama lengkap", () => {
+    const result = filterArticlesByCoin(feed, "BTC", "Bitcoin", "bitcoin");
+    expect(result.map((item) => item.url)).toContain("https://example.com/btc");
+  });
+
+  it("cocokkan berdasarkan kode (case-insensitive)", () => {
+    const result = filterArticlesByCoin(feed, "BTC", "Bitcoin", "bitcoin");
+    expect(result.map((item) => item.url)).toContain("https://example.com/btc2");
+  });
+
+  it("tidak ikut menyertakan artikel yang tak terkait", () => {
+    const result = filterArticlesByCoin(feed, "ETH", "Ethereum", "ethereum");
+    expect(result.map((item) => item.url)).not.toContain(
+      "https://example.com/sol",
+    );
+  });
+
+  it("mencocokkan kata dengan batas kata utuh", () => {
+    const result = filterArticlesByCoin(
+      [
+        { ...article("https://example.com/ton", 1), title: "harga ton melonjak" },
+        { ...article("https://example.com/winton", 1), title: "berita tentang winton" },
+      ],
+      "TON",
+      "Toncoin",
+      "the-open-network",
+    );
+    expect(result.map((item) => item.url)).toEqual(["https://example.com/ton"]);
+  });
+
+  it("plain bagi feed kosong", () => {
+    expect(filterArticlesByCoin([], "BTC", "Bitcoin", "bitcoin")).toEqual([]);
   });
 });
