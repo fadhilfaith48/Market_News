@@ -149,6 +149,12 @@ market-news/
 2. Setiap catatan masuk ke `monitoringStore` sebagai **ring buffer 200 entri terakhir** (persist `crypto-diagnostics`) — tanpa pengiriman ke server (tanpa dependency).
 3. `DiagnosticsPanel` (drawer; tombol gauge di Header + badge error yang belum dibaca) menampilkan, memfilter, menyalin, dan membersihkan log; membuka panel menandai log sebagai "dibaca" (`markViewed`).
 
+### 4.5 Market Intel (Global Stats + Fear & Greed + Berita per koin)
+
+1. **Global Market Stats** — `coins/global` dicek dulu pada `hooks/useGlobalMarket` (TanStack Query `["global-market"]`, stale 300s). Bila lewat batas, client request `GET /api/global` → handler memanggil `fetchGlobalMarket` (CoinGecko `/api/v3/global`, timeout 6s, `revalidate:300`), respons dinormalisasi `normalizeCoinGeckoGlobal` → `{ market, updatedAt }` (cache 60s ISR). `MarketOverview` merender bar statistik (Total M.Cap, Volume 24j, Dominasi BTC/ETH, Δ24j); field kosong → "—".
+2. **Fear & Greed Index** — `hooks/useFearGreed` (`["fear-greed"]`, stale 1800s) → `GET /api/fear-greed` → `fetchFearGreed` (alternative.me `/fng/?limit=1`, timeout 6s, cache 300s ISR) → `normalizeFearGreed` (nilai angka, timestamp detik→ms) → `{ index, updatedAt }`. `FearGreedGauge` menampilkan skor + klasifikasi (Sangat Takut→Sangat Serakah).
+3. **Berita per koin (0 request baru)** — `CoinNewsSection` memakai `useNews` yang sama di dashboard (feed RSS 4 sumber, merge + limit `NEWS_LIMIT`). Artikel **difilter client-side** oleh `filterArticlesByCoin(articles, code, name, id)` di `lib/news.ts`: membangun `coinSearchTerms` dari kode + kata nama + segmen id CoinGecko (stopwords dibuang), lalu mencocokkan title+summary secara case-insensitive dengan regex **word boundary**. Komponen `ArticleItem` (baru) dipakai bersama oleh `NewsSection` (dashboard) dan `CoinNewsSection` (halaman koin).
+
 ---
 
 ## 5. Keputusan Desain Sistem Utama
@@ -186,6 +192,7 @@ market-news/
 | Risiko | Mitigasi |
 |---|---|
 | Binance/CoinGecko rate-limit / down | Caching ISR; fallback provider CoinPaprika (via lib/adapters); adapter pattern agar mudah ganti provider. |
+| alternative.me / CoinGecko `/global` turun / rate-limit | Caching ISR (60s/300s) + UI menampilkan "—" tanpa crash (MarketOverview), gauge menampilkan state kosong (FearGreedGauge). |
 | WS client terputus | Auto-reconnect + fallback REST polling via API Route. |
 | Watchlist hilang antar device | Komunikasi sebagai batasan Fase 1; opsi akun di fase berikutnya. |
 

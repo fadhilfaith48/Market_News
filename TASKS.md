@@ -216,6 +216,15 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] Tests `tests/monitoring.test.ts` (append/trim ring, describeError/errorToEntry, sanitize, count, store) — total **156 hijau**, lint & build OK, 50 koin tetap SSG
 - [x] Update DECISIONS.md · ARCHITECTURE.md (§4.4 observability + tree)
 
+### E — Market Intel (Global Stats + Fear & Greed + Berita per koin) ✅
+> Paket lanjutan di luar roadmap A–D; semua sumber API gratis tanpa key.
+- [x] **Global Market Stats** — `lib/adapters/global.ts` (baru): `GlobalMarket { totalMarketCapUsd, totalVolumeUsd, marketCapChange24h, btcDominance, ethDominance, updatedAt }`, `normalizeCoinGeckoGlobal` (pure, batal bila mcap usd bukan angka), `fetchGlobalMarket` (CoinGecko `/global`, timeout 6s, `revalidate:300`); `app/api/global/route.ts`; `hooks/useGlobalMarket.ts`; `components/dashboard/MarketOverview.tsx` (bar statistik di bawah LiveTicker: Total M.Cap · Volume 24j · Dominasi BTC/ETH · Δ24j, "—" bila gagal)
+- [x] **Fear & Greed** — `lib/fearGreed.ts` (baru): `FearGreedIndex { value, classification, updatedAt }`, `normalizeFearGreed` (string→number, timestamp detik→ms), `fetchFearGreed` (alternative.me `/fng`, timeout 6s, `revalidate:1800`); `app/api/fear-greed/route.ts`; `hooks/useFearGreed.ts`; `components/dashboard/FearGreedGauge.tsx` (gauge berwarna Sangat Takut→Sangat Serakah, di kolom kiri atas TopMovers)
+- [x] **Berita per koin** — `lib/news.ts` + `coinSearchTerms` (kode+nama+id CoinGecko, stopwords, batas kata) + `filterArticlesByCoin` (case-insensitive, boundary regex); `components/news/ArticleItem.tsx` (baru, dipakai bersama NewsSection & CoinNewsSection); `components/coin/CoinNewsSection.tsx` (baru, reuse `useNews` tanpa request baru, empty state); dipasang di `CoinDetail` bawah chart
+- [x] Tests `tests/global.test.ts` + `tests/fearGreed.test.ts` (baru) + `tests/news.test.ts` (extend filter) — total **169 hijau**, lint & build OK (2 API route baru, 50 koin tetap SSG)
+- [x] Verifikasi live dev: `/api/global` & `/api/fear-greed` 200 berisi data riil (mcap $2.83T, dominance BTC 59.5%, F&G 69/Greed); widget & section ter-render SSR
+- [x] Update DECISIONS.md · ARCHITECTURE.md · PROGRESS.md
+
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device
 - [ ] Opsional: notifikasi push email/SMS

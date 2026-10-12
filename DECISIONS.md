@@ -244,6 +244,13 @@ Format entri baru:
 - **Trade-off:** Hanya aktif saat browser/ tab terbuka; tidak sinkron antar device; notifikasi bergantung izin browser (bila ditolak, alert tetap terlihat di panel sebagai "Trigger").
 - **Alternatif ditolak:** Peringatan dilakukan lewat server/push (perlu backend + subscription), polling REST eksternal untuk memeriksa level (boros, Twitter/telecharger), alert "saat konsisten di atas/bawah target" tanpa deteksi cross (menyala setelah harga lewat, tidak tepat momen menyeberang).
 
+## 12 Oktober 2026 — Market Intel (fitur E): Global Stats + Fear & Greed + Berita per koin
+- **Status:** Approved (paket lanjutan di luar roadmap A–D)
+- **Keputusan:** Tambah tiga sumber bebas-key agar dashboard lebih informatif: (1) **Global Market Stats** via CoinGecko `/api/v3/global` → `lib/adapters/global.ts` (`normalizeCoinGeckoGlobal` pure, batal bila total mcap USD bukan angka) + `MarketOverview` (bar di bawah LiveTicker, "—" bila gagal/rate-limit); (2) **Fear & Greed Index** via `api.alternative.me/fng` → `lib/fearGreed.ts` (`normalizeFearGreed`) + `FearGreedGauge` (kolom kiri atas TopMovers); (3) **Berita per koin** — filter **client-side** dari feed RSS yang sudah ada (`useNews`) via `filterArticlesByCoin` (case-insensitive, boundary regex, stopwords) → `CoinNewsSection` di halaman koin bawah chart. Antrian memakai TanStack Query (`revalidate` setara stale: 300s global, 1800s FnG); kedua API melalui route handler `/api/global` & `/api/fear-greed` (runtime, cache 60s / 300s). **Tanpa dependency baru.**
+- **Alasan:** Menutup pain point persona (keputusan trading perlu konteks sentimen pasar global, bukan hanya harga satu koin) tanpa infra/biaya; API CoinGecko `/global` dan alternative.me gratis + tanpa key (terverifikasi HTTP 200 dari dev); total permintaan jaringan bertambah hanya **1×2** (global & FnG) karena berita per koin tidak melakukan request baru.
+- **Trade-off:** Berita per koin sebatas kata kunci (kode/nama/id CoinGecko) yang bisa memunculkan artikel lewat konteks (false-positive ringan, mis. "open"/"dao"); ketepatan label FnG adalah representasi alternatif dari sumber resmi asli (koin lain, bukan BTC) — tidak diulas lebih jauh.
+- **Alternatif ditolak:** Filter berita per koin via API koinnews/coinmarketcap news (butuh key + biaya), pasang sumber sentiment sendiri (skala kecil di luar lingkup), global stats dari CoinMetrics/Glassnode (berbayar).
+
 ## Keputusan yang Pernah Dibahas & Ditutup
 - Backend Express/Fastify untuk WebSocket server → **ditolak** (lihat keputusan #1).
 - Use local state (useState) saja untuk data real-time → **diganti** Zustand + marketStore untuk berbagi antar halaman.
