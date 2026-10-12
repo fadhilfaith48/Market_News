@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 import { CoinQuoteBar } from "@/components/coin/CoinQuoteBar";
 import { ChartToolbar } from "@/components/coin/ChartToolbar";
 import { CoinInfoPanel } from "@/components/coin/CoinInfoPanel";
+import { CoinNewsSection } from "@/components/coin/CoinNewsSection";
 import { PriceChart } from "@/components/coin/PriceChart";
 import { HoldingEditor } from "@/components/portfolio/HoldingEditor";
 import { AlertQuickAdd } from "@/components/alerts/AlertQuickAdd";
@@ -98,6 +99,10 @@ export function CoinDetail({ code }: { code: string }) {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <CoinNewsSection code={code} />
       </div>
     </div>
   );

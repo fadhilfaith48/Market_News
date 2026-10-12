@@ -1,29 +1,7 @@
 "use client";
 
-import { useState } from "react";
-
 import { useNews } from "@/hooks/useNews";
-import { formatRelativeTime } from "@/lib/format";
-import type { Article } from "@/lib/news";
-
-function ArticleThumb({ src, alt }: { src: string; alt: string }) {
-  const [failed, setFailed] = useState(false);
-
-  if (failed) return null;
-
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={alt}
-      width={40}
-      height={40}
-      loading="lazy"
-      onError={() => setFailed(true)}
-      className="size-10 flex-none rounded object-cover"
-    />
-  );
-}
+import { ArticleItem } from "@/components/news/ArticleItem";
 
 function NewsSkeleton() {
   return (
@@ -35,29 +13,6 @@ function NewsSkeleton() {
         </div>
       ))}
     </div>
-  );
-}
-
-function NewsItem({ article }: { article: Article }) {
-  return (
-    <a
-      href={article.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block rounded border border-transparent px-2 py-2 transition-colors hover:bg-hover hover:border-border/40"
-    >
-      <div className="flex items-start gap-2">
-        {article.image ? <ArticleThumb src={article.image} alt="" /> : null}
-        <div className="min-w-0">
-          <p className="line-clamp-2 text-sm font-medium leading-snug">
-            {article.title}
-          </p>
-          <p className="mt-1 text-xs text-muted">
-            {article.source} · {formatRelativeTime(article.publishedAt)}
-          </p>
-        </div>
-      </div>
-    </a>
   );
 }
 
@@ -92,7 +47,7 @@ export function NewsSection() {
       {hasArticles ? (
         <div className="space-y-0.5 p-2">
           {data?.map((article) => (
-            <NewsItem key={article.id} article={article} />
+            <ArticleItem key={article.id} article={article} />
           ))}
         </div>
       ) : null}
