@@ -398,3 +398,17 @@ Template entri selanjutnya — salin & isi di atas baris ini:
 
 ### Catatan
 - **Belum di-commit/push** (tunggu instruksi user).
+
+## 12 Oktober 2026 — Fitur E: Market Intel (Global Stats + Fear & Greed + Berita per koin)
+
+### Status: Done (kode + verifikasi penuh — belum di-commit/push atas instruksi user)
+
+- [x] **Global Market Stats** — `lib/adapters/global.ts` baru (`GlobalMarket`, `normalizeCoinGeckoGlobal` pure, `fetchGlobalMarket` CoinGecko `/global` timeout 6s, `revalidate:300`); `app/api/global/route.ts` (`{ market, updatedAt }`); `hooks/useGlobalMarket.ts` (`["global-market"]`, stale 300s); `components/dashboard/MarketOverview.tsx` (bar statistik di bawah LiveTicker, field gagal → "—").
+- [x] **Fear & Greed Index** — `lib/fearGreed.ts` baru (`FearGreedIndex`, `normalizeFearGreed` angka + timestamp detik→ms, `fetchFearGreed` alternative.me `/fng` timeout 6s, `revalidate:1800`); `app/api/fear-greed/route.ts` (`{ index, updatedAt }`); `hooks/useFearGreed.ts` (`["fear-greed"]`, stale 1800s); `components/dashboard/FearGreedGauge.tsx` (gauge 0–100, label Sangat Takut→Sangat Serakah, kolom kiri atas TopMovers).
+- [x] **Berita per koin (0 request baru)** — `lib/news.ts` + `coinSearchTerms` (kode+nama+segmen id CoinGecko, stopwords, minimal 3 huruf) + `filterArticlesByCoin` (case-insensitive, regex word boundary); `components/news/ArticleItem.tsx` baru (dipakai bersama NewsSection & CoinNewsSection — NewsSection di-refactor); `components/coin/CoinNewsSection.tsx` (reuse `useNews`, empty state, retry); dipasang di `CoinDetail` bawah chart.
+- [x] **Tes**: `tests/global.test.ts` + `tests/fearGreed.test.ts` baru + `tests/news.test.ts` (extend #filter) → total **169/169**; lint OK; build OK (2 API route baru, 50 koin tetap SSG).
+- [x] **Smoke dev** (`localhost:3111`/`3112`): `/` 200, `/coin/BTC` 200, `/api/global` **data riil** ($2.83T mcap, dominance BTC 59.5%, Δ -2.31%), `/api/fear-greed` **69/Greed**; SSR memuat widget statistik global (`aria-label="Statistik pasar global"`) & `aria-label="Berita Bitcoin"`.
+- [x] **Docs**: DECISIONS (keputusan Market Intel + alternatif ditolak), TASKS (Fitur E ✅), ARCHITECTURE (§4.5 + §8 risiko alternative.me, shared ArticleItem), PROGRESS (entry ini).
+
+### Catatan
+- **Belum di-commit/push** (tunggu instruksi user). Catatan status git: Fitur D `74c8f93` (PROGRESS) juga masih unpushed; commit C `2f29ddc` ikut ter-push bersama push D (ancestor).
