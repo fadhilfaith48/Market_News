@@ -13,7 +13,7 @@ function Stat({
   tone?: "up" | "down";
 }) {
   return (
-    <div className="flex min-w-[120px] flex-col gap-0.5 px-4 py-2">
+    <div className="flex flex-col gap-0.5 bg-panel px-4 py-2">
       <span className="text-[10px] uppercase tracking-wide text-muted">
         {label}
       </span>
@@ -39,9 +39,9 @@ export function MarketOverview() {
   return (
     <section
       aria-label="Statistik pasar global"
-      className="border-b border-border bg-panel/50"
+      className="border-b border-border"
     >
-      <div className="mx-auto flex max-w-7xl flex-wrap items-stretch divide-x divide-border/50">
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-2 gap-px bg-border sm:grid-cols-3 lg:grid-cols-5">
         <Stat
           label="Total Market Cap"
           value={
