@@ -127,7 +127,7 @@ export function TickerTable() {
           <button
             type="button"
             onClick={retryConnection}
-            className="rounded-md border border-border px-4 py-1.5 text-sm font-medium hover:bg-hover"
+            className="btn-ghost focus-ring px-4 py-1.5 text-sm"
           >
             Coba Lagi
           </button>
@@ -152,17 +152,17 @@ export function TickerTable() {
   };
 
   return (
-    <div>
-      <div className="mb-3 flex flex-wrap items-center gap-1">
+    <div className="card p-3 sm:p-4">
+      <div className="mb-3 inline-flex flex-wrap gap-1 rounded-full bg-hover p-0.5">
         {FILTERS.map((f) => (
           <button
             key={f.key}
             type="button"
             onClick={() => setFilter(f.key)}
-            className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+            className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${
               filter === f.key
-                ? "bg-interactive text-white"
-                : "text-muted hover:bg-hover hover:text-text"
+                ? "bg-interactive text-white shadow-card"
+                : "text-muted hover:text-text"
             }`}
           >
             {f.label}
@@ -178,7 +178,7 @@ export function TickerTable() {
             <div
               key={symbol}
               onClick={() => openCoin(symbol)}
-              className="flex cursor-pointer items-center justify-between rounded border border-border/60 p-3 hover:bg-hover"
+              className="card card-hover flex cursor-pointer items-center justify-between p-3"
             >
               <div className="flex min-w-0 items-center gap-2.5">
                 <WatchStar code={code} />
@@ -219,7 +219,7 @@ export function TickerTable() {
                   <button
                     type="button"
                     onClick={() => handleSort(col.key)}
-                    className="inline-flex cursor-pointer items-center gap-1 uppercase tracking-wide transition-colors hover:text-text"
+                    className="focus-ring inline-flex cursor-pointer items-center gap-1 rounded uppercase tracking-wide transition-colors hover:text-text"
                   >
                     {col.label}
                     <span className="text-[9px]">
@@ -283,7 +283,7 @@ export function TickerTable() {
 
 function TickerTableSkeleton() {
   return (
-    <div className="overflow-hidden rounded border border-border">
+    <div className="card overflow-hidden">
       <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
