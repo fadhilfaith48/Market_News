@@ -64,15 +64,15 @@ export function Header() {
 
   return (
     <header className="border-b border-border px-4 py-2.5">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-1.5 sm:gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <Logo className="h-6 w-6 flex-none text-up" />
-          <span className="flex-none text-base font-bold leading-tight tracking-tight sm:text-lg">
+          <span className="min-w-0 truncate text-base font-bold leading-tight tracking-tight sm:text-lg">
             Market News
           </span>
           <ConnectionBadge className="flex-none" />
         </div>
-        <div className="flex flex-none items-center gap-2">
+        <div className="flex flex-none items-center gap-1.5 sm:gap-2">
           <div className="hidden sm:block">
             <SearchBox />
           </div>
@@ -83,31 +83,62 @@ export function Header() {
             type="button"
             onClick={toggleWatchlist}
             aria-pressed={watchlistOpen}
-            className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+            aria-label="Watchlist"
+            className={`flex items-center rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 ${
               watchlistOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
             }`}
           >
-            {hydrated ? (watchlistOpen ? "Tutup Watchlist" : "Watchlist") : "Watchlist"}
+            <svg
+              className="size-4 sm:hidden"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            <span className="hidden sm:inline">
+              {hydrated ? (watchlistOpen ? "Tutup Watchlist" : "Watchlist") : "Watchlist"}
+            </span>
           </button>
           <button
             type="button"
             onClick={togglePortfolio}
             aria-pressed={portfolioOpen}
-            className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+            aria-label="Portofolio"
+            className={`flex items-center rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 ${
               portfolioOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
             }`}
           >
-            {hydrated
-              ? portfolioOpen
-                ? "Tutup Portofolio"
-                : holdingsCount > 0
-                  ? `Portofolio (${holdingsCount})`
-                  : "Portofolio"
-              : "Portofolio"}
+            <svg
+              className="size-4 sm:hidden"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="2" y="7" width="20" height="14" rx="2" />
+              <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+            </svg>
+            <span className="hidden sm:inline">
+              {hydrated
+                ? portfolioOpen
+                  ? "Tutup Portofolio"
+                  : holdingsCount > 0
+                    ? `Portofolio (${holdingsCount})`
+                    : "Portofolio"
+                : "Portofolio"}
+            </span>
           </button>
           <button
             type="button"
@@ -173,9 +204,25 @@ export function Header() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="rounded-md border border-border px-3 py-1.5 text-xs font-medium hover:bg-hover"
+            aria-label={theme === "dark" ? "Mode Terang" : "Mode Gelap"}
+            className="flex items-center rounded-md border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-hover sm:px-3"
           >
-            {hydrated ? (theme === "dark" ? "Terang" : "Gelap") : "Tema"}
+            <svg
+              className="size-4 sm:hidden"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+            </svg>
+            <span className="hidden sm:inline">
+              {hydrated ? (theme === "dark" ? "Terang" : "Gelap") : "Tema"}
+            </span>
           </button>
         </div>
       </div>
