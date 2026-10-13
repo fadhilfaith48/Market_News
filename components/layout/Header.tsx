@@ -63,10 +63,12 @@ export function Header() {
   };
 
   return (
-    <header className="border-b border-border px-4 py-2.5">
+    <header className="glass-bar sticky top-0 z-40 px-4 py-2.5">
       <div className="flex items-center justify-between gap-1.5 sm:gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <Logo className="h-6 w-6 flex-none text-up" />
+          <span className="flex-none rounded-xl bg-gradient-to-br from-interactive to-up p-1 text-white">
+            <Logo className="size-4 text-white" />
+          </span>
           <span className="min-w-0 truncate text-base font-bold leading-tight tracking-tight sm:text-lg">
             Market News
           </span>
@@ -84,7 +86,7 @@ export function Header() {
             onClick={toggleWatchlist}
             aria-pressed={watchlistOpen}
             aria-label="Watchlist"
-            className={`flex items-center rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 ${
+            className={`focus-ring flex items-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 ${
               watchlistOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -111,7 +113,7 @@ export function Header() {
             onClick={togglePortfolio}
             aria-pressed={portfolioOpen}
             aria-label="Portofolio"
-            className={`flex items-center rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 ${
+            className={`focus-ring flex items-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 ${
               portfolioOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -145,7 +147,7 @@ export function Header() {
             onClick={toggleAlerts}
             aria-pressed={alertsOpen}
             aria-label="Harga Alert"
-            className={`relative rounded-md border px-2.5 py-1.5 transition-colors ${
+            className={`focus-ring relative rounded-full border px-2.5 py-1.5 transition-colors ${
               alertsOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -175,7 +177,7 @@ export function Header() {
             onClick={toggleDiagnostics}
             aria-pressed={diagnosticsOpen}
             aria-label="Diagnostics"
-            className={`relative rounded-md border px-2.5 py-1.5 transition-colors ${
+            className={`focus-ring relative rounded-full border px-2.5 py-1.5 transition-colors ${
               diagnosticsOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -205,7 +207,7 @@ export function Header() {
             type="button"
             onClick={toggleTheme}
             aria-label={theme === "dark" ? "Mode Terang" : "Mode Gelap"}
-            className="flex items-center rounded-md border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-hover sm:px-3"
+            className="focus-ring flex items-center rounded-full border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-hover sm:px-3"
           >
             <svg
               className="size-4 sm:hidden"
