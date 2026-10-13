@@ -15,6 +15,9 @@
   --tv-interactive: #2962ff;
   --tv-hover: #f0f1f5;
   --tv-warning: #f7931a;
+  --tv-up-soft: #e5f5f0;
+  --tv-down-soft: #fdeaea;
+  --tv-interactive-soft: #e8eefd;
 
   --shimmer-base: #e9ecef;
   --shimmer-hover: #dee2e6;
@@ -35,6 +38,9 @@
   --tv-interactive: #2962ff;
   --tv-hover: #252832;
   --tv-warning: #ff9800;
+  --tv-up-soft: #0f322e;
+  --tv-down-soft: #3a1f28;
+  --tv-interactive-soft: #17294d;
 
   --shimmer-base: #1a1e2e;
   --shimmer-hover: #252940;
@@ -53,6 +59,13 @@
   --color-interactive: var(--tv-interactive);
   --color-hover: var(--tv-hover);
   --color-warning: var(--tv-warning);
+  --color-up-soft: var(--tv-up-soft);
+  --color-down-soft: var(--tv-down-soft);
+  --color-interactive-soft: var(--tv-interactive-soft);
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.04),
+    0 4px 12px -2px rgb(0 0 0 / 0.06);
+  --shadow-card-hover: 0 2px 4px -1px rgb(0 0 0 / 0.05),
+    0 10px 24px -6px rgb(0 0 0 / 0.12);
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas,
@@ -64,6 +77,109 @@ body {
   background: var(--tv-page);
   color: var(--tv-text);
   font-family: var(--font-sans);
+}
+
+/* ─── Design System Components (Fase 0) ─── */
+@layer components {
+  .card {
+    border-radius: var(--radius-xl, 1rem);
+    border: 1px solid var(--tv-border);
+    background: var(--tv-panel);
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-hover {
+    transition-property: border-color, box-shadow, background-color;
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
+  }
+
+  .card-hover:hover {
+    border-color: color-mix(in srgb, var(--tv-text) 18%, var(--tv-border));
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--tv-muted);
+  }
+
+  .section-title::before {
+    content: "";
+    width: 0.375rem;
+    height: 0.375rem;
+    flex: none;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, var(--tv-up), var(--tv-interactive));
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    border: 1px solid var(--tv-border);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition-property: background-color, border-color, color;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+
+  .btn-ghost:hover {
+    background: var(--tv-hover);
+  }
+
+  .glass-bar {
+    border-bottom: 1px solid var(--tv-border);
+    background: color-mix(in srgb, var(--tv-page) 80%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--tv-interactive);
+    outline-offset: 2px;
+  }
+}
+
+/* ─── Gradient Text ─── */
+.text-up-gradient {
+  background-image: linear-gradient(90deg, var(--tv-flat), var(--tv-up));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-down-gradient {
+  background-image: linear-gradient(90deg, var(--tv-flat), var(--tv-down));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-hover {
+    transition: none;
+  }
 }
 
 /* ─── Flash Animations ─── */
