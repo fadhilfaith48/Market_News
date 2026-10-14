@@ -19,7 +19,7 @@ function ArticleThumb({ src, alt }: { src: string; alt: string }) {
       height={40}
       loading="lazy"
       onError={() => setFailed(true)}
-      className="size-10 flex-none rounded object-cover"
+      className="size-10 flex-none rounded-lg object-cover"
     />
   );
 }
@@ -30,7 +30,7 @@ export function ArticleItem({ article }: { article: Article }) {
       href={article.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="block rounded border border-transparent px-2 py-2 transition-colors hover:bg-hover hover:border-border/40"
+      className="focus-ring block rounded-xl px-2 py-2 transition-colors hover:bg-hover"
     >
       <div className="flex items-start gap-2">
         {article.image ? <ArticleThumb src={article.image} alt="" /> : null}
