@@ -34,10 +34,10 @@ function MoverRow({ symbol, rank }: { symbol: string; rank: number }) {
     <button
       type="button"
       onClick={() => router.push(`/coin/${code}`)}
-      className="flex w-full cursor-pointer items-center gap-2 rounded border border-transparent px-2 py-1.5 text-left transition-colors hover:bg-hover hover:border-border/40"
+      className="focus-ring flex w-full cursor-pointer items-center gap-2 rounded-xl px-2 py-1.5 text-left transition-colors hover:bg-hover"
     >
-      <span className="w-5 flex-none text-center text-xs tabular-nums text-muted">
-        {rank}.
+      <span className="flex size-5 flex-none items-center justify-center rounded-full bg-hover text-[10px] font-medium tabular-nums text-muted">
+        {rank}
       </span>
       <CoinIcon symbol={symbol} size={18} />
       <span className="min-w-0 flex-1 truncate">
@@ -61,11 +61,9 @@ function MoversCard({
   symbols: string[];
 }) {
   return (
-    <div className="rounded border border-border">
-      <div className="border-b border-border px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted">
-        {title} (24 Jam)
-      </div>
-      <div className="space-y-0.5 p-2">
+    <div className="card p-3">
+      <h3 className="section-title">{title} (24 Jam)</h3>
+      <div className="space-y-0.5">
         {symbols.length === 0 ? (
           <p className="px-2 py-3 text-xs text-muted">Belum ada data.</p>
         ) : (
