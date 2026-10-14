@@ -1,11 +1,11 @@
 export default function Loading() {
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6">
+    <div className="mx-auto w-full max-w-7xl px-4 py-6">
       <div className="space-y-3">
-        <div className="shimmer h-5 w-40 rounded" />
-        <div className="shimmer h-4 w-64 rounded" />
+        <div className="shimmer h-5 w-40 rounded-lg" />
+        <div className="shimmer h-4 w-64 rounded-lg" />
       </div>
-      <div className="mt-6 overflow-hidden rounded border border-border">
+      <div className="card mt-6 overflow-hidden">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">

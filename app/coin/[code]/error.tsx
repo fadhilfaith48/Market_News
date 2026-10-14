@@ -14,20 +14,18 @@ export default function CoinError({
   }, [error]);
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 px-4 py-16 text-center">
-      <div className="text-sm font-semibold text-text">
-        Terjadi kesalahan saat memuat halaman koin
+    <div className="mx-auto max-w-md px-4 py-16">
+      <div className="card flex flex-col items-center gap-3 p-8 text-center">
+        <div className="text-sm font-semibold text-text">
+          Terjadi kesalahan saat memuat halaman koin
+        </div>
+        <p className="max-w-sm text-sm text-muted">
+          Gagal memuat detail koin. Silakan coba lagi.
+        </p>
+        <button type="button" onClick={retry} className="btn-ghost focus-ring">
+          Coba Lagi
+        </button>
       </div>
-      <p className="max-w-sm text-sm text-muted">
-        Gagal memuat detail koin. Silakan coba lagi.
-      </p>
-      <button
-        type="button"
-        onClick={retry}
-        className="rounded-md border border-border px-4 py-1.5 text-sm font-medium hover:bg-hover"
-      >
-        Coba Lagi
-      </button>
     </div>
   );
 }
