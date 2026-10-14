@@ -8,6 +8,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border">
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-interactive/40 to-transparent" />
       <div className="mx-auto grid max-w-4xl grid-cols-1 gap-3 px-4 py-5 text-xs text-muted sm:grid-cols-2 md:grid-cols-3">
         <div>
           <div className="mb-1 text-sm font-semibold text-text">

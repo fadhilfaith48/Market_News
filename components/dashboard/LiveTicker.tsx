@@ -42,7 +42,7 @@ export function LiveTicker() {
 
   if (!hasData) {
     return (
-      <div className="flex items-center gap-2 border-b border-border bg-panel px-4 py-2 text-xs text-muted">
+      <div className="flex items-center gap-2 border-b border-border bg-panel/60 px-4 py-2 text-xs text-muted backdrop-blur">
         Memuat data pasar…
       </div>
     );
@@ -52,7 +52,7 @@ export function LiveTicker() {
   const duration = Math.max(15, items.length * 2.8);
 
   return (
-    <div className="overflow-hidden border-b border-border bg-panel">
+    <div className="overflow-hidden border-b border-border bg-panel/60 backdrop-blur">
       <div
         className="animate-marquee flex w-max hover:[animation-play-state:paused]"
         style={{ "--marquee-duration": `${duration}s` } as CSSProperties}
