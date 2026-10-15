@@ -165,5 +165,5 @@ export function PriceChart({ historical, live }: PriceChartProps) {
     series.update(merged);
   }, [live]);
 
-  return <div ref={containerRef} className="h-96 w-full" />;
+  return <div ref={containerRef} className="h-[420px] w-full sm:h-[500px]" />;
 }

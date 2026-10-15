@@ -116,10 +116,8 @@ export function CoinInfoPanel({ code, ticker, streamOpen }: CoinInfoPanelProps) 
         <span className="text-muted">· {lastUpdate}</span>
       </div>
 
-      <div className="space-y-0 border-t border-border pt-3">
-        <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-          Key Stats
-        </h3>
+      <div className="mt-3 border-t border-border/60 pt-3">
+        <h3 className="section-title">Key Stats</h3>
         <StatRow
           label="Volume 24j"
           value={ticker ? formatCompact(ticker.quoteVolume) : "-"}
@@ -152,10 +150,8 @@ export function CoinInfoPanel({ code, ticker, streamOpen }: CoinInfoPanelProps) 
       </div>
 
       {keyFacts.length > 0 && (
-        <div className="space-y-0 border-t border-border pt-3">
-          <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted">
-            Key Facts
-          </h3>
+        <div className="mt-3 border-t border-border/60 pt-3">
+          <h3 className="section-title">Key Facts</h3>
           {keyFacts.map((f) => (
             <FactsRow key={f.label} label={f.label} value={f.value} />
           ))}

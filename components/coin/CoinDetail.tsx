@@ -42,32 +42,32 @@ export function CoinDetail({ code }: { code: string }) {
     <div className="mx-auto w-full max-w-7xl px-4 py-6">
       <Link
         href="/"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-muted hover:text-text"
+        className="mb-4 inline-flex items-center gap-1 rounded-lg px-1 -ml-1 text-sm text-muted transition-colors hover:text-text focus-ring"
       >
         &larr; Kembali ke Dashboard
       </Link>
 
-      <div className="flex flex-col gap-0 lg:grid lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
         {/* Left column — Chart */}
-        <div className="min-w-0">
+        <div className="card min-w-0 overflow-hidden">
           <CoinQuoteBar
             symbol={symbol}
             ticker={ticker ?? null}
             latestKline={latestKline}
           />
 
-          <div className="overflow-hidden border border-border border-t-0">
+          <div className="border-t border-border/60">
             {isLoading && !historical ? (
-              <div className="shimmer h-[500px] w-full" />
+              <div className="shimmer h-[420px] w-full sm:h-[500px]" />
             ) : isError || !historical || historical.length === 0 ? (
-              <div className="flex h-[500px] flex-col items-center justify-center gap-3">
+              <div className="flex h-[420px] flex-col items-center justify-center gap-3 sm:h-[500px]">
                 <div className="text-sm text-down">
                   Gagal memuat data candlestick
                 </div>
                 <button
                   type="button"
                   onClick={() => refetch()}
-                  className="rounded-md border border-border px-4 py-1.5 text-sm font-medium hover:bg-hover"
+                  className="btn-ghost focus-ring"
                 >
                   Coba Lagi
                 </button>
@@ -88,13 +88,15 @@ export function CoinDetail({ code }: { code: string }) {
         </div>
 
         {/* Right column — Info Panel */}
-        <div className="mt-4 border-t border-border pt-4 lg:mt-0 lg:border-t-0 lg:border-l lg:border-border lg:pl-4 lg:pt-0">
-          <div className="lg:sticky lg:top-4">
-            <CoinInfoPanel code={code} ticker={ticker ?? null} streamOpen={streamOpen} />
-            <div className="mt-4">
+        <div className="mt-4 flex flex-col gap-4 lg:mt-0">
+          <div className="lg:sticky lg:top-20 lg:flex lg:flex-col lg:gap-4">
+            <div className="card p-4">
+              <CoinInfoPanel code={code} ticker={ticker ?? null} streamOpen={streamOpen} />
+            </div>
+            <div className="card p-4">
               <HoldingEditor code={code} />
             </div>
-            <div className="mt-4">
+            <div className="card p-4">
               <AlertQuickAdd code={code} />
             </div>
           </div>

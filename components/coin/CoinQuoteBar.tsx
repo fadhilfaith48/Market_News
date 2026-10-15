@@ -41,7 +41,7 @@ export function CoinQuoteBar({
   const vol = ticker ? formatCompact(ticker.quoteVolume) : "-";
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-border px-4 py-2 text-xs">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-border/60 px-4 py-2.5 text-xs">
       <div className="flex items-center gap-2">
         <CoinIcon symbol={symbol} size={18} />
         <span className="font-semibold">{code}</span>

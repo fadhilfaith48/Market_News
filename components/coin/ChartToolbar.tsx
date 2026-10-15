@@ -19,17 +19,17 @@ function formatUTCNow(): string {
 
 export function ChartToolbar({ interval, setInterval }: ChartToolbarProps) {
   return (
-    <div className="flex items-center justify-between border-t border-border px-4 py-2">
-      <div className="flex gap-0.5">
+    <div className="flex items-center justify-between gap-2 border-t border-border/60 px-3 py-2">
+      <div className="flex gap-0.5 rounded-full bg-hover p-0.5">
         {TIMEFRAMES.map((tf: Timeframe) => (
           <button
             key={tf}
             type="button"
             onClick={() => setInterval(tf)}
-            className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
+            className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
               interval === tf
-                ? "bg-interactive text-white"
-                : "text-muted hover:bg-hover hover:text-text"
+                ? "bg-interactive text-white shadow-card"
+                : "text-muted hover:text-text"
             }`}
           >
             {tf.toUpperCase()}
