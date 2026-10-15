@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { CoinIcon } from "@/components/ui/CoinIcon";
+import { DrawerShell } from "@/components/ui/DrawerShell";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
 import { getCoinMeta } from "@/lib/coinMeta";
 import { formatPrice } from "@/lib/format";
@@ -17,7 +18,7 @@ function AlertRow({ alert }: { alert: PriceAlert }) {
   const active = alert.triggeredAt === null;
 
   return (
-    <div className="flex w-full items-center gap-2 border-b border-border/50 px-3 py-2">
+    <div className="flex w-full items-center gap-2 px-3 py-2">
       <CoinIcon symbol={alert.symbol} size={18} />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
@@ -34,7 +35,7 @@ function AlertRow({ alert }: { alert: PriceAlert }) {
         <span className="block truncate text-[11px] text-muted">{name}</span>
       </span>
       <span
-        className={`flex-none rounded px-1.5 py-0.5 text-[10px] font-medium ${
+        className={`pill flex-none ${
           active ? "bg-interactive text-white" : "text-muted"
         }`}
       >
@@ -44,7 +45,7 @@ function AlertRow({ alert }: { alert: PriceAlert }) {
         type="button"
         aria-label={`Hapus alert ${alert.code}`}
         onClick={() => remove(alert.id)}
-        className="cursor-pointer rounded px-1.5 text-sm text-muted transition-colors hover:bg-hover hover:text-text"
+        className="btn-ghost size-7 justify-center p-0 focus-ring"
       >
         ✕
       </button>
@@ -62,8 +63,6 @@ export function AlertsPanel() {
   const [direction, setDirection] = useState<AlertDirection>("above");
   const [target, setTarget] = useState("");
   const [message, setMessage] = useState<string | null>(null);
-
-  if (!open) return null;
 
   const codes = [...DEFAULT_SYMBOLS].map((symbol) => getCoinMeta(symbol).code);
 
@@ -88,22 +87,12 @@ export function AlertsPanel() {
     Notification.permission === "default";
 
   return (
-    <aside
-      aria-label="Harga Alert"
-      className="fixed inset-y-0 right-0 z-50 flex w-[300px] max-w-[85vw] flex-col border-l border-border bg-panel"
+    <DrawerShell
+      open={open}
+      title="Harga Alert"
+      ariaLabel="Harga Alert"
+      onClose={() => close(false)}
     >
-      <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
-        <h2 className="text-sm font-semibold">Harga Alert</h2>
-        <button
-          type="button"
-          aria-label="Tutup harga alert"
-          onClick={() => close(false)}
-          className="cursor-pointer rounded px-2 py-0.5 text-sm text-muted transition-colors hover:bg-hover hover:text-text"
-        >
-          ✕
-        </button>
-      </div>
-
       <div className="space-y-2 border-b border-border px-3 py-3">
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
@@ -113,7 +102,7 @@ export function AlertsPanel() {
             <select
               value={code}
               onChange={(event) => setCode(event.target.value)}
-              className="w-full rounded border border-border bg-page px-2 py-1 text-sm outline-none focus:border-text"
+              className="w-full rounded-lg border border-border bg-page px-2.5 py-1.5 text-sm outline-none transition-colors focus-ring"
             >
               {codes.map((item) => (
                 <option key={item} value={item}>
@@ -131,7 +120,7 @@ export function AlertsPanel() {
               onChange={(event) =>
                 setDirection(event.target.value as AlertDirection)
               }
-              className="w-full rounded border border-border bg-page px-2 py-1 text-sm outline-none focus:border-text"
+              className="w-full rounded-lg border border-border bg-page px-2.5 py-1.5 text-sm outline-none transition-colors focus-ring"
             >
               <option value="above">Naik melewati ▲</option>
               <option value="below">Turun menembus ▼</option>
@@ -149,13 +138,13 @@ export function AlertsPanel() {
             value={target}
             onChange={(event) => setTarget(event.target.value)}
             placeholder="0"
-            className="w-full rounded border border-border bg-page px-2 py-1 text-sm tabular-nums outline-none focus:border-text"
+            className="w-full rounded-lg border border-border bg-page px-2.5 py-1.5 text-sm tabular-nums outline-none transition-colors focus-ring"
           />
         </label>
         <button
           type="button"
           onClick={submit}
-          className="w-full cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-hover"
+          className="btn-ghost focus-ring w-full justify-center"
         >
           Tambah Alert
         </button>
@@ -168,7 +157,7 @@ export function AlertsPanel() {
             <button
               type="button"
               onClick={() => void requestNotificationPermission()}
-              className="flex-none cursor-pointer rounded-md border border-border px-2 py-1 text-[11px] font-medium transition-colors hover:bg-hover"
+              className="btn-ghost focus-ring flex-none px-2.5 py-1.5 text-[11px]"
             >
               Izinkan
             </button>
@@ -176,16 +165,25 @@ export function AlertsPanel() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto p-3">
         {alerts.length === 0 ? (
-          <p className="px-3 py-4 text-xs text-muted">
+          <p className="rounded-xl border border-border/60 bg-page px-3 py-4 text-xs text-muted">
             Belum ada alert. Tambahkan target harga di atas atau dari tombol
             &quot;Beri Alert&quot; di halaman koin.
           </p>
         ) : (
-          alerts.map((alert) => <AlertRow key={alert.id} alert={alert} />)
+          <div className="overflow-hidden rounded-xl border border-border/60">
+            {alerts.map((alert) => (
+              <div
+                key={alert.id}
+                className="border-b border-border/50 last:border-b-0"
+              >
+                <AlertRow alert={alert} />
+              </div>
+            ))}
+          </div>
         )}
       </div>
-    </aside>
+    </DrawerShell>
   );
 }

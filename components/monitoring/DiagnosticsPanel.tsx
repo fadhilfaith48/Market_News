@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { LOG_LEVELS } from "@/lib/monitoring";
 import type { DiagnosticEntry, LogLevel } from "@/lib/monitoring";
+import { DrawerShell } from "@/components/ui/DrawerShell";
 import { useMonitoringStore } from "@/store/monitoringStore";
 import { useUIStore } from "@/store/uiStore";
 
@@ -33,11 +34,11 @@ function formatEntry(entry: DiagnosticEntry): string {
 function LogRow({ entry }: { entry: DiagnosticEntry }) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <div className="border-b border-border/50 px-3 py-2">
+    <div className="px-3 py-2">
       <button
         type="button"
         onClick={() => entry.detail && setExpanded((value) => !value)}
-        className={`flex w-full items-start gap-2 text-left ${
+        className={`flex w-full items-start gap-2 rounded-lg text-left transition-colors hover:bg-hover focus-ring ${
           entry.detail ? "cursor-pointer" : "cursor-default"
         }`}
       >
@@ -66,7 +67,7 @@ function LogRow({ entry }: { entry: DiagnosticEntry }) {
         )}
       </button>
       {expanded && entry.detail && (
-        <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded bg-page px-2 py-1 font-mono text-[10px] text-muted">
+        <pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-page px-2.5 py-1.5 font-mono text-[10px] text-muted">
           {entry.detail}
         </pre>
       )}
@@ -88,8 +89,6 @@ export function DiagnosticsPanel() {
     if (open) markViewed();
   }, [open, markViewed]);
 
-  if (!open) return null;
-
   const visible =
     filter === "all"
       ? entries
@@ -110,33 +109,24 @@ export function DiagnosticsPanel() {
   const filters: Filter[] = ["all", ...LOG_LEVELS];
 
   return (
-    <aside
-      aria-label="Diagnostics"
-      className="fixed inset-y-0 right-0 z-50 flex w-[320px] max-w-[90vw] flex-col border-l border-border bg-panel"
+    <DrawerShell
+      open={open}
+      title="Diagnostics"
+      ariaLabel="Diagnostics"
+      width="w-[320px]"
+      onClose={() => close(false)}
     >
-      <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
-        <h2 className="text-sm font-semibold">Diagnostics</h2>
-        <button
-          type="button"
-          aria-label="Tutup diagnostics"
-          onClick={() => close(false)}
-          className="cursor-pointer rounded px-2 py-0.5 text-sm text-muted transition-colors hover:bg-hover hover:text-text"
-        >
-          ✕
-        </button>
-      </div>
-
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
-        <div className="flex gap-1">
+        <div className="flex gap-0.5 rounded-full bg-hover p-0.5">
           {filters.map((item) => (
             <button
               key={item}
               type="button"
               onClick={() => setFilter(item)}
-              className={`cursor-pointer rounded px-2 py-0.5 text-[11px] font-medium capitalize transition-colors ${
+              className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize transition-colors ${
                 filter === item
-                  ? "bg-text text-page"
-                  : "text-muted hover:bg-hover"
+                  ? "bg-interactive text-white shadow-card"
+                  : "text-muted hover:text-text"
               }`}
             >
               {item === "all" ? "Semua" : item}
@@ -145,15 +135,24 @@ export function DiagnosticsPanel() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto p-3">
         {visible.length === 0 ? (
-          <p className="px-3 py-4 text-xs text-muted">
+          <p className="rounded-xl border border-border/60 bg-page px-3 py-4 text-xs text-muted">
             {entries.length === 0
               ? "Belum ada catatan. Error runtime dan metrik performa akan muncul di sini."
               : "Tidak ada catatan untuk filter ini."}
           </p>
         ) : (
-          visible.map((entry) => <LogRow key={entry.id} entry={entry} />)
+          <div className="overflow-hidden rounded-xl border border-border/60">
+            {visible.map((entry) => (
+              <div
+                key={entry.id}
+                className="border-b border-border/50 last:border-b-0"
+              >
+                <LogRow entry={entry} />
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
@@ -162,7 +161,7 @@ export function DiagnosticsPanel() {
           type="button"
           onClick={copyLogs}
           disabled={entries.length === 0}
-          className="flex-1 cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn-ghost focus-ring flex-1 justify-center disabled:cursor-not-allowed disabled:opacity-50"
         >
           {copied ? "Tersalin" : "Salin"}
         </button>
@@ -170,11 +169,11 @@ export function DiagnosticsPanel() {
           type="button"
           onClick={clear}
           disabled={entries.length === 0}
-          className="flex-1 cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-50"
+          className="btn-ghost focus-ring flex-1 justify-center disabled:cursor-not-allowed disabled:opacity-50"
         >
           Bersihkan
         </button>
       </div>
-    </aside>
+    </DrawerShell>
   );
 }

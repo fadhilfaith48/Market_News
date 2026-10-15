@@ -29,22 +29,20 @@ export function AlertQuickAdd({ code }: { code: string }) {
   };
 
   return (
-    <div className="space-y-2 border-t border-border pt-3">
-      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted">
-        Beri Alert Harga
-      </h3>
+    <div className="space-y-3">
+      <h3 className="section-title">Beri Alert Harga</h3>
       <div className="flex gap-2">
         <button
           type="button"
           onClick={() => quickAdd("above")}
-          className="flex-1 cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium text-up transition-colors hover:bg-hover"
+          className="btn-ghost focus-ring flex-1 justify-center text-up"
         >
           ▲ +1%
         </button>
         <button
           type="button"
           onClick={() => quickAdd("below")}
-          className="flex-1 cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium text-down transition-colors hover:bg-hover"
+          className="btn-ghost focus-ring flex-1 justify-center text-down"
         >
           ▼ −1%
         </button>
