@@ -94,7 +94,7 @@ export function TopMovers({
 
   const sectionClass =
     layout === "stack"
-      ? "grid grid-cols-1 gap-4"
+      ? "grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-1"
       : "mt-6 grid grid-cols-1 gap-4 md:grid-cols-2";
 
   return (

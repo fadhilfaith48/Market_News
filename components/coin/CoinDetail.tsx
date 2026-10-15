@@ -47,7 +47,7 @@ export function CoinDetail({ code }: { code: string }) {
         &larr; Kembali ke Dashboard
       </Link>
 
-      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+      <div className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr)_300px] md:items-start">
         {/* Left column — Chart */}
         <div className="card min-w-0 overflow-hidden">
           <CoinQuoteBar
@@ -89,7 +89,7 @@ export function CoinDetail({ code }: { code: string }) {
 
         {/* Right column — Info Panel */}
         <div className="mt-4 flex flex-col gap-4 lg:mt-0">
-          <div className="lg:sticky lg:top-20 lg:flex lg:flex-col lg:gap-4">
+          <div className="flex flex-col gap-4 lg:sticky lg:top-20">
             <div className="card p-4">
               <CoinInfoPanel code={code} ticker={ticker ?? null} streamOpen={streamOpen} />
             </div>

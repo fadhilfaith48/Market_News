@@ -52,14 +52,18 @@ function Stat({
   label,
   value,
   tone,
+  className = "",
 }: {
   icon: ReactNode;
   label: string;
   value: string;
   tone?: "up" | "down";
+  className?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1 bg-panel px-4 py-2.5 transition-colors hover:bg-hover">
+    <div
+      className={`flex flex-col gap-1 bg-panel px-4 py-2.5 transition-colors hover:bg-hover ${className}`}
+    >
       <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-muted">
         {icon}
         {label}
@@ -139,6 +143,7 @@ export function MarketOverview() {
                 : dash
             }
             tone={tone}
+            className="last:col-span-2 sm:last:col-span-2 lg:last:col-span-1"
           />
         </div>
       </div>

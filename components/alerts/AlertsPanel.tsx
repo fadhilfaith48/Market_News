@@ -94,7 +94,7 @@ export function AlertsPanel() {
       onClose={() => close(false)}
     >
       <div className="space-y-2 border-b border-border px-3 py-3">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <label className="block">
             <span className="mb-1 block text-[10px] uppercase tracking-wide text-muted">
               Koin

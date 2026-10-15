@@ -86,7 +86,7 @@ export function Header() {
             onClick={toggleWatchlist}
             aria-pressed={watchlistOpen}
             aria-label="Watchlist"
-            className={`focus-ring flex items-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 ${
+            className={`focus-ring flex items-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors lg:px-3 ${
               watchlistOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -104,7 +104,7 @@ export function Header() {
             >
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
-            <span className="hidden sm:inline">
+            <span className="hidden lg:inline">
               {hydrated ? (watchlistOpen ? "Tutup Watchlist" : "Watchlist") : "Watchlist"}
             </span>
           </button>
@@ -113,7 +113,7 @@ export function Header() {
             onClick={togglePortfolio}
             aria-pressed={portfolioOpen}
             aria-label="Portofolio"
-            className={`focus-ring flex items-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3 ${
+            className={`focus-ring flex items-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors lg:px-3 ${
               portfolioOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -132,7 +132,7 @@ export function Header() {
               <rect x="2" y="7" width="20" height="14" rx="2" />
               <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
             </svg>
-            <span className="hidden sm:inline">
+            <span className="hidden lg:inline">
               {hydrated
                 ? portfolioOpen
                   ? "Tutup Portofolio"
@@ -207,7 +207,7 @@ export function Header() {
             type="button"
             onClick={toggleTheme}
             aria-label={theme === "dark" ? "Mode Terang" : "Mode Gelap"}
-            className="focus-ring flex items-center rounded-full border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-hover sm:px-3"
+            className="focus-ring flex items-center rounded-full border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-hover lg:px-3"
           >
             <svg
               className="size-4 sm:hidden"
@@ -222,13 +222,13 @@ export function Header() {
               <circle cx="12" cy="12" r="4" />
               <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
             </svg>
-            <span className="hidden sm:inline">
+            <span className="hidden lg:inline">
               {hydrated ? (theme === "dark" ? "Terang" : "Gelap") : "Tema"}
             </span>
           </button>
         </div>
       </div>
-      <div className="mt-2 flex items-center gap-2 sm:hidden">
+      <div className="mt-2 flex items-center gap-2 lg:hidden">
         <SearchBox fluid />
         <CurrencySelect />
       </div>

@@ -153,7 +153,7 @@ export function TickerTable() {
 
   return (
     <div className="card p-3 sm:p-4">
-      <div className="mb-3 inline-flex flex-wrap gap-1 rounded-full bg-hover p-0.5">
+      <div className="mb-3 inline-flex gap-1 rounded-full bg-hover p-0.5">
         {FILTERS.map((f) => (
           <button
             key={f.key}

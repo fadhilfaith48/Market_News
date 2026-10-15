@@ -30,7 +30,7 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <div className="mx-auto max-w-4xl flex items-center justify-between gap-3 border-t border-border px-4 py-2.5 text-[11px] text-muted">
+      <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-2.5 text-[11px] text-muted">
         <span>© 2026 Market News</span>
         <span className="tabular-nums">
           Terakhir diperbarui: {lastUpdate ? formatTime(lastUpdate) : "—"}
