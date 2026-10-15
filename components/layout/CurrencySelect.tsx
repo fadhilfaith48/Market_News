@@ -19,7 +19,7 @@ export function CurrencySelect() {
     <select
       value={currency}
       onChange={(e) => setCurrency(e.target.value as SupportedCurrency)}
-      className="rounded-md border border-border bg-panel px-2 py-1.5 text-xs text-text outline-none transition-colors focus:border-interactive"
+      className="w-full cursor-pointer rounded-lg border border-border bg-panel px-2 py-1.5 text-xs text-text outline-none transition-colors focus-ring"
     >
       {SUPPORTED_CURRENCIES.map((c) => (
         <option key={c} value={c}>

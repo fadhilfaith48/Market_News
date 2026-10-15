@@ -83,14 +83,14 @@ export function SearchBox({ fluid = false }: { fluid?: boolean }) {
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onKeyDown={handleKeyDown}
-        className={`rounded-md border border-border bg-panel px-2.5 py-1.5 text-xs text-text placeholder-muted outline-none transition-colors focus:border-interactive ${
+        className={`rounded-lg border border-border bg-panel px-2.5 py-1.5 text-xs text-text placeholder-muted outline-none transition-colors focus-ring ${
           fluid ? "min-w-0 w-full" : "w-32 sm:w-48"
         }`}
       />
       {open && (
         <div
           ref={listRef}
-          className="absolute left-0 top-full z-50 mt-1 max-h-64 w-64 overflow-y-auto rounded border border-border bg-panel"
+          className="card absolute left-0 top-full z-50 mt-1 max-h-64 w-64 overflow-y-auto"
         >
           {results.length === 0 ? (
             <div className="px-3 py-2 text-xs text-muted">
@@ -102,7 +102,7 @@ export function SearchBox({ fluid = false }: { fluid?: boolean }) {
                 key={item.code}
                 type="button"
                 onMouseDown={() => navigate(item.code)}
-                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition-colors ${
+                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors focus-ring ${
                   i === activeIndex ? "bg-hover text-text" : "text-muted hover:bg-hover"
                 }`}
               >
