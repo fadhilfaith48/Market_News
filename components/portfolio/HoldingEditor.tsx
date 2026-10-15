@@ -40,13 +40,11 @@ export function HoldingEditor({ code }: { code: string }) {
     costNumber >= 0;
 
   return (
-    <div className="space-y-2 border-t border-border pt-3">
-      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted">
-        Kepemilikan Saya
-      </h3>
+    <div className="space-y-3">
+      <h3 className="section-title">Kepemilikan Saya</h3>
 
       {position && (
-        <div className="space-y-0.5 text-xs tabular-nums">
+        <div className="space-y-0.5 rounded-xl border border-border/60 bg-page px-3 py-2 text-xs tabular-nums">
           <div className="flex items-center justify-between">
             <span className="text-muted">Jumlah</span>
             <span>{formatCompact(holding.qty)}</span>
@@ -79,7 +77,7 @@ export function HoldingEditor({ code }: { code: string }) {
             value={qty}
             onChange={(event) => setQty(event.target.value)}
             placeholder="0"
-            className="w-full rounded border border-border bg-page px-2 py-1 text-sm tabular-nums outline-none focus:border-text"
+            className="w-full rounded-lg border border-border bg-page px-2.5 py-1.5 text-sm tabular-nums outline-none transition-colors focus-ring"
           />
         </label>
         <label className="block">
@@ -93,7 +91,7 @@ export function HoldingEditor({ code }: { code: string }) {
             value={avgCost}
             onChange={(event) => setAvgCost(event.target.value)}
             placeholder="0"
-            className="w-full rounded border border-border bg-page px-2 py-1 text-sm tabular-nums outline-none focus:border-text"
+            className="w-full rounded-lg border border-border bg-page px-2.5 py-1.5 text-sm tabular-nums outline-none transition-colors focus-ring"
           />
         </label>
       </div>
@@ -103,7 +101,7 @@ export function HoldingEditor({ code }: { code: string }) {
           type="button"
           onClick={() => valid && upsert(code, qtyNumber, costNumber)}
           disabled={!valid}
-          className="flex-1 cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-hover disabled:cursor-not-allowed disabled:opacity-40"
+          className="btn-ghost focus-ring px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Simpan
         </button>
@@ -115,7 +113,7 @@ export function HoldingEditor({ code }: { code: string }) {
               setQty("");
               setAvgCost("");
             }}
-            className="cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-hover"
+            className="btn-ghost focus-ring px-3 py-1.5"
           >
             Hapus
           </button>

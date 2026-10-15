@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { CoinIcon } from "@/components/ui/CoinIcon";
+import { DrawerShell } from "@/components/ui/DrawerShell";
 import { getCoinMeta } from "@/lib/coinMeta";
 import {
   formatCompact,
@@ -32,14 +33,14 @@ function PortfolioRow({ code }: { code: string }) {
   const position = computePosition(code, holding, ticker?.lastPrice);
 
   return (
-    <div className="flex w-full items-center gap-2 border-b border-border/50 px-3 py-2">
+    <div className="flex w-full items-center gap-2 px-3 py-2">
       <button
         type="button"
         onClick={() => {
           close(false);
           router.push(`/coin/${code}`);
         }}
-        className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left transition-colors hover:bg-hover"
+        className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-lg text-left transition-colors hover:bg-hover focus-ring"
       >
         <CoinIcon symbol={getSymbol(code)} size={18} />
         <span className="min-w-0 flex-1">
@@ -67,7 +68,7 @@ function PortfolioRow({ code }: { code: string }) {
         type="button"
         aria-label={`Hapus ${code} dari portofolio`}
         onClick={() => remove(code)}
-        className="cursor-pointer rounded px-1.5 text-sm text-muted transition-colors hover:bg-hover hover:text-text"
+        className="btn-ghost size-8 justify-center p-0 focus-ring"
       >
         ✕
       </button>
@@ -83,8 +84,6 @@ export function PortfolioPanel() {
   const currency = useUIStore((state) => state.currency) as SupportedCurrency;
   const { data: rateData } = useFiatRates();
 
-  if (!open) return null;
-
   const codes = Object.keys(holdings);
 
   const priceByCode: Record<string, number | undefined> = {};
@@ -95,54 +94,53 @@ export function PortfolioPanel() {
   const summaryTone = toneText(summary.pnl);
 
   return (
-    <aside
-      aria-label="Portofolio"
-      className="fixed inset-y-0 right-0 z-50 flex w-[300px] max-w-[85vw] flex-col border-l border-border bg-panel"
+    <DrawerShell
+      open={open}
+      title="Portofolio"
+      ariaLabel="Portofolio"
+      onClose={() => close(false)}
+      footer={
+        codes.length > 0 ? (
+          <div className="space-y-1 rounded-xl border border-border/60 bg-page px-3 py-2.5 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-muted">Total Nilai</span>
+              <span className="tabular-nums">
+                {formatCurrency(summary.totalValue, currency, rateData?.rates)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted">Total Biaya</span>
+              <span className="tabular-nums">
+                {formatCurrency(summary.totalCost, currency, rateData?.rates)}
+              </span>
+            </div>
+            <div className={`flex items-center justify-between ${summaryTone}`}>
+              <span className="font-medium">Total P/L</span>
+              <span className="font-medium tabular-nums">
+                {formatCurrency(summary.pnl, currency, rateData?.rates)} (
+                {formatPercent(summary.pnlPercent)})
+              </span>
+            </div>
+          </div>
+        ) : undefined
+      }
     >
-      <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
-        <h2 className="text-sm font-semibold">Portofolio</h2>
-        <button
-          type="button"
-          aria-label="Tutup portofolio"
-          onClick={() => close(false)}
-          className="cursor-pointer rounded px-2 py-0.5 text-sm text-muted transition-colors hover:bg-hover hover:text-text"
-        >
-          ✕
-        </button>
-      </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="p-3">
         {codes.length === 0 ? (
-          <p className="px-3 py-4 text-xs text-muted">
+          <p className="rounded-xl border border-border/60 bg-page px-3 py-4 text-xs text-muted">
             Belum ada posisi. Catat kepemilikan dari halaman detail koin melalui
             form Kepemilikan Saya.
           </p>
         ) : (
-          codes.map((code) => <PortfolioRow key={code} code={code} />)
+          <div className="overflow-hidden rounded-xl border border-border/60">
+            {codes.map((code) => (
+              <div key={code} className="border-b border-border/50 last:border-b-0">
+                <PortfolioRow code={code} />
+              </div>
+            ))}
+          </div>
         )}
       </div>
-      {codes.length > 0 && (
-        <div className="space-y-1 border-t border-border px-3 py-2.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted">Total Nilai</span>
-            <span className="tabular-nums">
-              {formatCurrency(summary.totalValue, currency, rateData?.rates)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted">Total Biaya</span>
-            <span className="tabular-nums">
-              {formatCurrency(summary.totalCost, currency, rateData?.rates)}
-            </span>
-          </div>
-          <div className={`flex items-center justify-between text-xs ${summaryTone}`}>
-            <span className="font-medium">Total P/L</span>
-            <span className="font-medium tabular-nums">
-              {formatCurrency(summary.pnl, currency, rateData?.rates)} (
-              {formatPercent(summary.pnlPercent)})
-            </span>
-          </div>
-        </div>
-      )}
-    </aside>
+    </DrawerShell>
   );
 }
