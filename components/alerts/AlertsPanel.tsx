@@ -11,6 +11,7 @@ import { requestNotificationPermission } from "@/lib/alerts";
 import type { AlertDirection, PriceAlert } from "@/lib/alerts";
 import { useAlertStore } from "@/store/alertStore";
 import { useUIStore } from "@/store/uiStore";
+import { useToast } from "@/hooks/useToast";
 
 function AlertRow({ alert }: { alert: PriceAlert }) {
   const remove = useAlertStore((state) => state.remove);
@@ -63,6 +64,7 @@ export function AlertsPanel() {
   const [direction, setDirection] = useState<AlertDirection>("above");
   const [target, setTarget] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const toast = useToast();
 
   const codes = [...DEFAULT_SYMBOLS].map((symbol) => getCoinMeta(symbol).code);
 
@@ -76,8 +78,19 @@ export function AlertsPanel() {
     if (created) {
       setTarget("");
       setMessage(null);
+      const verb = direction === "above" ? "naik melewati" : "turun menembus";
+      toast("success", "Alert ditambah", `${code} ${verb} ${formatPrice(value)}`);
     } else {
       setMessage("Tidak bisa menambah: duplikat atau sudah 20 alert.");
+    }
+  };
+
+  const requestPermission = async () => {
+    const result = await requestNotificationPermission();
+    if (result === "granted") {
+      toast("success", "Notifikasi diaktifkan", "Alert akan muncul sebagai pemberitahuan browser.");
+    } else if (result === "denied") {
+      toast("warning", "Izin notifikasi ditolak", "Alert tetap muncul sebagai toast di dalam aplikasi.");
     }
   };
 
@@ -156,7 +169,7 @@ export function AlertsPanel() {
             </p>
             <button
               type="button"
-              onClick={() => void requestNotificationPermission()}
+              onClick={() => void requestPermission()}
               className="btn-ghost focus-ring flex-none px-2.5 py-1.5 text-[11px]"
             >
               Izinkan

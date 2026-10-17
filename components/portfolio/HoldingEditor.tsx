@@ -11,6 +11,7 @@ import type { SupportedCurrency } from "@/lib/format";
 import { toneText } from "@/lib/market";
 import { computePosition, getSymbol } from "@/lib/portfolio";
 import { useFiatRates } from "@/hooks/useFiatRates";
+import { useToast } from "@/hooks/useToast";
 import { useMarketStore } from "@/store/marketStore";
 import { usePortfolioStore } from "@/store/portfolioStore";
 import { useUIStore } from "@/store/uiStore";
@@ -22,6 +23,7 @@ export function HoldingEditor({ code }: { code: string }) {
   const ticker = useMarketStore((state) => state.tickers[getSymbol(code)]);
   const currency = useUIStore((state) => state.currency) as SupportedCurrency;
   const { data: rateData } = useFiatRates();
+  const toast = useToast();
 
   const [qty, setQty] = useState(holding ? String(holding.qty) : "");
   const [avgCost, setAvgCost] = useState(holding ? String(holding.avgCost) : "");
@@ -99,7 +101,11 @@ export function HoldingEditor({ code }: { code: string }) {
       <div className="flex gap-2">
         <button
           type="button"
-          onClick={() => valid && upsert(code, qtyNumber, costNumber)}
+          onClick={() => {
+            if (!valid) return;
+            upsert(code, qtyNumber, costNumber);
+            toast("success", "Posisi tersimpan", `${code} · ${formatCompact(qtyNumber)} @ ${formatCurrency(costNumber, currency, rateData?.rates)}`);
+          }}
           disabled={!valid}
           className="btn-ghost focus-ring px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-40"
         >
@@ -112,6 +118,7 @@ export function HoldingEditor({ code }: { code: string }) {
               remove(code);
               setQty("");
               setAvgCost("");
+              toast("info", "Posisi dihapus", code);
             }}
             className="btn-ghost focus-ring px-3 py-1.5"
           >

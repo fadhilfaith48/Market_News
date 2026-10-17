@@ -14,6 +14,7 @@ import type { SupportedCurrency } from "@/lib/format";
 import { toneText } from "@/lib/market";
 import { computePosition, computeSummary, getSymbol } from "@/lib/portfolio";
 import { useFiatRates } from "@/hooks/useFiatRates";
+import { useToast } from "@/hooks/useToast";
 import { useMarketStore } from "@/store/marketStore";
 import { usePortfolioStore } from "@/store/portfolioStore";
 import { useUIStore } from "@/store/uiStore";
@@ -24,6 +25,7 @@ function PortfolioRow({ code }: { code: string }) {
   const holding = usePortfolioStore((state) => state.holdings[code]);
   const remove = usePortfolioStore((state) => state.remove);
   const ticker = useMarketStore((state) => state.tickers[getSymbol(code)]);
+  const toast = useToast();
   const currency = useUIStore((state) => state.currency) as SupportedCurrency;
   const { data: rateData } = useFiatRates();
 
@@ -67,7 +69,10 @@ function PortfolioRow({ code }: { code: string }) {
       <button
         type="button"
         aria-label={`Hapus ${code} dari portofolio`}
-        onClick={() => remove(code)}
+        onClick={() => {
+          remove(code);
+          toast("info", "Posisi dihapus", code);
+        }}
         className="btn-ghost size-8 justify-center p-0 focus-ring"
       >
         ✕
