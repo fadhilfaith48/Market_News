@@ -75,10 +75,10 @@ export function Header() {
           <ConnectionBadge className="flex-none" />
         </div>
         <div className="flex flex-none items-center gap-1.5 sm:gap-2">
-          <div className="hidden sm:block">
+          <div className="hidden lg:block">
             <SearchBox />
           </div>
-          <div className="hidden sm:block">
+          <div className="hidden lg:block">
             <CurrencySelect />
           </div>
           <button
@@ -93,7 +93,7 @@ export function Header() {
             }`}
           >
             <svg
-              className="size-4 sm:hidden"
+              className="size-4 lg:hidden"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -120,7 +120,7 @@ export function Header() {
             }`}
           >
             <svg
-              className="size-4 sm:hidden"
+              className="size-4 lg:hidden"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -210,7 +210,7 @@ export function Header() {
             className="focus-ring flex items-center rounded-full border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-hover lg:px-3"
           >
             <svg
-              className="size-4 sm:hidden"
+              className="size-4 lg:hidden"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
