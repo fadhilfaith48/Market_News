@@ -291,6 +291,7 @@ function TickerTableSkeleton() {
             <th className="px-4 py-3 text-right">Harga</th>
             <th className="px-4 py-3 text-right">24 Jam</th>
             <th className="px-4 py-3 text-right">Volume (24 Jam)</th>
+            <th className="px-4 py-3 text-right">Market Cap</th>
           </tr>
         </thead>
         <tbody>
@@ -307,6 +308,9 @@ function TickerTableSkeleton() {
               </td>
               <td className="px-4 py-3 text-right">
                 <div className="shimmer ml-auto h-3.5 w-16 rounded" />
+              </td>
+              <td className="px-4 py-3 text-right">
+                <div className="shimmer ml-auto h-3.5 w-20 rounded" />
               </td>
               <td className="px-4 py-3 text-right">
                 <div className="shimmer ml-auto h-3.5 w-20 rounded" />
