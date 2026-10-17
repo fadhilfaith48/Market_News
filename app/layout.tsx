@@ -9,6 +9,7 @@ import { DiagnosticsPanel } from "@/components/monitoring/DiagnosticsPanel";
 import { MarketDataProvider } from "@/components/dashboard/MarketDataProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ThemeSync } from "@/components/ThemeSync";
+import { Toaster } from "@/components/ui/Toaster";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <PortfolioPanel />
             <AlertsPanel />
             <DiagnosticsPanel />
+            <Toaster />
           </MarketDataProvider>
         </QueryProvider>
       </body>
