@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { LOG_LEVELS } from "@/lib/monitoring";
 import type { DiagnosticEntry, LogLevel } from "@/lib/monitoring";
 import { DrawerShell } from "@/components/ui/DrawerShell";
+import { useToast } from "@/hooks/useToast";
 import { useMonitoringStore } from "@/store/monitoringStore";
 import { useUIStore } from "@/store/uiStore";
 
@@ -84,6 +85,7 @@ export function DiagnosticsPanel() {
 
   const [filter, setFilter] = useState<Filter>("all");
   const [copied, setCopied] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     if (open) markViewed();
@@ -101,9 +103,16 @@ export function DiagnosticsPanel() {
       await navigator.clipboard.writeText(text);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
+      toast("success", "Log disalin", `${entries.length} catatan masuk ke clipboard.`);
     } catch {
-      // clipboard tidak tersedia — abaikan
+      toast("error", "Gagal menyalin", "Clipboard tidak tersedia di browser ini.");
     }
+  };
+
+  const clearLogs = () => {
+    const count = entries.length;
+    clear();
+    toast("info", "Log dibersihkan", `${count} catatan dihapus.`);
   };
 
   const filters: Filter[] = ["all", ...LOG_LEVELS];
@@ -167,7 +176,7 @@ export function DiagnosticsPanel() {
         </button>
         <button
           type="button"
-          onClick={clear}
+          onClick={clearLogs}
           disabled={entries.length === 0}
           className="btn-ghost focus-ring flex-1 justify-center disabled:cursor-not-allowed disabled:opacity-50"
         >

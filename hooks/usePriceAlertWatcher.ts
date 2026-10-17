@@ -7,6 +7,7 @@ import type { PriceAlert } from "@/lib/alerts";
 import { formatPrice } from "@/lib/format";
 import { useAlertStore } from "@/store/alertStore";
 import { useMarketStore } from "@/store/marketStore";
+import { useToastStore } from "@/store/toastStore";
 
 function showNotification(alert: PriceAlert, price: number | undefined): void {
   if (!isNotificationGranted()) return;
@@ -19,6 +20,16 @@ function showNotification(alert: PriceAlert, price: number | undefined): void {
   } catch {
     // Konteks browser yang tidak mengizinkan — abaikan.
   }
+}
+
+function showToast(alert: PriceAlert, price: number | undefined): void {
+  const priceText = price === undefined ? "-" : formatPrice(price);
+  const verb = alert.direction === "above" ? "naik melewati" : "turun menembus";
+  useToastStore.getState().add(
+    "warning",
+    `Alert ${alert.code} tertrigger`,
+    `${verb} ${formatPrice(alert.targetPrice)} · sekarang ${priceText}`,
+  );
 }
 
 export function usePriceAlertWatcher() {
@@ -35,6 +46,7 @@ export function usePriceAlertWatcher() {
       for (const alert of triggered) {
         markTriggered(alert.id);
         showNotification(alert, state.tickers[alert.symbol]?.lastPrice);
+        showToast(alert, state.tickers[alert.symbol]?.lastPrice);
       }
     });
   }, []);
