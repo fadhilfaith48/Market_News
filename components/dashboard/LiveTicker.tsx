@@ -42,8 +42,21 @@ export function LiveTicker() {
 
   if (!hasData) {
     return (
-      <div className="flex items-center gap-2 border-b border-border bg-panel/60 px-4 py-2 text-xs text-muted backdrop-blur">
-        Memuat data pasar…
+      <div
+        aria-hidden
+        className="flex items-center gap-6 overflow-hidden border-b border-border bg-panel/60 px-4 py-2 backdrop-blur"
+      >
+        {Array.from({ length: 8 }, (_, index) => (
+          <span
+            key={index}
+            className="flex flex-none items-center gap-2 text-xs"
+          >
+            <span className="shimmer size-4 rounded-full" />
+            <span className="shimmer h-3 w-8 rounded" />
+            <span className="shimmer h-3 w-14 rounded" />
+            <span className="shimmer h-3 w-10 rounded" />
+          </span>
+        ))}
       </div>
     );
   }
