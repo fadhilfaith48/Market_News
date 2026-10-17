@@ -14,6 +14,24 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 17 Oktober 2026 — Fase 2: Sistem toast (umpan balik aksi + alert in-app)
+
+### Status: Done (kode + verifikasi penuh — belum di-commit/push atas instruksi user)
+
+- [x] **`store/toastStore.ts` (baru)** — Zustand ringan tanpa persist: `toasts`, `add(tone, title, description?)` (id unik via counter+timestamp), `dismiss(id)`, `clear()`. Tone `success|error|warning|info`.
+- [x] **`components/ui/Toaster.tsx` (baru)** — wadah root `fixed` kanan bawah (`aria-live="polite"`, `role="status"` per kartu), menumpuk ke atas, auto-dismiss 4,2 detik + tombol tutup, ikon & border per tone (up/down/warning/interactive). Mount sekali di `app/layout.tsx`.
+- [x] **`hooks/useToast.ts` (baru)** — helper `toast(tone, title, description?)` berbasis `useCallback`.
+- [x] **Wire toast ke aksi yang sebelumnya senyap:** `HoldingEditor` (simpan/hapus posisi), `AlertsPanel` (tambah alert + hasil izin notifikasi: granted/denied), `PortfolioPanel` (hapus posisi), `DiagnosticsPanel` (salin/bersihkan log, termasuk gagal clipboard).
+- [x] **Alert in-app:** `hooks/usePriceAlertWatcher.ts` — selain `Notification` browser, alert ter-trigger memunculkan toast `warning` ("Alert {kode} tertrigger" + arah + harga sekarang). Menutup celah saat izin notifikasi ditolak / tab tidak aktif.
+- [x] **Tests** `tests/toastStore.test.ts` (7 tes: add/dismiss/clear/id unik/description) → total **176/176**; lint OK; build OK (61 halaman).
+- [x] **Docs:** DECISIONS (keputusan toast), ARCHITECTURE (§4.6 + tree), TASKS (bagian F), PROGRESS (entry ini).
+
+### Catatan
+- Toast in-memory (tidak di-persist) — hanya untuk umpan balik sesaat; diterima sesuai keputusan.
+- **Belum di-commit/push** (tunggu instruksi user).
+
+---
+
 ## 29 Agustus 2026 — Sesi Inisialisasi Dokumen
 
 ### Status: Done (fase setup dokumentasi)

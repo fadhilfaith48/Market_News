@@ -74,7 +74,7 @@ market-news/
 │   ├── portfolio/             #   PortfolioPanel (drawer) + HoldingEditor (form posisi di halaman koin)
 │   ├── alerts/                #   AlertsPanel (drawer) + AlertQuickAdd (tombol ▲/▼ di halaman koin)
 │   ├── monitoring/            #   DiagnosticsPanel — drawer log error & performa (ring localStorage)
-│   └── ui/                    #   CoinIcon, ConnectionBadge, WatchStar, SearchBox, CurrencySelect, skeleton
+│   └── ui/                    #   CoinIcon, ConnectionBadge, WatchStar, SearchBox, CurrencySelect, Toaster, skeleton
 ├── hooks/                     # Custom hooks
 │   ├── useBinanceWS.ts        # Koneksi WebSocket + auto-reconnect (timeout 5s, saved endpoint)
 │   ├── useKlines.ts           # Query data historis chart
@@ -83,6 +83,7 @@ market-news/
 │   ├── useCoinMarket.ts       # Market cap/supply via /api/coins
 │   ├── useTickerPolling.ts    # Fallback REST polling 5s saat WS offline (via /api/tickers)
 │   ├── useMonitoring.ts       # Tangkap onerror/unhandledrejection + PerformanceObserver → monitoringStore
+│   ├── useToast.ts             # Helper toast(tone, title, description?) → toastStore
 │   └── useWatchlist.ts        # CRUD watchlist di Local Storage       [belum — langsung via watchStore]
 ├── lib/                       # Utilitas & logika inti
 │   ├── binance/
@@ -106,7 +107,8 @@ market-news/
 │   ├── portfolioStore.ts      # State portofolio (persist `crypto-portfolio`)
 │   ├── alertStore.ts          # State price alert (persist `crypto-alerts`)
 │   ├── monitoringStore.ts     # Ring buffer log diagnostik (persist `crypto-diagnostics`)
-│   └── watchStore.ts          # State watchlist (persist `crypto-watchlist`)
+│   ├── watchStore.ts          # State watchlist (persist `crypto-watchlist`)
+│   └── toastStore.ts          # Toast umpan balik aksi (in-memory, tidak di-persist)
 ├── types/                     # TypeScript types global
 │   └── index.ts
 ├── public/                    # Asset statis
@@ -154,6 +156,14 @@ market-news/
 1. **Global Market Stats** — `coins/global` dicek dulu pada `hooks/useGlobalMarket` (TanStack Query `["global-market"]`, stale 300s). Bila lewat batas, client request `GET /api/global` → handler memanggil `fetchGlobalMarket` (CoinGecko `/api/v3/global`, timeout 6s, `revalidate:300`), respons dinormalisasi `normalizeCoinGeckoGlobal` → `{ market, updatedAt }` (cache 60s ISR). `MarketOverview` merender bar statistik (Total M.Cap, Volume 24j, Dominasi BTC/ETH, Δ24j); field kosong → "—".
 2. **Fear & Greed Index** — `hooks/useFearGreed` (`["fear-greed"]`, stale 1800s) → `GET /api/fear-greed` → `fetchFearGreed` (alternative.me `/fng/?limit=1`, timeout 6s, cache 300s ISR) → `normalizeFearGreed` (nilai angka, timestamp detik→ms) → `{ index, updatedAt }`. `FearGreedGauge` menampilkan skor + klasifikasi (Sangat Takut→Sangat Serakah).
 3. **Berita per koin (0 request baru)** — `CoinNewsSection` memakai `useNews` yang sama di dashboard (feed RSS 4 sumber, merge + limit `NEWS_LIMIT`). Artikel **difilter client-side** oleh `filterArticlesByCoin(articles, code, name, id)` di `lib/news.ts`: membangun `coinSearchTerms` dari kode + kata nama + segmen id CoinGecko (stopwords dibuang), lalu mencocokkan title+summary secara case-insensitive dengan regex **word boundary**. Komponen `ArticleItem` (baru) dipakai bersama oleh `NewsSection` (dashboard) dan `CoinNewsSection` (halaman koin).
+
+### 4.6 Toast (umpan balik aksi & alert)
+
+1. **`store/toastStore.ts`** — Zustand ringan (tanpa persist) berisi `toasts: Toast[]` + `add(tone, title, description?)` (mengembalikan id unik) / `dismiss(id)` / `clear()`. Tone: `success | error | warning | info` → memetakan ke warna token up/down/warning/interactive.
+2. **`components/ui/Toaster.tsx`** — mount sekali di `app/layout.tsx` (root). Wadah `fixed` kanan bawah (`aria-live="polite"`), menumpuk ke atas; tiap kartu auto-dismiss 4,2 detik + tombol tutup. Satu-satunya komponen yang memanggil store ini secara global.
+3. **`hooks/useToast.ts`** — helper `toast(tone, title, description?)` berbasis `useCallback` agar stabil di komponen.
+4. **Pemakai (feedback aksi):** `HoldingEditor` (simpan/hapus posisi), `AlertsPanel` (tambah alert + hasil izin notifikasi), `PortfolioPanel` (hapus posisi), `DiagnosticsPanel` (salin/bersihkan log).
+5. **Alert in-app:** `hooks/usePriceAlertWatcher.ts` — selain `Notification` browser, alert yang ter-trigger juga memunculkan toast `warning` (judul "Alert {kode} tertrigger", detail arah + harga sekarang). Menutup celah saat izin notifikasi ditolak / tab tidak aktif.
 
 ---
 

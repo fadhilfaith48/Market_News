@@ -225,6 +225,14 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] Verifikasi live dev: `/api/global` & `/api/fear-greed` 200 berisi data riil (mcap $2.83T, dominance BTC 59.5%, F&G 69/Greed); widget & section ter-render SSR
 - [x] Update DECISIONS.md · ARCHITECTURE.md · PROGRESS.md
 
+## F — Sistem Toast (umpan balik aksi + alert in-app)
+- [x] `store/toastStore.ts` — Zustand ringan (in-memory) + `add`/`dismiss`/`clear`, tone success/error/warning/info
+- [x] `components/ui/Toaster.tsx` — wadah root (kanan bawah, auto-dismiss 4,2 dtk, `aria-live`, tombol tutup), mount di `app/layout.tsx`
+- [x] `hooks/useToast.ts` — helper `toast(tone, title, description?)`
+- [x] Wire toast: `HoldingEditor` (simpan/hapus), `AlertsPanel` (tambah + izin notifikasi), `PortfolioPanel` (hapus), `DiagnosticsPanel` (salin/bersihkan)
+- [x] Alert in-app: `usePriceAlertWatcher` memunculkan toast `warning` saat alert ter-trigger (selain Notification browser)
+- [x] Tests `tests/toastStore.test.ts` — total 176 hijau, lint & build OK
+
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device
 - [ ] Opsional: notifikasi push email/SMS

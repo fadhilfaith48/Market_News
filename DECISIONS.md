@@ -251,6 +251,13 @@ Format entri baru:
 - **Trade-off:** Berita per koin sebatas kata kunci (kode/nama/id CoinGecko) yang bisa memunculkan artikel lewat konteks (false-positive ringan, mis. "open"/"dao"); ketepatan label FnG adalah representasi alternatif dari sumber resmi asli (koin lain, bukan BTC) — tidak diulas lebih jauh.
 - **Alternatif ditolak:** Filter berita per koin via API koinnews/coinmarketcap news (butuh key + biaya), pasang sumber sentiment sendiri (skala kecil di luar lingkup), global stats dari CoinMetrics/Glassnode (berbayar).
 
+## 17 Oktober 2026 — Sistem toast in-app (umpan balik aksi + alert)
+- **Status:** Approved
+- **Keputusan:** Tambah `store/toastStore.ts` (Zustand ringan, tidak di-persist) + `components/ui/Toaster.tsx` (kanan bawah, auto-dismiss 4,2 detik, `role="status"`/`aria-live`) + `hooks/useToast.ts` (helper `toast(tone, title, description?)`). Dipakai untuk umpan balik aksi yang sebelumnya "senyap": simpan/hapus holding, tambah alert, izin notifikasi, hapus posisi, salin & bersihkan log, serta **alert harga yang ter-trigger**. Toast tone: success/error/warning/info (warna token up/down/warning/interactive).
+- **Alasan:** Hampir semua aksi pengguna sebelumnya tidak memberi umpan balik visual (UX gap) — tombol Simpan/Hapus/Salin/Bersihkan bekerja diam-diam. Alert harga hanya muncul sebagai Notification browser yang sering diblokir dan hanya aktif saat tab terbuka; toast in-app menutup celah itu tanpa backend/push.
+- **Trade-off:** Toast hanya di-memory (hilang saat reload) — diterima karena hanya untuk umpan balik sesaat; Toaster render di root layout sehingga semua halaman terangkat.
+- **Alternatif yang ditolak:** Toast via library pihak ketiga (butuh dependency, berat), hanya Notification browser (sering diblokir), inline state per komponen (duplikat di banyak komponen).
+
 ## Keputusan yang Pernah Dibahas & Ditutup
 - Backend Express/Fastify untuk WebSocket server → **ditolak** (lihat keputusan #1).
 - Use local state (useState) saja untuk data real-time → **diganti** Zustand + marketStore untuk berbagi antar halaman.
