@@ -258,6 +258,20 @@ Format entri baru:
 - **Trade-off:** Toast hanya di-memory (hilang saat reload) — diterima karena hanya untuk umpan balik sesaat; Toaster render di root layout sehingga semua halaman terangkat.
 - **Alternatif yang ditolak:** Toast via library pihak ketiga (butuh dependency, berat), hanya Notification browser (sering diblokir), inline state per komponen (duplikat di banyak komponen).
 
+## 21 Oktober 2026 — Chart Pro: volume + tipe grafik + moving average (SMA MA7/MA25)
+- **Status:** Approved
+- **Keputusan:** Halaman detail koin mendapat tiga tambahan pada chart: (1) **volume histogram** pada price scale terpisah (`priceScaleId: "volume"`, sumbu disembunyikan, mengisi ~18% bawah chart); (2) **toggle tipe grafik** Candle / Line / Area; (3) **overlay moving average** SMA MA7 & MA25 (aktif secara default, dapat dimatikan lewat chip). Helper moving average ditulis sebagai fungsi **pure** di `lib/indicators.ts` (`sma`/`ema`/`movingAverage`/`toIndicatorPoints`). Cycle hidup chart diatur lewat handle di ref (`handlesRef`): chart dibuat satu kali per kombinasi tema + tipe grafik, lalu data historis diterapkan via `setData` dan candle live via `update()` (hanya titik terakhir) — streaming tidak pernah memicu pembuatan ulang chart.
+- **Alasan:** PRD §4.2 menyebut "indikator dasar (volume, high/low 24j)" — volume belum ada. Chart TradingView standar memadukan candle + volume + MA, dan memberi pengguna kendali atas tampilan. MA7/MA25 adalah konvensi umum teknikal.
+- **Trade-off:** Tiga series aktif (harga + volume + 2 MA) menambah beban render dibanding satu; mitigated dengan `update()` untuk live dan `setData` hanya saat data historis/aktifasi indikator berubah. MA default aktif bisa terasa ramai bagi pemula — dapat dimatikan satu klik.
+- **Alternatif ditolak:** Indikator teknikal lengkap (RSI/MACD/Bollinger) — butuh banyak kode & membingungkan pemula; re-create chart tiap tick (lag); chart terpisah untuk volume (pecah layout 2 kolom).
+
+## 21 Oktober 2026 — Section "Tentang koin" dari CoinGecko (deskripsi, kategori, link resmi)
+- **Status:** Approved
+- **Keputusan:** Tambah section "Tentang {nama koin}" di halaman detail koin (di bawah chart, sebelum berita). Sumber data: CoinGecko `/api/v3/coins/{id}` lewat adapter `lib/adapters/coinInfo.ts` (timeout 6s, cache 1 jam) → API Route `/api/coin-info?code={kode}` → hook `useCoinInfo` (React Query). Isi: deskripsi (HTML di-strip, dipotong 600 karakter, ditampilkan max 6 baris + "Selengkapnya"), chip kategori (maks 4), dan tautan Website / Explorer / Whitepaper (`rel="noopener noreferrer"`). Deskripsi ditulis komunitas → ditampilkan **dengan kredit sumber** dan disclaimer "bukan nasihat keuangan".
+- **Alasan:** Halaman detail sebelumnya hanya berisi angka & grafik — pengguna baru tidak tahu koin yang dipantau itu apa. Data diambil saat runtime via API resmi (tidak disalin ke repo), memakai endpoint gratis tanpa key, dan konsisten dengan pola adapter yang sudah ditetapkan.
+- **Trade-off:** Deskripsi adalah materi komunitas CoinGecko (bukan redaksi sendiri) — karena itu diberi atribusi, dipotong, dan tidak boleh dipakai sebagai sumber kebenaran;section disembunyikan bila gagal dimuat (halaman tetap bersih).
+- **Alternatif ditolak:** Menulis deskripsi sendiri per 50 koin (rawan usang & boros kerja), menyalin teks deskripsi ke repo (violasi hak cipta), memakai API berbayar (biaya).
+
 ## Keputusan yang Pernah Dibahas & Ditutup
 - Backend Express/Fastify untuk WebSocket server → **ditolak** (lihat keputusan #1).
 - Use local state (useState) saja untuk data real-time → **diganti** Zustand + marketStore untuk berbagi antar halaman.

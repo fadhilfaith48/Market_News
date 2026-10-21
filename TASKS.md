@@ -233,6 +233,20 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] Alert in-app: `usePriceAlertWatcher` memunculkan toast `warning` saat alert ter-trigger (selain Notification browser)
 - [x] Tests `tests/toastStore.test.ts` — total 176 hijau, lint & build OK
 
+## G — Chart Pro + Tentang Koin (21 Oktober 2026)
+- [x] `lib/indicators.ts` (baru) — `sma`/`ema`/`movingAverage`/`toIndicatorPoints`/`movingAveragePoints` (pure, nilai `null` = masa pemanasan)
+- [x] `components/coin/PriceChart.tsx` — volume histogram (price scale "volume", sumbu tersembunyi), toggle tipe grafik Candle/Line/Area, overlay MA (LineSeries per periode); handle via `handlesRef` (chart tidak di-recreate saat tick live)
+- [x] `components/coin/ChartToolbar.tsx` — toggle tipe grafik + chip MA7/MA25 (`aria-pressed`); timeframe di baris kedua + scroll horizontal di mobile
+- [x] `components/coin/CoinDetail.tsx` — state `chartType` & `maPeriods`, pass ke chart & toolbar, mount `CoinAbout`
+- [x] `lib/constants.ts` — `CHART_TYPES`, `ChartType`, `MA_PERIODS`, `MA_KIND`
+- [x] `lib/adapters/coinInfo.ts` (baru) — `normalizeCoinInfo`/`firstUrl`/`readDescription`/`readCategories` + `fetchCoinInfo` (CoinGecko, timeout 6s, revalidate 3600)
+- [x] `app/api/coin-info/route.ts` (baru) — `GET ?code=XXX` (400 kode tak dikenal, 502 provider gagal)
+- [x] `hooks/useCoinInfo.ts` (baru) — React Query `["coin-info", code]`, stale 1 jam
+- [x] `components/coin/CoinAbout.tsx` (baru) — card "Tentang {nama}": deskripsi max 6 baris + "Selengkapnya", chip kategori, tautan Website/Explorer/Whitepaper, kredit CoinGecko; skeleton shimmer, hide bila gagal
+- [x] Tests `tests/indicators.test.ts` + `tests/coinInfo.test.ts` → total **201 hijau**, lint OK, build OK (62 route, `/api/coin-info` baru)
+- [x] Verifikasi live dev: `/api/coin-info?code=BTC` 200 (data riil CoinGecko), `?code=XYZ` 400, `/coin/BTC` 200, SSR memuat tombol Candle/Line/Area + chip MA7/MA25
+- [x] Update DECISIONS.md · ARCHITECTURE.md (§4.7 & §4.8 + tree) · PROGRESS.md
+
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device
 - [ ] Opsional: notifikasi push email/SMS

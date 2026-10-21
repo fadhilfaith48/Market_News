@@ -32,6 +32,31 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 21 Oktober 2026 — Paket G: Chart Pro (volume + tipe grafik + MA) & Tentang Koin
+
+### Status: Done (kode + verifikasi penuh — belum di-commit/push atas instruksi user)
+
+- [x] **`lib/indicators.ts` (baru)** — helper pure: `sma`, `ema`, `movingAverage`, `toIndicatorPoints`, `movingAveragePoints`. Konvensi nilai `null` = masa pemanasan → titik tidak digambar. `sma` menghitung jumlah window langsung (bukan inkremental) agar aman terhadap nilai non-finite.
+- [x] **`components/coin/PriceChart.tsx` (dimodifikasi)** — 3 series: harga utama (`CandlestickSeries`/`LineSeries`/`AreaSeries` sesuai `chartType`), volume (`HistogramSeries` pada `priceScaleId: "volume"`, sumbu tersembunyi, `scaleMargins` 0.82/0, warna up/down sesuai arah candle), overlay MA (`LineSeries` per periode, `priceLineVisible`/`lastValueVisible`/`crosshairMarkerVisible` off; MA7 warning, MA25 interactive). Helper `mergeCandles(historical, live)` menyambung candle live (high/low max/min) — dipakai bersama harga/volume/MA.
+- [x] **Siklus hidup chart** — chart dibuat sekali per kombinasi tema + tipe grafik (`useEffect` deps `[isDark, chartType]`); apply data lewat handle di ref (`handlesRef`): historis → `setData`, live → `update()` titik terakhir, MA → `setData` saat data/aktifasi berubah & `update()` saat live bergerak. **Chart tidak pernah di-recreate saat tick streaming.**
+- [x] **`components/coin/ChartToolbar.tsx` (dimodifikasi)** — baris 1: toggle Candle/Line/Area + chip MA7/MA25 (`aria-pressed`); baris 2: timeframe (scroll horizontal di mobile) + jam UTC.
+- [x] **`components/coin/CoinDetail.tsx` (dimodifikasi)** — state `chartType` (default `candle`) & `maPeriods` (default MA7+MA25 aktif), `toggleMa`, mount `<CoinAbout>` di bawah chart sebelum berita.
+- [x] **`lib/constants.ts`** — `CHART_TYPES`, `ChartType`, `MA_PERIODS`, `MA_KIND`.
+- [x] **`lib/adapters/coinInfo.ts` (baru)** — `normalizeCoinInfo` (pure) + `firstUrl` (hanya http/https) + `readDescription` (reuse `stripHtml` dari `lib/news.ts`, potong 600 karakter) + `readCategories` (buang kosong/"None", dedup) + `fetchCoinInfo` (CoinGecko `/coins/{id}`, timeout 6s, `revalidate: 3600`).
+- [x] **`app/api/coin-info/route.ts` (baru)** — `GET ?code=BTC`; `VALID_CODES` → 400 bila tak dikenal; 502 bila provider gagal.
+- [x] **`hooks/useCoinInfo.ts` (baru)** — React Query `["coin-info", code]`, stale 1 jam, retry 1, `refetchOnWindowFocus: false`.
+- [x] **`components/coin/CoinAbout.tsx` (baru)** — card "Tentang {nama}": deskripsi max 6 baris + tombol "Selengkapnya", chip kategori maks 4, tautan Website/Explorer/Whitepaper (`target="_blank" rel="noopener noreferrer"`), **kredit sumber CoinGecko** + disclaimer "bukan nasihat keuangan". Skeleton shimmer saat memuat; hide bila gagal (halaman tetap bersih).
+- [x] **Tests** `tests/indicators.test.ts` (SMA/EMA/periode invalid/non-finite/konversi ms→s) + `tests/coinInfo.test.ts` (normalisasi/URL/deskripsi/kategori) → total **201/201** (24 file); lint OK; build OK (62 route, `/api/coin-info` baru).
+- [x] **Verifikasi live dev** (port 3123): `/api/coin-info?code=BTC` **200** data riil CoinGecko (deskripsi terpotong, 3 link, 6 kategori) · `?code=XYZ` **400** · `/coin/BTC` **200** · SSR memuat tombol `Candle`/`Line`/`Area` + chip `MA7`/`MA25` (3 `aria-pressed="true"` = Candle + MA7 + MA25) · dev server dimatikan setelah cek.
+- [x] **Docs:** DECISIONS (2 keputusan baru) · ARCHITECTURE (§4.7 Chart Pro, §4.8 Profil koin, tree) · TASKS (bagian G) · PROGRESS (entry ini).
+
+### Catatan
+- **Tidak ada dependency baru** (semua memakai lightweight-charts yang sudah terpasang) dan **tidak ada perubahan data user** (localStorage watchlist/portofolio/alert tidak tersentuh).
+- MA default **aktif**; state tipe grafik & MA tidak di-persist (sama seperti timeframe).
+- **Belum di-commit/push** (tunggu instruksi user).
+
+---
+
 ## 29 Agustus 2026 — Sesi Inisialisasi Dokumen
 
 ### Status: Done (fase setup dokumentasi)

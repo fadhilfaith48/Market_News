@@ -63,13 +63,14 @@ market-news/
 │   │   └── [code]/page.tsx    # Halaman detail koin + chart (2 kolom, E1) — dynamicParams=false
 │   └── api/                   # API Routes (REST proxy & cache)
 │       ├── coins/route.ts     # Market cap/supply via lib/adapters: CoinGecko → fallback CoinPaprika (cache 300s, timeout 6s)
+│       ├── coin-info/route.ts # Profil koin (deskripsi/kategori/link) via lib/adapters/coinInfo (cache 1 jam)
 │       ├── klines/route.ts    # Data historis candlestick (cache)
 │       ├── tickers/route.ts   # Snapshot harga 24j Binance (fallback REST, cache 5s, timeout 6s)
 │       └── rate/route.ts      # Kurs mata uang (proxy open.er-api.com, cache 1 jam)
 ├── components/                # Komponen React (atomic/feature-based)
 │   ├── layout/                #   Header (SearchBox + CurrencySelect + toggle Watchlist), Footer, Logo, ThemeToggle
 │   ├── dashboard/             #   TickerTable (sort&filter), MarketDataProvider, LiveTicker, TopMovers
-│   ├── coin/                  #   PriceChart, CoinQuoteBar, ChartToolbar, CoinInfoPanel
+│   ├── coin/                  #   PriceChart (candle/line/area + volume + MA), ChartToolbar, CoinQuoteBar, CoinInfoPanel, CoinAbout
 │   ├── watchlist/             #   WatchlistPanel — panel sidebar drawer (menggantikan halaman /watchlist)
 │   ├── portfolio/             #   PortfolioPanel (drawer) + HoldingEditor (form posisi di halaman koin)
 │   ├── alerts/                #   AlertsPanel (drawer) + AlertQuickAdd (tombol ▲/▼ di halaman koin)
@@ -81,6 +82,7 @@ market-news/
 │   ├── useKlineStream.ts      # Subskripsi candle live (WS) dari store
 │   ├── useFiatRates.ts        # Kurs mata uang via /api/rate
 │   ├── useCoinMarket.ts       # Market cap/supply via /api/coins
+│   ├── useCoinInfo.ts         # Profil koin (deskripsi/kategori/link) via /api/coin-info
 │   ├── useTickerPolling.ts    # Fallback REST polling 5s saat WS offline (via /api/tickers)
 │   ├── useMonitoring.ts       # Tangkap onerror/unhandledrejection + PerformanceObserver → monitoringStore
 │   ├── useToast.ts             # Helper toast(tone, title, description?) → toastStore
@@ -93,8 +95,10 @@ market-news/
 │   │   ├── types.ts           # CoinMarketAsset, MarketSource, CoinsResult
 │   │   ├── coingecko.ts       # Provider #1: normalizeCoinGecko + fetch CoinGecko (timeout 6s, revalidate 300)
 │   │   ├── coinpaprika.ts     # Provider #2 (fallback): COINPAPRIKA_IDS + normalize + fetch bulk /v1/tickers
+│   │   ├── coinInfo.ts        # Profil koin: normalizeCoinInfo + fetch CoinGecko /coins/{id} (timeout 6s, revalidate 3600)
 │   │   └── index.ts           # getCoinMarketAssets: CoinGecko → CoinPaprika (DI `fetchers` utk unit test)
 │   ├── coinMeta.ts            # COIN_NAMES, LOGO_OVERRIDES, COINGECKO_IDS, getCoinMeta
+│   ├── indicators.ts          # sma/ema/movingAverage/toIndicatorPoints (pure, unit-testable)
 │   ├── sort.ts                # sortRows & applyRangeFilter (tabel dashboard)
 │   ├── monitoring.ts          # createLogEntry/appendLog (ring buffer), errorToEntry, sanitizeLogs, captureErrorContext
 │   ├── wsEndpoint.ts          # loadSavedEndpoint/saveGoodEndpoint/endpointOf (ingat endpoint WS yang berhasil)
@@ -164,6 +168,24 @@ market-news/
 3. **`hooks/useToast.ts`** — helper `toast(tone, title, description?)` berbasis `useCallback` agar stabil di komponen.
 4. **Pemakai (feedback aksi):** `HoldingEditor` (simpan/hapus posisi), `AlertsPanel` (tambah alert + hasil izin notifikasi), `PortfolioPanel` (hapus posisi), `DiagnosticsPanel` (salin/bersihkan log).
 5. **Alert in-app:** `hooks/usePriceAlertWatcher.ts` — selain `Notification` browser, alert yang ter-trigger juga memunculkan toast `warning` (judul "Alert {kode} tertrigger", detail arah + harga sekarang). Menutup celah saat izin notifikasi ditolak / tab tidak aktif.
+
+### 4.7 Chart Pro (volume + tipe grafik + moving average)
+
+1. **`lib/indicators.ts`** — helper **pure** untuk moving average: `sma(values, period)`, `ema(values, period)`, `movingAverage(values, period, kind)`, `toIndicatorPoints(values, timestamps)`, `movingAveragePoints(closes, period, kind)`. Konvensi: nilai `null` = masa pemanasan (warm-up) → titik tidak digambar. Semua di-unit-test (`tests/indicators.test.ts`).
+2. **`components/coin/PriceChart.tsx`** — satu instance chart, tiga series:
+   - **Harga utama** — `CandlestickSeries` / `LineSeries` / `AreaSeries` sesuai `chartType` (state lokal di `CoinDetail`; chart di-recreate saat tipe berubah).
+   - **Volume** — `HistogramSeries` pada price scale terpisah (`priceScaleId: "volume"`, sumbu disembunyikan, `scaleMargins` 0.82/0) → bar volume mengisi ~18% bawah chart, warna hijau/merah mengikuti arah candle.
+   - **Overlay MA** — `LineSeries` per periode aktif (default MA7 + MA25), `priceLineVisible`/`lastValueVisible`/`crosshairMarkerVisible` dimatikan agar tidak ramai. MA7 berwarna warning, MA25 interactive.
+3. **Siklus hidup chart** — chart dibuat satu kali per kombinasi tema + tipe grafik (`useEffect` deps `[isDark, chartType]`); data historis & candle live diterapkan lewat handle yang disimpan di ref (`handlesRef`), sehingga **tidak** ada re-create chart saat tick streaming masuk. Perubahan historis → `setData`; perubahan live → `update()` (hanya titik terakhir). MA: `setData` saat data/aktifasi berubah, `update()` saat live bergerak.
+4. **Data live digabung** — helper `mergeCandles(historical, live)` menyambung candle live ke candle terakhir (high/low = max/min, close & volume terbaru) atau menambahkannya bila sudah lewat — dipakai bersama oleh series harga, volume, dan MA agar semuanya konsisten.
+5. **`components/coin/ChartToolbar.tsx`** — dua baris: (a) toggle tipe grafik (Candle/Line/Area) + chip MA (MA7/MA25, `aria-pressed`); (b) timeframe (7 interval, scroll horizontal di mobile) + jam UTC. State MA & tipe grafik **tidak di-persist** (sama seperti timeframe).
+
+### 4.8 Profil koin ("Tentang koin")
+
+1. **`lib/adapters/coinInfo.ts`** — `fetchCoinInfo(code)` → CoinGecko `/api/v3/coins/{id}?localization=false&tickers=false&market_data=false&community_data=false&developer_data=false&sparkline=false` (timeout 6s, `revalidate: 3600`). Normalisasi pure `normalizeCoinInfo(raw, code)` → `{ code, description, homepage, explorer, whitepaper, categories }`. Helper `firstUrl` hanya menerima http/https; `readDescription` men-strip HTML (reuse `stripHtml` dari `lib/news.ts`) & memotong 600 karakter; `readCategories` membuang entri kosong/"None".
+2. **`app/api/coin-info/route.ts`** — `GET /api/coin-info?code=BTC`; validasi `VALID_CODES` (400 bila tidak dikenal), 502 bila provider gagal.
+3. **`hooks/useCoinInfo.ts`** — React Query `["coin-info", code]`, stale 1 jam, retry 1.
+4. **`components/coin/CoinAbout.tsx`** — card "Tentang {nama koin}" (deskripsi max 6 baris + tombol "Selengkapnya", chip kategori max 4, tautan Website/Explorer/Whitepaper dengan `rel="noopener noreferrer"`, kredit sumber CoinGecko). Skeleton shimmer saat memuat; bila gagal → komponen tidak dirender (halaman tetap bersih). Dipasang di `CoinDetail` di bawah chart, sebelum `CoinNewsSection`.
 
 ---
 
