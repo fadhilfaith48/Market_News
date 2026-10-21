@@ -5,12 +5,13 @@ import { useCallback, useState } from "react";
 
 import { CoinQuoteBar } from "@/components/coin/CoinQuoteBar";
 import { ChartToolbar } from "@/components/coin/ChartToolbar";
+import { CoinAbout } from "@/components/coin/CoinAbout";
 import { CoinInfoPanel } from "@/components/coin/CoinInfoPanel";
 import { CoinNewsSection } from "@/components/coin/CoinNewsSection";
 import { PriceChart } from "@/components/coin/PriceChart";
 import { HoldingEditor } from "@/components/portfolio/HoldingEditor";
 import { AlertQuickAdd } from "@/components/alerts/AlertQuickAdd";
-import { KLINE_DEFAULT_INTERVAL } from "@/lib/constants";
+import { KLINE_DEFAULT_INTERVAL, MA_PERIODS, type ChartType } from "@/lib/constants";
 import { useKlines } from "@/hooks/useKlines";
 import { useKlineStream } from "@/hooks/useKlineStream";
 import { useMarketStore } from "@/store/marketStore";
@@ -20,6 +21,8 @@ export function CoinDetail({ code }: { code: string }) {
   const symbol = `${code}USDT`;
   const [interval, setInterval] = useState<string>(KLINE_DEFAULT_INTERVAL);
   const [live, setLive] = useState<LiveKline | null>(null);
+  const [chartType, setChartType] = useState<ChartType>("candle");
+  const [maPeriods, setMaPeriods] = useState<number[]>([...MA_PERIODS]);
 
   const ticker = useMarketStore((state) => state.tickers[symbol]);
   const { data: historical, isLoading, isError, refetch } = useKlines(
@@ -35,6 +38,14 @@ export function CoinDetail({ code }: { code: string }) {
     },
     [],
   );
+
+  const toggleMa = useCallback((period: number) => {
+    setMaPeriods((prev) =>
+      prev.includes(period)
+        ? prev.filter((item) => item !== period)
+        : [...prev, period].sort((a, b) => a - b),
+    );
+  }, []);
 
   const latestKline = live ?? (historical && historical.length > 0 ? historical[historical.length - 1] : null);
 
@@ -77,6 +88,8 @@ export function CoinDetail({ code }: { code: string }) {
                 key={interval}
                 historical={historical}
                 live={live}
+                chartType={chartType}
+                maPeriods={maPeriods}
               />
             )}
           </div>
@@ -84,6 +97,10 @@ export function CoinDetail({ code }: { code: string }) {
           <ChartToolbar
             interval={interval}
             setInterval={handleIntervalChange}
+            chartType={chartType}
+            setChartType={setChartType}
+            maPeriods={maPeriods}
+            toggleMa={toggleMa}
           />
         </div>
 
@@ -101,6 +118,10 @@ export function CoinDetail({ code }: { code: string }) {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6">
+        <CoinAbout code={code} />
       </div>
 
       <div className="mt-6">

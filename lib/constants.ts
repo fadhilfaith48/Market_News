@@ -80,6 +80,17 @@ export const TIMEFRAMES = ["1m", "5m", "15m", "1h", "4h", "1d", "1w"] as const;
 
 export type Timeframe = (typeof TIMEFRAMES)[number];
 
+/** Tipe grafik harga yang bisa dipilih pengguna. */
+export const CHART_TYPES = ["candle", "line", "area"] as const;
+
+export type ChartType = (typeof CHART_TYPES)[number];
+
+/** Periode moving average yang dapat diaktifkan sebagai overlay. */
+export const MA_PERIODS = [7, 25] as const;
+
+/** Jenis moving average yang dipakai untuk overlay. */
+export const MA_KIND = "sma" as const;
+
 export const KLINE_DEFAULT_INTERVAL: Timeframe = "5m";
 export const KLINE_LIMIT = 500;
 export const BINANCE_MARKET_DATA_BASE = "https://data-api.binance.vision";
