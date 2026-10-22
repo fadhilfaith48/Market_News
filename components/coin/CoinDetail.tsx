@@ -58,7 +58,9 @@ export function CoinDetail({ code }: { code: string }) {
         &larr; Kembali ke Dashboard
       </Link>
 
-      <div className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1fr)_300px] md:items-start">
+      {/* 2 kolom baru mulai di `lg` (1024px). Di iPad portrait (768px)
+          kolom chart hanya ~420px → terlalu sempit untuk candle + volume + MA. */}
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
         {/* Left column — Chart */}
         <div className="card min-w-0 overflow-hidden">
           <CoinQuoteBar
@@ -106,7 +108,10 @@ export function CoinDetail({ code }: { code: string }) {
 
         {/* Right column — Info Panel */}
         <div className="mt-4 flex flex-col gap-4 lg:mt-0">
-          <div className="flex flex-col gap-4 lg:sticky lg:top-20">
+          {/* `top-[var(--header-h)]` = tinggi header REAL (diukur runtime).
+              Nilai tetap `top-20` salah saat header jadi 2 baris (<1024px)
+              → panel info tertutup header saat scroll. */}
+          <div className="flex flex-col gap-4 lg:sticky top-[var(--header-h,5rem)]">
             <div className="card p-4">
               <CoinInfoPanel code={code} ticker={ticker ?? null} streamOpen={streamOpen} />
             </div>

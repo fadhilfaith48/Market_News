@@ -8,7 +8,7 @@ export default function CoinLoading() {
           <div className="card shimmer h-[500px] w-full" />
           <div className="card shimmer h-10 w-full" />
         </div>
-        <div className="lg:sticky lg:top-4">
+        <div className="lg:sticky top-[var(--header-h,5rem)]">
           <div className="card shimmer h-24 w-full" />
           <div className="card shimmer mt-3 h-44 w-full" />
         </div>

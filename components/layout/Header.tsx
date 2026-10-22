@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import { ConnectionBadge } from "@/components/ui/ConnectionBadge";
 import { Logo } from "@/components/layout/Logo";
 import { SearchBox } from "@/components/layout/SearchBox";
@@ -12,6 +14,7 @@ import { usePortfolioStore } from "@/store/portfolioStore";
 import { useUIStore } from "@/store/uiStore";
 
 export function Header() {
+  const headerRef = useRef<HTMLElement | null>(null);
   const theme = useUIStore((state) => state.theme);
   const toggleTheme = useUIStore((state) => state.toggleTheme);
   const watchlistOpen = useUIStore((state) => state.watchlistOpen);
@@ -33,6 +36,28 @@ export function Header() {
     countUnseenErrors(state.entries, state.viewedAt),
   );
   const hydrated = useHydrated();
+
+  /**
+   * PUBLISK tinggi header ke CSS variable `--header-h` (dibaca root `<html>`).
+   * Dipakai panel info detail koin yang `sticky` → harus berhenti tepat di
+   * bawah header, apa pun jumlah barisnya (1 baris ≥1024px, 2 baris di bawah
+   * itu) dan berapa pun tinggi teks sistem.
+   */
+  useEffect(() => {
+    const element = headerRef.current;
+    if (!element) return;
+    const root = document.documentElement;
+    const update = () => {
+      root.style.setProperty("--header-h", `${Math.round(element.offsetHeight)}px`);
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--header-h");
+    };
+  }, []);
 
   const toggleWatchlist = () => {
     setPortfolioOpen(false);
@@ -63,7 +88,11 @@ export function Header() {
   };
 
   return (
-    <header className="glass-bar sticky top-0 z-40 px-4 py-2.5">
+    // `pt` menyisipkan ruang aman notch (mode standalone/PWA); `pb` tetap 2.5.
+    <header
+      ref={headerRef}
+      className="glass-bar sticky top-0 z-40 px-4 pb-2.5 pt-[calc(0.625rem+env(safe-area-inset-top,0px))]"
+    >
       <div className="flex items-center justify-between gap-1.5 sm:gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex-none rounded-xl bg-gradient-to-br from-interactive to-up p-1 text-white">

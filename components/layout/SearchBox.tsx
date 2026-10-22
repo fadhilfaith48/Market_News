@@ -83,7 +83,10 @@ export function SearchBox({ fluid = false }: { fluid?: boolean }) {
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onKeyDown={handleKeyDown}
-        className={`rounded-lg border border-border bg-panel px-2.5 py-1.5 text-xs text-text placeholder-muted outline-none transition-colors focus-ring ${
+        // `text-base` (16px) di bawah `sm` mencegah auto-zoom iOS saat input
+        // difokuskan (iOS auto-zoom pada font-size < 16px dan zoom-nya tidak
+        // bisa dikembalikan → layout rusak).
+        className={`rounded-lg border border-border bg-panel px-2.5 py-1.5 text-base text-text placeholder-muted outline-none transition-colors focus-ring sm:text-xs ${
           fluid ? "min-w-0 w-full" : "w-32 sm:w-48"
         }`}
       />
