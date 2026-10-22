@@ -57,6 +57,22 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 22 Oktober 2026 — Paket H: perbaikan responsif HP & Tablet (P1)
+
+### Status: Done (2 commit kode + 1 commit docs)
+
+- [x] **Audit responsif** — seluruh komponen + `globals.css` + `layout.tsx` diperiksa pada 4 breakpoint (375 / 768 / 1024 / 1280). Temuan: 4 isu P1, 5 isu P2, 5 isu P3. P1 diselesaikan sekarang; P2/P3 dicatat sebagai backlog **KI-006**.
+- [x] **P1-1 — iOS auto-zoom saat input difokuskan** → `SearchBox` input `text-xs` → **`text-base sm:text-xs`** (16px di bawah 640px; iOS auto-zoom hanya memicu pada <16px dan zoom-nya persisten).
+- [x] **P1-2 — notch / gesture bar iPhone** → `app/layout.tsx` mengekspor `viewport` (`viewportFit: "cover"`, `themeColor` light/dark); `body` dapat `padding-bottom: env(safe-area-inset-bottom)`; header dapat `padding-top` aman; `Toaster` & `DrawerShell` memperhitungkan safe-area bawah.
+- [x] **P1-3 — panel sticky tertutup header di tablet** → tinggi header kini dipublikasikan ke CSS variable **`--header-h`** via `ResizeObserver` pada `<header>` (`Header.tsx`), dibaca `CoinDetail` sebagai `top-[var(--header-h,5rem)]` (fallback `6.5rem` di `globals.css`). Menggantikan offset statis `lg:top-20` yang salah saat header 2 baris (<1024px).
+- [x] **P1-4 — kolom chart sempit di iPad portrait** → grid `CoinDetail` `md:` → **`lg:`** (768px → 1024px); konsisten dengan `app/coin/[code]/loading.tsx` yang sudah `lg:`.
+- [x] **Bonus (P3, digabung karena file sama)** → `html { overflow-x: clip }` — **bukan** `hidden`, agar `position: sticky` header & panel info tidak rusak; `themeColor` browser HP ikut tema.
+- [x] **Verifikasi** — lint OK · **201/201 test hijau** · build OK (62 route) · dev server (port 3124) meng-emitting `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>` + 2 tag `theme-color` · CSS ter-build memuat `overflow-x: clip`, `env(safe-area-inset-bottom, 0px)` (body + toaster), token `--header-h: 6.5rem`, dan utiliti `top-[var(--header-h,5rem)]` · dev server dimatikan setelah cek.
+- [x] **Docs** — BUGS.md (BUG-009 auto-zoom, BUG-010 sticky tertimpa, BUG-011 notch, BUG-012 kolom chart + **KI-006** backlog P2/P3) · DECISIONS.md (1 keputusan baru) · TASKS.md (bagian H) · PROGRESS.md (entri ini).
+- [ ] **P2/P3 ditunda** — target sentuh ≥44px, marquee pause-on-touch, dropdown clamp, affordance scroll timeframe, dashboard 2 kolom di `lg`, sort kartu mobile, `prefers-reduced-motion` kilatan harga, e2e viewport.
+
+---
+
 ## 29 Agustus 2026 — Sesi Inisialisasi Dokumen
 
 ### Status: Done (fase setup dokumentasi)

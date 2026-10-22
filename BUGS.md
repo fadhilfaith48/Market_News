@@ -97,6 +97,46 @@ Format entri baru:
 - **Solusi/rancangan perbaikan:** Tambah `app/coin/[code]/loading.tsx` (skeleton chart + info panel menyerupai `CoinDetail`) dan `app/coin/[code]/error.tsx` (client boundary dengan tombol "Coba Lagi"). Sesuai panduan Next: dynamic route tanpa `loading.tsx` memberi kesan "app not responding".
 - **Diperbaiki tanggal/versi:** 22 September 2026 — buat 2 file di `app/coin/[code]/`; verifikasi lint & build OK, 50 koin tetap SSG.
 
+## BUG-009 — iOS auto-zoom saat input pencarian difokuskan (HP)
+- **Tanggal ditemukan:** 22 Oktober 2026
+- **Prioritas:** High
+- **Status:** Fixed — 22 Oktober 2026
+- **Langkah reproduce:** Buka aplikasi di iPhone Safari (atau iPad) → ketuk kolom pencarian di header → halaman otomatis zoom-in dan zoom tidak bisa dikembalikan (tetap ter-magnify) → seluruh layout tampak kacau.
+- **Penyebab:** Input `SearchBox` (`components/layout/SearchBox.tsx`) memakai `font-size: text-xs` (12px). iOS Safari melakukan auto-zoom pada setiap input dengan font-size < 16px; zoom bersifat persisten selama halaman tidak di-reload.
+- **Dampak:** Di HP, pengguna yang baru mengetik satu karakter di kolom pencarian langsung kehilangan kendali atas tampilan halaman; zoom juga menutupi sebagian konten.
+- **Solusi/rancangan perbaikan:** Naikkan font-size input menjadi 16px di bawah breakpoint `sm` (`text-base sm:text-xs`) → auto-zoom tidak terpicu, sementara tampilan desktop tetap ringkas. Verifikasi: CSS ter-build berisi `--text-base: 1rem` dan utiliti `.text-base` aktif pada <640px.
+- **Diperbaiki tanggal/versi:** 22 Oktober 2026 — `components/layout/SearchBox.tsx`; lint, 201 test, & build OK.
+
+## BUG-010 — Panel info detail koin tertutup header sticky di tablet
+- **Tanggal ditemukan:** 22 Oktober 2026
+- **Prioritas:** Medium
+- **Status:** Fixed — 22 Oktober 2026
+- **Langkah reproduce:** Buka `/coin/BTC` di tablet (lebar < 1024px) → scroll ke bawah → panel info (statistik, edit holding, alert) yang `sticky` tertimpa header.
+- **Penyebab:** `CoinDetail` memakai offset tetap `lg:top-20` (80px). Namun di bawah 1024px header menjadi 2 baris (baris logo/tombol + baris pencarian & mata uang, `Header.tsx`), sehingga tinggi header ≈ 95px > 80px.
+- **Dampak:** Bagian atas panel info terpotong header saat scroll di tablet — konten tidak terbaca.
+- **Solusi/rancangan perbaikan:** Ganti offset statis dengan CSS variable `--header-h` yang nilainya diukur runtime: `Header` memakai `ResizeObserver` pada elemen `<header>` lalu menulis `--header-h` ke `<html>`; `CoinDetail` memakai `top-[var(--header-h,5rem)]` (fallback 5rem bila JS belum berjalan). Nilai `--header-h` otomatis menyesuaikan bila tinggi header berubah di kemudian hari.
+- **Diperbaiki tanggal/versi:** 22 Oktober 2026 — `components/layout/Header.tsx` (ResizeObserver), `components/coin/CoinDetail.tsx`, `app/coin/[code]/loading.tsx`, `app/globals.css` (fallback `--header-h: 6.5rem`).
+
+## BUG-011 — Konten tertutup notch / gesture bar di iPhone
+- **Tanggal ditemukan:** 22 Oktober 2026
+- **Prioritas:** Medium
+- **Status:** Fixed — 22 Oktober 2026
+- **Langkah reproduce:** Buka aplikasi di iPhone (Safari) → toast di pojok kanan bawah tertutup gesture bar; drawer sisi & footer tertutup area swipe-to-close.
+- **Penyebab:** Aplikasi belum mendeklarasikan `viewport` → `viewport-fit` default `auto`, sehingga `env(safe-area-inset-*)` selalu bernilai 0 dan konten tidak mendapat ruang aman.
+- **Dampak:** Elemen fixed (Toaster) & area bawah drawer/footer tertutup indikator home iPhone → tombol toast & footer sulit disentuh.
+- **Solusi/rancangan perbaikan:** Tambahkan `export const viewport` di `app/layout.tsx` (`viewportFit: "cover"`, `themeColor` light/dark), `padding-bottom: env(safe-area-inset-bottom)` pada `body`, `padding-top` aman pada header, dan padding aman pada `Toaster` + `DrawerShell`.
+- **Diperbaiki tanggal/versi:** 22 Oktober 2026 — `app/layout.tsx`, `app/globals.css`, `components/ui/Toaster.tsx`, `components/ui/DrawerShell.tsx`; verifikasi HTML: `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>` + 2 tag `theme-color`.
+
+## BUG-012 — Kolom chart terlalu sempit di iPad portrait (768px)
+- **Tanggal ditemukan:** 22 Oktober 2026
+- **Prioritas:** Medium
+- **Status:** Fixed — 22 Oktober 2026
+- **Langkah reproduce:** Buka `/coin/BTC` di iPad portrait (768px) → layout 2 kolom aktif → kolom chart hanya ≈ 420px; candle + volume + MA7/MA25 + sumbu harga saling berdesakan.
+- **Penyebab:** `CoinDetail` memakai `md:grid-cols-[minmax(0,1fr)_300px]` (2 kolom mulai 768px) — berbeda dengan `app/coin/[code]/loading.tsx` yang sudah memakai `lg:`.
+- **Dampak:** Chart sulit dibaca di tablet portrait; tombol toolbar ikut rapat.
+- **Solusi/rancangan perbaikan:** Samakan breakpoint ke `lg` (1024px) → di bawah itu chart memakai lebar penuh 1 kolom, konsisten dengan skeleton loading.
+- **Diperbaiki tanggal/versi:** 22 Oktober 2026 — `components/coin/CoinDetail.tsx` (`md:` → `lg:`).
+
 ## Known Issues / Risiko yang Dipantau (dari perencanaan)
 
 ## Known Issue 1 — Watchlist & preferensi tidak tersinkron antar device
@@ -139,6 +179,14 @@ Format entri baru:
 - **Dampak:** Potensi lag/jank pada chart & tabel jika update WS masuk terlalu banyak sekaligus.
 - **Solusi:** Throttle/batch update store (maks N kali per detik), memoization komponen, dan manfaatkan API incremental TradingView Lightweight Charts.
 - **Update 22/09/2026:** Batching diterapkan — `lib/batcher.ts` (`createBatchFlusher`, dedup per simbol, flush 250ms `TICKER_BATCH_FLUSH_MS`), `store/marketStore.ts` (`applyTickers`, satu `set` per batch), `hooks/useBinanceWS.ts` (`onTickers` + batcher, flush saat cleanup), `useTickerPolling.ts` ikut memakai `applyTickers`. Test: `tests/batcher.test.ts` baru + `tests/store.test.ts` (`applyTickers`), 95 test hijau, lint & build OK. Belum: throttle update kline/`useKlineStream`, `React.memo` pada baris tabel, dan kompresi re-render `FlashPrice`.
+
+## Known Issue 6 — Target sentuh kecil & gap responsif P2/P3 (backlog)
+- **ID:** KI-006
+- **Prioritas:** Medium
+- **Status:** Open — sengaja ditunda (P1 sudah diselesaikan pada 22 Oktober 2026)
+- **Dampak:** Di HP beberapa target sentuh masih di bawah standar ergonomis: bintang watchlist `WatchStar` hanya 16×16px, tombol header ≈ 28px, chip filter/MA/timeframe ≈ 24px (rekomendasi Apple ≥44px, Material ≥48dp). LiveTicker marquee juga tidak bisa dijeda di perangkat sentuh (`hover:` hanya berlaku di perangkat ber-hover), sehingga 50 koin (durasi ≈ 140 detik) terus berjalan tanpa jeda. Dashboard tetap 1 kolom sampai 1280px, sehingga iPad landscape (1024–1280px) memakai tabel selebar penuh.
+- **Solusi/rancangan perbaikan:** (P2) perbesar area sentuh bintang/ikon/chip; pause marquee pada `pointerdown`; clamp lebar dropdown pencarian agar tidak meluber; tambahkan affordance scroll pada deret timeframe; tambah layout 2 kolom dashboard mulai `lg`. (P3) sembunyikan kolom Volume di <768px; sediakan kontrol sort pada tampilan kartu mobile; hentikan animasi kilatan harga saat `prefers-reduced-motion`. Tidak ada dependency baru (pure Tailwind/CSS).
+- **Catatan:** Belum ada pengujian otomatis pada viewport nyata (Playwright/e2e belum dipasang) — verifikasi responsif selama ini masih manual/berbasis kelas Tailwind.
 
 ---
 

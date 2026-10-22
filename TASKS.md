@@ -247,6 +247,19 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] Verifikasi live dev: `/api/coin-info?code=BTC` 200 (data riil CoinGecko), `?code=XYZ` 400, `/coin/BTC` 200, SSR memuat tombol Candle/Line/Area + chip MA7/MA25
 - [x] Update DECISIONS.md · ARCHITECTURE.md (§4.7 & §4.8 + tree) · PROGRESS.md
 
+## H — Perbaikan responsif HP & Tablet (Paket P1) (22 Oktober 2026)
+- [x] `app/layout.tsx` — `export const viewport` (`viewportFit: "cover"`, `themeColor` light/dark)
+- [x] `app/globals.css` — `html { overflow-x: clip }` (clip, bukan hidden → sticky tetap jalan), `body { padding-bottom: env(safe-area-inset-bottom) }`, token fallback `--header-h: 6.5rem`
+- [x] `components/ui/Toaster.tsx` — posisi toast memperhitungkan safe-area bawah
+- [x] `components/ui/DrawerShell.tsx` — padding aman di sisi bawah drawer
+- [x] `components/layout/SearchBox.tsx` — `text-base sm:text-xs` (16px di HP → anti auto-zoom iOS)
+- [x] `components/layout/Header.tsx` — `ResizeObserver` menulis `--header-h` (tinggi header real) ke `<html>`
+- [x] `components/coin/CoinDetail.tsx` — 2 kolom `md:` → `lg:`; sticky `lg:top-20` → `top-[var(--header-h,5rem)]`
+- [x] `app/coin/[code]/loading.tsx` — samakan offset sticky dengan detail koin
+- [x] Verifikasi: lint OK · 201/201 test hijau · build OK · HTML dev emitting `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>` + 2 tag `theme-color` · CSS build berisi `overflow-x: clip`, `env(safe-area-inset-bottom)`, `--header-h`, utiliti `top-[var(--header-h,5rem)]`
+- [x] Docs: BUGS.md (BUG-009…BUG-012 + KI-006 backlog P2/P3) · DECISIONS.md · TASKS.md · PROGRESS.md
+- [ ] **P2/P3 (backlog, KI-006):** target sentuh ≥44px (bintang/header/chip) · marquee pause-on-touch · clamp dropdown pencarian · affordance scroll timeframe · dashboard 2 kolom di `lg` · sembunyikan kolom Volume <768 · sort di kartu mobile · `prefers-reduced-motion` untuk kilatan harga · e2e viewport (Playwright)
+
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device
 - [ ] Opsional: notifikasi push email/SMS
