@@ -21,6 +21,10 @@
 
   --shimmer-base: #e9ecef;
   --shimmer-hover: #dee2e6;
+
+  /* Fallback tinggi header (dipakai sticky panel detail koin).
+     Nilai akurat di-update runtime oleh <Header /> via ResizeObserver. */
+  --header-h: 6.5rem;
 }
 
 /* ─── TradingView Semantic Tokens — Dark ───
@@ -73,10 +77,20 @@
 }
 
 /* ─── Base Styles ─── */
+
+/* `clip` (bukan `hidden`) → scroll horizontal tetap dicegah TANPA membuat
+   scroll container, sehingga `position: sticky` header & panel info tetap
+   bekerja di browser mobile. */
+html {
+  overflow-x: clip;
+}
+
 body {
   background: var(--tv-page);
   color: var(--tv-text);
   font-family: var(--font-sans);
+  /* Ruang aman untuk gesture bar / home indicator iPhone */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* ─── Design System Components (Fase 0) ─── */

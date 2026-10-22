@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -15,6 +15,25 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Market News — Crypto",
   description: "Dashboard data pasar cryptocurrency real-time.",
+};
+
+/**
+ * Konfigurasi viewport untuk perangkat mobile.
+ *
+ * - `viewportFit: "cover"` → konten boleh memakai area notch (iPhone) dan
+ *   `env(safe-area-inset-*)` menjadi aktif (padding bawah handled di
+ *   `globals.css`, `Toaster`, dan `DrawerShell`).
+ * - `themeColor` → address bar browser ikut tema (tidak ada lagi flash putih
+ *   saat membuka aplikasi dalam mode gelap).
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#131722" },
+  ],
 };
 
 const initialThemeScript = `

@@ -91,7 +91,7 @@ export function Toaster() {
     <div
       aria-live="polite"
       aria-label="Notifikasi"
-      className="pointer-events-none fixed inset-x-3 bottom-3 z-[70] flex flex-col items-end gap-2 sm:inset-x-auto sm:right-4 sm:w-[340px]"
+      className="pointer-events-none fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] z-[70] flex flex-col items-end gap-2 sm:inset-x-auto sm:right-4 sm:w-[340px]"
     >
       {toasts.map((toast) => (
         <ToastCard key={toast.id} toast={toast} />

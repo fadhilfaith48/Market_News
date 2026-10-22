@@ -51,7 +51,7 @@ export function DrawerShell({
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel ?? title}
-        className={`animate-drawer-in fixed inset-y-0 right-0 z-50 flex ${width} max-w-[85vw] flex-col border-l border-border bg-panel shadow-card`}
+        className={`animate-drawer-in fixed inset-y-0 right-0 z-50 flex ${width} max-w-[85vw] flex-col border-l border-border bg-panel pb-[env(safe-area-inset-bottom,0px)] shadow-card`}
       >
         <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2.5">
           <h2 className="truncate text-sm font-semibold">{title}</h2>
