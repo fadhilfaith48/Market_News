@@ -223,6 +223,15 @@ body {
   animation: flash-down 450ms ease-out;
 }
 
+/* Hormati preferensi pengguna yang sensitif terhadap gerakan:
+   kilatan harga tidak dianimasikan (dampak tetap terlihat lewat warna teks). */
+@media (prefers-reduced-motion: reduce) {
+  .animate-flash-up,
+  .animate-flash-down {
+    animation: none;
+  }
+}
+
 /* ─── Shimmer Skeleton ─── */
 @keyframes shimmer {
   0% {
