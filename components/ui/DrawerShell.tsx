@@ -12,10 +12,23 @@ interface DrawerShellProps {
   footer?: ReactNode;
 }
 
+const FOCUSABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
 /**
  * Shell bersama untuk semua drawer sisi (watchlist, portofolio, alert,
  * diagnostics): backdrop gelap + panel slide-in, tombol tutup, dan
- * dukungan aksesibilitas dasar (role dialog, aria-modal, Escape).
+ * dukungan aksesibilitas (role dialog, aria-modal, Escape, **focus trap**).
+ *
+ * Focus trap: selama drawer terbuka, Tab/Shift+Tab berputar di antara elemen
+ * fokus di dalam panel saja, dan fokus dikembalikan ke elemen pemicu saat
+ * drawer ditutup.
  */
 export function DrawerShell({
   open,
@@ -27,15 +40,50 @@ export function DrawerShell({
   footer,
 }: DrawerShellProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
+
+    const previouslyFocused = document.activeElement;
+    restoreFocusRef.current =
+      previouslyFocused instanceof HTMLElement ? previouslyFocused : null;
     closeRef.current?.focus();
+
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const panel = panelRef.current;
+      if (!panel) return;
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+      ).filter((element) => element.offsetParent !== null);
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || active === panel)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      restoreFocusRef.current?.focus();
+      restoreFocusRef.current = null;
+    };
   }, [open, onClose]);
 
   if (!open) return null;
@@ -48,6 +96,7 @@ export function DrawerShell({
         className="animate-overlay-in fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
       />
       <aside
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel ?? title}

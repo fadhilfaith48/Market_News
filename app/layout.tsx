@@ -55,11 +55,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: initialThemeScript }} />
       </head>
       <body className="flex min-h-full flex-col bg-page text-text">
+        {/* Skip link: hanya terlihat saat difokus dengan keyboard */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-lg focus:border focus:border-border focus:bg-panel focus:px-3 focus:py-2 focus:text-sm focus:text-text"
+        >
+          Lewati ke konten utama
+        </a>
         <ThemeSync />
         <QueryProvider>
           <MarketDataProvider>
             <Header />
-            <main className="flex-1">{children}</main>
+            <main id="main" tabIndex={-1} className="flex-1 outline-none">
+              {children}
+            </main>
             <Footer />
             <WatchlistPanel />
             <PortfolioPanel />
