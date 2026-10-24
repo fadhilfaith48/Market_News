@@ -3,13 +3,15 @@
 import { useHydrated } from "@/hooks/useHydrated";
 import { useIsWatched, useWatchStore } from "@/store/watchStore";
 
-export function WatchStar({
-  code,
-  size = 16,
-}: {
-  code: string;
-  size?: number;
-}) {
+/**
+ * Tombol ☆/★ untuk watchlist.
+ *
+ * Ukuran area sentuh: **44px di HP** (`size-11`) dan 28px di layar ≥640px.
+ * Di tampilan kartu mobile tinggi baris cukup untuk target 44px tanpa
+ * menabrak tombol lain; di tabel desktop 28px sudah memadai (memakai mouse).
+ * `aria-pressed` memberi tahu screen reader status terpilih.
+ */
+export function WatchStar({ code }: { code: string }) {
   const hydrated = useHydrated();
   const watched = useIsWatched(code);
   const toggle = useWatchStore((state) => state.toggle);
@@ -20,14 +22,14 @@ export function WatchStar({
       aria-label={
         watched ? `Hapus ${code} dari watchlist` : `Tambah ${code} ke watchlist`
       }
+      aria-pressed={hydrated ? watched : undefined}
       title={watched ? "Hapus dari watchlist" : "Tambah ke watchlist"}
       onClick={(event) => {
         event.stopPropagation();
         event.preventDefault();
         toggle(code);
       }}
-      style={{ width: size, height: size }}
-      className="inline-flex shrink-0 cursor-pointer select-none items-center justify-center rounded p-0.5 text-base leading-none transition-colors"
+      className="focus-ring inline-flex size-11 shrink-0 cursor-pointer select-none items-center justify-center rounded-md text-lg leading-none transition-colors sm:size-7 sm:text-base"
     >
       <span
         aria-hidden="true"

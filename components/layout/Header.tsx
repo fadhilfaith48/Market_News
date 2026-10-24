@@ -115,7 +115,7 @@ export function Header() {
             onClick={toggleWatchlist}
             aria-pressed={watchlistOpen}
             aria-label="Watchlist"
-            className={`focus-ring flex items-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors lg:px-3 ${
+            className={`focus-ring flex min-h-9 min-w-9 items-center justify-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors lg:px-3 ${
               watchlistOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -142,7 +142,7 @@ export function Header() {
             onClick={togglePortfolio}
             aria-pressed={portfolioOpen}
             aria-label="Portofolio"
-            className={`focus-ring flex items-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors lg:px-3 ${
+            className={`focus-ring flex min-h-9 min-w-9 items-center justify-center rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors lg:px-3 ${
               portfolioOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -176,7 +176,7 @@ export function Header() {
             onClick={toggleAlerts}
             aria-pressed={alertsOpen}
             aria-label="Harga Alert"
-            className={`focus-ring relative rounded-full border px-2.5 py-1.5 transition-colors ${
+            className={`focus-ring relative flex min-h-9 min-w-9 items-center justify-center rounded-full border px-2.5 py-1.5 transition-colors ${
               alertsOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -206,7 +206,7 @@ export function Header() {
             onClick={toggleDiagnostics}
             aria-pressed={diagnosticsOpen}
             aria-label="Diagnostics"
-            className={`focus-ring relative rounded-full border px-2.5 py-1.5 transition-colors ${
+            className={`focus-ring relative flex min-h-9 min-w-9 items-center justify-center rounded-full border px-2.5 py-1.5 transition-colors ${
               diagnosticsOpen
                 ? "border-text bg-text text-page"
                 : "border-border hover:bg-hover"
@@ -236,7 +236,7 @@ export function Header() {
             type="button"
             onClick={toggleTheme}
             aria-label={theme === "dark" ? "Mode Terang" : "Mode Gelap"}
-            className="focus-ring flex items-center rounded-full border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-hover lg:px-3"
+            className="focus-ring flex min-h-9 min-w-9 items-center justify-center rounded-full border border-border px-2.5 py-1.5 text-xs font-medium hover:bg-hover lg:px-3"
           >
             <svg
               className="size-4 lg:hidden"

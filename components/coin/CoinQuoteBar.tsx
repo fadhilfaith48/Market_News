@@ -46,7 +46,7 @@ export function CoinQuoteBar({
         <CoinIcon symbol={symbol} size={18} />
         <span className="font-semibold">{code}</span>
         <span className="text-muted">{name}</span>
-        <WatchStar code={code} size={14} />
+        <WatchStar code={code} />
       </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text">
         <QuoteItem label="O" value={open} />

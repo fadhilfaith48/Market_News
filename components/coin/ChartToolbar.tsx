@@ -48,7 +48,7 @@ export function ChartToolbar({
               type="button"
               onClick={() => setChartType(type)}
               aria-pressed={chartType === type}
-              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors focus-ring ${
+              className={`inline-flex min-h-8 items-center justify-center rounded-full px-2.5 py-1 text-xs font-medium transition-colors focus-ring ${
                 chartType === type
                   ? "bg-interactive text-white shadow-card"
                   : "text-muted hover:text-text"
@@ -67,7 +67,7 @@ export function ChartToolbar({
                 type="button"
                 onClick={() => toggleMa(period)}
                 aria-pressed={active}
-                className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors focus-ring ${
+                className={`inline-flex min-h-8 items-center justify-center rounded-full px-2.5 py-1 text-xs font-medium transition-colors focus-ring ${
                   active
                     ? "bg-interactive text-white shadow-card"
                     : "text-muted hover:text-text"
@@ -88,7 +88,7 @@ export function ChartToolbar({
               key={tf}
               type="button"
               onClick={() => setInterval(tf)}
-              className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+              className={`inline-flex min-h-8 items-center justify-center rounded-full px-2.5 py-1 text-xs font-medium transition-colors focus-ring ${
                 interval === tf
                   ? "bg-interactive text-white shadow-card"
                   : "text-muted hover:text-text"
