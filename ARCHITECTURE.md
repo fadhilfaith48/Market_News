@@ -195,6 +195,15 @@ market-news/
 4. **Breakpoint kunci** — `sm` (640px) batas tabel ↔ kartu pada `TickerTable`; `md` (768px) 2 kolom pada beberapa grid; `lg` (1024px) 2 kolom detail koin (`CoinDetail`) + header 1 baris; `xl` (1280px) 3 kolom dashboard.
 5. **Anti auto-zoom iOS** — seluruh input teks memakai `font-size` ≥ 16px pada <640px (`text-base sm:text-xs`), karena iOS Safari auto-zoom pada input <16px dan zoom-nya persisten.
 
+### 4.10 Aksesibilitas (keyboard, screen reader, target sentuh)
+
+1. **Navigasi keyboard tabel & kartu** — `components/dashboard/TickerTable.tsx`: kartu mobile memakai `<Link href="/coin/{code}">` yang membungkus isi, dengan `WatchStar` di **luar** tautan (menghindari kontrol interaktif bersarang); sel "Koin" desktop memakai `Link`. Keduanya memiliki `aria-label="Buka detail {nama} ({kode})"`. Klik baris mouse tetap bekerja (`onClick` pada `<tr>`).
+2. **Dialog / drawer** — `components/ui/DrawerShell.tsx`: `role="dialog"` + `aria-modal="true"`, tombol tutup ber-`aria-label`, **focus trap** (Tab/Shift+Tab berputar hanya di elemen fokusabel yang terlihat, selector `FOCUSABLE_SELECTOR`), dan pemulihan fokus ke elemen pemicu saat ditutup. `Escape` menutup.
+3. **Skip link & landmark** — `app/layout.tsx`: tautan `sr-only` "Lewati ke konten utama" (`focus:not-sr-only`) menuju `<main id="main" tabIndex={-1}>`, sehingga pengguna assistive technology melewati header sekali Tab.
+4. **Status tabel** — header kolom yang bisa diurutkan memakai `aria-sort` (`ascending`/`descending`/`none`) + tombol ber-`aria-label="Urutkan berdasarkan {label}"`. `WatchStar` memakai `aria-pressed` (nilai `undefined` saat SSR demi keamanan hidrasi).
+5. **Target sentuh** — `WatchStar` `size-11` (44px) di <640px & `sm:size-7` (28px) di desktop; tombol ikon header `min-h-9 min-w-9` (36px, memenuhi WCAG 2.2 AA ≥24px tanpa memecah header 360px); chip toolbar chart (tipe/MA/timeframe) `min-h-8` + `focus-ring`.
+6. **Gerakan** — `app/globals.css` mematikan `.animate-flash-up`/`.animate-flash-down` di bawah `@media (prefers-reduced-motion: reduce)` (warna teks naik/turun tetap menyampaikan arah harga).
+
 ---
 
 ## 5. Keputusan Desain Sistem Utama

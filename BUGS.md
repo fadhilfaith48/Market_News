@@ -137,6 +137,66 @@ Format entri baru:
 - **Solusi/rancangan perbaikan:** Samakan breakpoint ke `lg` (1024px) → di bawah itu chart memakai lebar penuh 1 kolom, konsisten dengan skeleton loading.
 - **Diperbaiki tanggal/versi:** 22 Oktober 2026 — `components/coin/CoinDetail.tsx` (`md:` → `lg:`).
 
+## BUG-013 — Baris tabel & kartu dashboard tidak bisa diakses keyboard
+- **Tanggal ditemukan:** 24 Oktober 2026
+- **Prioritas:** High
+- **Status:** Fixed — 24 Oktober 2026
+- **Langkah reproduce:** Buka dashboard → tekan `Tab` berulang kali → fokus hanya berhenti di bintang watchlist & tombol filter, **tidak pernah** sampai ke baris/kartu koin. Tekan `Enter` pada elemen mana pun tidak membuka halaman koin. Pembaca layar juga tidak mengumumkan baris sebagai tautan.
+- **Penyebab:** `components/dashboard/TickerTable.tsx` memakai `<tr onClick>` (desktop, baris 267) dan `<div onClick>` (kartu mobile, baris 178) — elemen non-fokusabel tanpa `tabIndex`/`role`/`onKeyDown`, sehingga tidak masuk urutan tab dan tidak dikenali sebagai kontrol.
+- **Dampak:** Pengguna keyboard & screen reader **tidak bisa membuka halaman detail koin sama sekali** dari dashboard — menghalangi fungsi inti aplikasi untuk sebagian pengguna.
+- **Solusi/rancangan perbaikan:** Ganti elemen klik menjadi tautan asli `<Link href={/coin/{code}}>` (kartu mobile: seluruh isi kartu dibungkus `Link`, `WatchStar` diletakkan di luar tautan agar tidak bersarang di kontrol interaktif; desktop: sel "Koin" memakai `Link`). Klik baris tetap tersedia untuk pengguna mouse via `onClick` pada `<tr>`. Ditambah `aria-label="Buka detail {nama} ({kode})"`.
+- **Diperbaiki tanggal/versi:** 24 Oktober 2026 — `components/dashboard/TickerTable.tsx`; lint & build OK.
+
+## BUG-014 — Drawer tidak menjebak fokus dan tidak memulihkan fokus
+- **Tanggal ditemukan:** 24 Oktober 2026
+- **Prioritas:** Medium
+- **Status:** Fixed — 24 Oktober 2026
+- **Langkah reproduce:** Buka drawer (watchlist/portofolio/alert/diagnostics) dengan keyboard → tekan `Tab` berulang → fokus keluar dari panel ke elemen halaman di belakang overlay. Setelah drawer ditutup, fokus tidak kembali ke tombol pemicunya.
+- **Penyebab:** `components/ui/DrawerShell.tsx` hanya memindahkan fokus ke tombol ✕ dan menangani `Escape`; tidak ada focus trap maupun pemulihan fokus. Karena drawer `fixed`, konten di belakang tetap fokusabel.
+- **Dampak:** Pengguna keyboard "tersesat" — fokus berada di elemen yang secara visual tertutup overlay; membingungkan dan tidak sesuai pola dialog modal.
+- **Solusi/rancangan perbaikan:** Tambah focus trap di dalam panel: `Tab`/`Shift+Tab` berputar hanya di antara elemen fokusabel (`FOCUSABLE_SELECTOR`, hanya yang terlihat), dan saat drawer ditutup fokus dikembalikan ke elemen yang aktif sebelum drawer dibuka.
+- **Diperbaiki tanggal/versi:** 24 Oktober 2026 — `components/ui/DrawerShell.tsx`.
+
+## BUG-015 — Tidak ada skip link / landmark konten utama yang fokusabel
+- **Tanggal ditemukan:** 24 Oktober 2026
+- **Prioritas:** Low
+- **Status:** Fixed — 24 Oktober 2026
+- **Langkah reproduce:** Pengguna keyboard/screen reader membuka halaman mana pun → harus melewati seluruh navigasi header (logo, pencarian, tombol mata uang/tema/drawer) sebelum mencapai konten.
+- **Penyebab:** `app/layout.tsx` tidak menyediakan tautan "lewati ke konten" dan `<main>` tidak diberi `id`/`tabIndex` sehingga tidak bisa difokus programatik.
+- **Dampak:** Tambahan puluhan langkah tab di setiap halaman bagi pengguna assistive technology.
+- **Solusi/rancangan perbaikan:** Tambah skip link `sr-only` yang muncul saat difokus (`focus:not-sr-only`) menuju `#main`, dan `<main id="main" tabIndex={-1}>` dengan `outline-none` agar target fokus bersih.
+- **Diperbaiki tanggal/versi:** 24 Oktober 2026 — `app/layout.tsx`; verifikasi HTML dev memuat `href="#main"` + `id="main" tabindex="-1"`.
+
+## BUG-016 — Target sentuh terlalu kecil di HP
+- **Tanggal ditemukan:** 24 Oktober 2026
+- **Prioritas:** Medium
+- **Status:** Fixed — 24 Oktober 2026
+- **Langkah reproduce:** Di HP, coba ketuk bintang watchlist (16×16px), tombol header (≈28px), atau chip filter/MA/timeframe (≈24px) → sering salah tekan atau tidak terdeteksi.
+- **Penyebab:** Ukuran ikon dipakai langsung sebagai kotak tombol tanpa padding sentuh; tidak ada ukuran minimum. Rekomendasi Apple ≥44px, Material ≥48dp, WCAG 2.2 AA ≥24px.
+- **Dampak:** Aksi cepat (tandai watchlist, ganti timeframe) tidak nyaman/andalkan di perangkat sentuh → frustrasi.
+- **Solusi/rancangan perbaikan:** `WatchStar` → kotak `size-11` (44px) di HP & `sm:size-7` (28px) di desktop (mouse); tombol ikon header → `min-h-9 min-w-9` (36px, memenuhi WCAG 2.2 AA 24px tanpa mengubah layout header 360px); chip toolbar chart (tipe/MA/timeframe) → `min-h-8` (32px) + `focus-ring` yang tadinya hilang pada tombol timeframe.
+- **Diperbaiki tanggal/versi:** 24 Oktober 2026 — `components/ui/WatchStar.tsx`, `components/layout/Header.tsx`, `components/coin/ChartToolbar.tsx`, `components/coin/CoinQuoteBar.tsx` (pemanggilan `WatchStar` tanpa prop `size`).
+
+## BUG-017 — Header kolom tabel tanpa `aria-sort`
+- **Tanggal ditemukan:** 24 Oktober 2026
+- **Prioritas:** Low
+- **Status:** Fixed — 24 Oktober 2026
+- **Langkah reproduce:** Aktifkan screen reader, urutkan tabel berdasarkan kolom harga → tidak ada pengumuman status urutan (ascending/descending) pada header kolom.
+- **Penyebab:** `components/dashboard/TickerTable.tsx` tidak memasang `aria-sort` pada `<th>` maupun label pada tombol sort.
+- **Dampak:** Pengguna screen reader tidak tahu kolom & arah urutan yang aktif.
+- **Solusi/rancangan perbaikan:** Tambah `aria-sort` (`ascending`/`descending`/`none`) pada `<th>` kolom yang bisa diurutkan + `aria-label="Urutkan berdasarkan {label}"` pada tombolnya.
+- **Diperbaiki tanggal/versi:** 24 Oktober 2026 — `components/dashboard/TickerTable.tsx`.
+
+## BUG-018 — Kilatan harga tetap beranimasi meski `prefers-reduced-motion`
+- **Tanggal ditemukan:** 24 Oktober 2026
+- **Prioritas:** Low
+- **Status:** Fixed — 24 Oktober 2026
+- **Langkah reproduce:** Aktifkan "Reduce motion" di OS/browser → buka dashboard → setiap perubahan harga memicu animasi kilatan latar (`.animate-flash-up`/`.animate-flash-down`).
+- **Penyebab:** `app/globals.css` mendefinisikan animasi kilatan tanpa memeriksa `prefers-reduced-motion`.
+- **Dampak:** Pengguna yang sensitif terhadap gerakan tetap melihat animasi berkedip pada pasar yang ramai.
+- **Solusi/rancangan perbaikan:** Tambah blok `@media (prefers-reduced-motion: reduce)` yang mematikan animasi kilatan (warna teks naik/turun tetap terlihat, jadi informasi tidak hilang). Verifikasi: CSS ter-build memuat blok ini dengan `animation: none`.
+- **Diperbaiki tanggal/versi:** 24 Oktober 2026 — `app/globals.css`.
+
 ## Known Issues / Risiko yang Dipantau (dari perencanaan)
 
 ## Known Issue 1 — Watchlist & preferensi tidak tersinkron antar device
@@ -180,12 +240,13 @@ Format entri baru:
 - **Solusi:** Throttle/batch update store (maks N kali per detik), memoization komponen, dan manfaatkan API incremental TradingView Lightweight Charts.
 - **Update 22/09/2026:** Batching diterapkan — `lib/batcher.ts` (`createBatchFlusher`, dedup per simbol, flush 250ms `TICKER_BATCH_FLUSH_MS`), `store/marketStore.ts` (`applyTickers`, satu `set` per batch), `hooks/useBinanceWS.ts` (`onTickers` + batcher, flush saat cleanup), `useTickerPolling.ts` ikut memakai `applyTickers`. Test: `tests/batcher.test.ts` baru + `tests/store.test.ts` (`applyTickers`), 95 test hijau, lint & build OK. Belum: throttle update kline/`useKlineStream`, `React.memo` pada baris tabel, dan kompresi re-render `FlashPrice`.
 
-## Known Issue 6 — Target sentuh kecil & gap responsif P2/P3 (backlog)
+## Known Issue 6 — Gap responsif P2/P3 (backlog)
 - **ID:** KI-006
 - **Prioritas:** Medium
-- **Status:** Open — sengaja ditunda (P1 sudah diselesaikan pada 22 Oktober 2026)
-- **Dampak:** Di HP beberapa target sentuh masih di bawah standar ergonomis: bintang watchlist `WatchStar` hanya 16×16px, tombol header ≈ 28px, chip filter/MA/timeframe ≈ 24px (rekomendasi Apple ≥44px, Material ≥48dp). LiveTicker marquee juga tidak bisa dijeda di perangkat sentuh (`hover:` hanya berlaku di perangkat ber-hover), sehingga 50 koin (durasi ≈ 140 detik) terus berjalan tanpa jeda. Dashboard tetap 1 kolom sampai 1280px, sehingga iPad landscape (1024–1280px) memakai tabel selebar penuh.
-- **Solusi/rancangan perbaikan:** (P2) perbesar area sentuh bintang/ikon/chip; pause marquee pada `pointerdown`; clamp lebar dropdown pencarian agar tidak meluber; tambahkan affordance scroll pada deret timeframe; tambah layout 2 kolom dashboard mulai `lg`. (P3) sembunyikan kolom Volume di <768px; sediakan kontrol sort pada tampilan kartu mobile; hentikan animasi kilatan harga saat `prefers-reduced-motion`. Tidak ada dependency baru (pure Tailwind/CSS).
+- **Status:** Open — sebagian dituntaskan (P1 pada 22 Oktober 2026; target sentuh & `prefers-reduced-motion` pada 24 Oktober 2026)
+- **Sudah diselesaikan (24 Oktober 2026):** target sentuh bintang/ikon/chip (BUG-016) dan penghentian animasi kilatan harga saat `prefers-reduced-motion` (BUG-018).
+- **Dampak (sisa):** LiveTicker marquee tidak bisa dijeda di perangkat sentuh (`hover:` hanya berlaku di perangkat ber-hover), sehingga 50 koin (durasi ≈ 140 detik) terus berjalan tanpa jeda. Dropdown pencarian `w-64` tetap bisa meluber di HP sangat kecil. Deret timeframe bisa terpotong tanpa petunjuk bahwa bisa digeser. Dashboard tetap 1 kolom sampai 1280px, sehingga iPad landscape (1024–1280px) memakai tabel selebar penuh. Sort tidak tersedia pada tampilan kartu HP. Kolom Volume/Market Cap padat di 640–768px.
+- **Solusi/rancangan perbaikan:** (P2) pause marquee pada `pointerdown`; clamp lebar dropdown pencarian; tambahkan affordance scroll pada deret timeframe; tambah layout 2 kolom dashboard mulai `lg`. (P3) sembunyikan kolom Volume di <768px; sediakan kontrol sort pada tampilan kartu mobile. Tidak ada dependency baru (pure Tailwind/CSS).
 - **Catatan:** Belum ada pengujian otomatis pada viewport nyata (Playwright/e2e belum dipasang) — verifikasi responsif selama ini masih manual/berbasis kelas Tailwind.
 
 ---

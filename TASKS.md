@@ -258,7 +258,20 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] `app/coin/[code]/loading.tsx` — samakan offset sticky dengan detail koin
 - [x] Verifikasi: lint OK · 201/201 test hijau · build OK · HTML dev emitting `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>` + 2 tag `theme-color` · CSS build berisi `overflow-x: clip`, `env(safe-area-inset-bottom)`, `--header-h`, utiliti `top-[var(--header-h,5rem)]`
 - [x] Docs: BUGS.md (BUG-009…BUG-012 + KI-006 backlog P2/P3) · DECISIONS.md · TASKS.md · PROGRESS.md
-- [ ] **P2/P3 (backlog, KI-006):** target sentuh ≥44px (bintang/header/chip) · marquee pause-on-touch · clamp dropdown pencarian · affordance scroll timeframe · dashboard 2 kolom di `lg` · sembunyikan kolom Volume <768 · sort di kartu mobile · `prefers-reduced-motion` untuk kilatan harga · e2e viewport (Playwright)
+- [ ] **P2/P3 (backlog, KI-006):** marquee pause-on-touch · clamp dropdown pencarian · affordance scroll timeframe · dashboard 2 kolom di `lg` · sembunyikan kolom Volume <768 · sort di kartu mobile · e2e viewport (Playwright). _(target sentuh ≥44px & `prefers-reduced-motion` kilatan harga diselesaikan di bagian I, 24 Oktober 2026)_
+
+## I — Aksesibilitas: keyboard, screen reader, target sentuh (Paket I) (24 Oktober 2026)
+- [x] `components/dashboard/TickerTable.tsx` — baris/kartu `div onClick` → `<Link href="/coin/{code}">` (kartu mobile: seluruh isi dibungkus `Link`, `WatchStar` di luar tautan); sel "Koin" desktop → `Link`; `aria-label="Buka detail {nama} ({kode})"`; `aria-sort` (`ascending`/`descending`/`none`) + `aria-label` pada tombol sort
+- [x] `components/ui/WatchStar.tsx` — target sentuh `size-11` (44px) di HP & `sm:size-7` (28px) desktop; `aria-pressed` (hidrasi-aman); prop `size` dihapus
+- [x] `components/ui/DrawerShell.tsx` — **focus trap** (`FOCUSABLE_SELECTOR`, hanya elemen terlihat) + pemulihan fokus ke elemen pemicu saat ditutup
+- [x] `app/layout.tsx` — skip link `sr-only` "Lewati ke konten utama" → `<main id="main" tabIndex={-1} className="outline-none">`
+- [x] `components/layout/Header.tsx` — tombol ikon `min-h-9 min-w-9` (36px, WCAG 2.2 AA)
+- [x] `components/coin/ChartToolbar.tsx` — chip tipe/MA/timeframe `min-h-8`; tambah `focus-ring` yang hilang pada tombol timeframe
+- [x] `components/coin/CoinQuoteBar.tsx` — pemanggilan `WatchStar` disesuaikan (tanpa prop `size`)
+- [x] `app/globals.css` — `@media (prefers-reduced-motion: reduce)` mematikan `.animate-flash-up`/`.animate-flash-down`
+- [x] Verifikasi: lint OK · 201/201 test hijau · build OK · SSR dev memuat `href="#main"` + `id="main" tabindex="-1"` · `WatchStar` `size-11 … sm:size-7` · 12 chip `min-h-8 … focus-ring` · CSS build memuat blok reduced-motion (`animation: none`) · dev server dimatikan
+- [x] Docs: BUGS.md (BUG-013…BUG-018 + KI-006 diperbarui) · DECISIONS.md · ARCHITECTURE.md (§4.10) · TASKS.md · PROGRESS.md
+- [ ] **Ditunda:** component test & e2e (Playwright butuh dependency baru → paket tersendiri)
 
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device

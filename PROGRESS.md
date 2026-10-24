@@ -73,6 +73,23 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 24 Oktober 2026 — Paket I: aksesibilitas (keyboard, screen reader, target sentuh)
+
+### Status: Done (kode selesai & terverifikasi; commit menunggu perintah)
+
+- [x] **Audit aksesibilitas** — ditemukan 6 masalah: baris/kartu dashboard hanya bisa diklik mouse (bug fungsional), drawer tanpa focus trap, tanpa skip link, target sentuh 16–28px, tanpa `aria-sort`, dan kilatan harga tidak menghormati `prefers-reduced-motion`.
+- [x] **BUG-013 (High) — baris & kartu tidak bisa diakses keyboard** → `TickerTable` mengubah `<tr onClick>`/`<div onClick>` menjadi tautan asli **`<Link href="/coin/{code}">`** (kartu mobile: seluruh isi dibungkus `Link`, `WatchStar` diletakkan **di luar** tautan agar tidak ada kontrol bersarang; desktop: sel "Koin" memakai `Link`), ber-`aria-label="Buka detail {nama} ({kode})"`. Klik baris mouse tetap bekerja.
+- [x] **BUG-014 — drawer tidak menjebak fokus** → `DrawerShell` memperoleh **focus trap** (`FOCUSABLE_SELECTOR`, hanya elemen terlihat) + **pemulihan fokus** ke elemen pemicu saat ditutup; `Escape` tetap menutup.
+- [x] **BUG-015 — tanpa skip link** → `app/layout.tsx`: tautan `sr-only` "Lewati ke konten utama" (`focus:not-sr-only`) menuju `<main id="main" tabIndex={-1} className="outline-none">`.
+- [x] **BUG-016 — target sentuh kecil** → `WatchStar` `size-11` (44px) di HP & `sm:size-7` (28px) desktop; tombol ikon header `min-h-9 min-w-9` (36px, WCAG 2.2 AA); chip toolbar `min-h-8` + `focus-ring` pada tombol timeframe (sebelumnya hilang).
+- [x] **BUG-017 — tanpa `aria-sort`** → `<th>` kolom dapat-sort memakai `aria-sort` (`ascending`/`descending`/`none`) + tombol ber-`aria-label="Urutkan berdasarkan {label}"`.
+- [x] **BUG-018 — kilatan harga abaikan `prefers-reduced-motion`** → blok `@media (prefers-reduced-motion: reduce)` mematikan `.animate-flash-up`/`.animate-flash-down` (warna teks naik/turun tetap terlihat).
+- [x] **Verifikasi** — lint OK · **201/201 test hijau** · build OK · SSR dev memuat `href="#main"` + `id="main" tabindex="-1"`, `WatchStar` `size-11 … sm:size-7`, 12 chip `min-h-8 … focus-ring`, dan CSS build memuat blok reduced-motion (`animation: none`) · dev server (port 3125) dimatikan.
+- [x] **Docs** — BUGS.md (BUG-013…BUG-018 + KI-006 diperbarui: item target sentuh & reduced-motion dipindah ke Fixed) · DECISIONS.md (1 keputusan baru) · ARCHITECTURE.md (bagian 4.10 Aksesibilitas) · TASKS.md (bagian I) · PROGRESS.md (entri ini).
+- [ ] **Ditunda** — component test & e2e (Playwright butuh dependency baru → paket tersendiri).
+
+---
+
 ## 29 Agustus 2026 — Sesi Inisialisasi Dokumen
 
 ### Status: Done (fase setup dokumentasi)
