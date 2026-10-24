@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { CoinIcon } from "@/components/ui/CoinIcon";
@@ -175,35 +176,47 @@ export function TickerTable() {
           const change = ticker?.priceChangePercent;
           const { code, name } = getCoinMeta(symbol);
           return (
+            // Tautan (bukan `div onClick`) agar bisa dijangkau keyboard &
+            // dibacakan screen reader sebagai link. `WatchStar` tetap di luar
+            // tautan sehingga tidak bersarang di kontrol interaktif.
             <div
               key={symbol}
-              onClick={() => openCoin(symbol)}
-              className="card card-hover flex cursor-pointer items-center justify-between p-3"
+              className="card card-hover flex items-center p-2"
             >
-              <div className="flex min-w-0 items-center gap-2.5">
-                <WatchStar code={code} />
-                <CoinIcon symbol={symbol} size={28} />
-                <div className="min-w-0">
-                  <div className="font-medium">{code}</div>
-                  <div className="truncate text-xs text-muted">{name}</div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="tabular-nums text-sm font-semibold">
-                  <FlashPrice
-                    ticker={ticker}
-                    previous={previous}
-                    currency={currency}
-                    rates={rateData?.rates}
-                  />
-                </div>
-                <div className={`text-xs tabular-nums ${toneText(change)}`}>
-                  {ticker ? formatPercent(change ?? 0) : "-"}
-                </div>
-                <div className="text-xs tabular-nums text-muted">
-                  {ticker ? formatCompact(ticker.quoteVolume) : "-"}
-                </div>
-              </div>
+              <WatchStar code={code} />
+              <Link
+                href={`/coin/${code}`}
+                aria-label={`Buka detail ${name} (${code})`}
+                className="focus-ring flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg p-1"
+              >
+                <span className="flex min-w-0 items-center gap-2.5">
+                  <CoinIcon symbol={symbol} size={28} />
+                  <span className="min-w-0">
+                    <span className="block font-medium">{code}</span>
+                    <span className="block truncate text-xs text-muted">
+                      {name}
+                    </span>
+                  </span>
+                </span>
+                <span className="text-right">
+                  <span className="block tabular-nums text-sm font-semibold">
+                    <FlashPrice
+                      ticker={ticker}
+                      previous={previous}
+                      currency={currency}
+                      rates={rateData?.rates}
+                    />
+                  </span>
+                  <span
+                    className={`block text-xs tabular-nums ${toneText(change)}`}
+                  >
+                    {ticker ? formatPercent(change ?? 0) : "-"}
+                  </span>
+                  <span className="block text-xs tabular-nums text-muted">
+                    {ticker ? formatCompact(ticker.quoteVolume) : "-"}
+                  </span>
+                </span>
+              </Link>
             </div>
           );
         })}
@@ -215,10 +228,21 @@ export function TickerTable() {
             <tr className="border-b border-border text-xs uppercase tracking-wide text-muted">
               <th className="px-4 py-3">Koin</th>
               {SORT_COLUMNS.map((col) => (
-                <th key={col.key} className="px-4 py-3 text-right">
+                <th
+                  key={col.key}
+                  aria-sort={
+                    sort.key === col.key
+                      ? sort.dir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
+                  className="px-4 py-3 text-right"
+                >
                   <button
                     type="button"
                     onClick={() => handleSort(col.key)}
+                    aria-label={`Urutkan berdasarkan ${col.label}`}
                     className="focus-ring inline-flex cursor-pointer items-center gap-1 rounded uppercase tracking-wide transition-colors hover:text-text"
                   >
                     {col.label}
@@ -238,7 +262,7 @@ export function TickerTable() {
             {orderedRows.map((row) => {
               const { symbol, ticker, previous, marketCap } = row;
               const change = ticker?.priceChangePercent;
-              const { code } = getCoinMeta(symbol);
+              const { code, name } = getCoinMeta(symbol);
               return (
                 <tr
                   key={symbol}
@@ -249,7 +273,15 @@ export function TickerTable() {
                     <div className="flex min-w-0 items-center gap-2">
                       <WatchStar code={code} />
                       <CoinIcon symbol={symbol} size={22} />
-                      <span className="font-medium">{code}</span>
+                      {/* Tautan asli → dapat dijangkau keyboard (klik baris
+                          tetap tersedia untuk pengguna mouse). */}
+                      <Link
+                        href={`/coin/${code}`}
+                        aria-label={`Buka detail ${name} (${code})`}
+                        className="focus-ring rounded font-medium hover:underline"
+                      >
+                        {code}
+                      </Link>
                     </div>
                   </td>
                   <td className="px-4 py-2.5 text-right tabular-nums">
