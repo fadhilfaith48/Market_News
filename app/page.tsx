@@ -23,17 +23,19 @@ export default function Home() {
             Harga &amp; grafik real-time, portofolio, alert, dan berita crypto.
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[300px_minmax(0,1fr)_320px]">
-          <aside className="order-2 xl:order-none">
+        {/* <lg: 1 kolom · lg–xl: 2 kolom (sidebar + tabel, berita full width) ·
+            xl+: 3 kolom. Memberi ruang layak untuk iPad landscape 1024–1280px. */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)_320px]">
+          <aside className="order-2 lg:order-none">
             <div className="mb-4">
               <FearGreedGauge />
             </div>
             <TopMovers layout="stack" />
           </aside>
-          <div className="order-1 min-w-0 xl:order-none">
+          <div className="order-1 min-w-0 lg:order-none">
             <TickerTable />
           </div>
-          <aside className="order-3 min-w-0 xl:order-none">
+          <aside className="order-3 min-w-0 lg:col-span-2 xl:col-span-1">
             <NewsSection />
           </aside>
         </div>

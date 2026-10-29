@@ -171,6 +171,33 @@ export function TickerTable() {
         ))}
       </div>
 
+      {/* Kontrol urut khusus HP (tampilan kartu tidak punya header tabel) */}
+      <div className="mb-3 flex flex-wrap items-center gap-1 sm:hidden">
+        <span className="mr-0.5 text-xs text-muted">Urut:</span>
+        {SORT_COLUMNS.map((col) => {
+          const active = sort.key === col.key;
+          return (
+            <button
+              key={col.key}
+              type="button"
+              onClick={() => handleSort(col.key)}
+              aria-pressed={active}
+              aria-label={`Urutkan berdasarkan ${col.label}`}
+              className={`focus-ring inline-flex min-h-8 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
+                active
+                  ? "bg-interactive text-white shadow-card"
+                  : "bg-hover text-muted"
+              }`}
+            >
+              {col.label}
+              <span aria-hidden="true" className="text-[9px]">
+                {active ? (sort.dir === "asc" ? "▲" : "▼") : "↕"}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="grid grid-cols-1 gap-2 sm:hidden">
         {orderedRows.map(({ symbol, ticker, previous }) => {
           const change = ticker?.priceChangePercent;
@@ -237,7 +264,9 @@ export function TickerTable() {
                         : "descending"
                       : "none"
                   }
-                  className="px-4 py-3 text-right"
+                  className={`px-4 py-3 text-right ${
+                    col.key === "volume" ? "hidden md:table-cell" : ""
+                  }`}
                 >
                   <button
                     type="button"
@@ -297,7 +326,7 @@ export function TickerTable() {
                   >
                     {ticker ? formatPercent(change ?? 0) : "-"}
                   </td>
-                  <td className="px-4 py-2.5 text-right tabular-nums text-muted">
+                  <td className="hidden px-4 py-2.5 text-right tabular-nums text-muted md:table-cell">
                     {ticker ? formatCompact(ticker.quoteVolume) : "-"}
                   </td>
                   <td className="px-4 py-2.5 text-right tabular-nums text-muted">
@@ -322,7 +351,7 @@ function TickerTableSkeleton() {
             <th className="px-4 py-3">Koin</th>
             <th className="px-4 py-3 text-right">Harga</th>
             <th className="px-4 py-3 text-right">24 Jam</th>
-            <th className="px-4 py-3 text-right">Volume (24 Jam)</th>
+            <th className="hidden px-4 py-3 text-right md:table-cell">Volume (24 Jam)</th>
             <th className="px-4 py-3 text-right">Market Cap</th>
           </tr>
         </thead>
@@ -341,7 +370,7 @@ function TickerTableSkeleton() {
               <td className="px-4 py-3 text-right">
                 <div className="shimmer ml-auto h-3.5 w-16 rounded" />
               </td>
-              <td className="px-4 py-3 text-right">
+              <td className="hidden px-4 py-3 text-right md:table-cell">
                 <div className="shimmer ml-auto h-3.5 w-20 rounded" />
               </td>
               <td className="px-4 py-3 text-right">
