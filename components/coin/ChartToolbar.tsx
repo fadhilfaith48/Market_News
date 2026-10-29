@@ -82,21 +82,28 @@ export function ChartToolbar({
 
       {/* Timeframe + jam UTC */}
       <div className="flex items-center justify-between gap-2 sm:justify-end">
-        <div className="flex gap-0.5 overflow-x-auto rounded-full bg-hover p-0.5">
-          {TIMEFRAMES.map((tf: Timeframe) => (
-            <button
-              key={tf}
-              type="button"
-              onClick={() => setInterval(tf)}
-              className={`inline-flex min-h-8 items-center justify-center rounded-full px-2.5 py-1 text-xs font-medium transition-colors focus-ring ${
-                interval === tf
-                  ? "bg-interactive text-white shadow-card"
-                  : "text-muted hover:text-text"
-              }`}
-            >
-              {tf.toUpperCase()}
-            </button>
-          ))}
+        <div className="relative min-w-0 flex-1 sm:flex-none">
+          <div className="flex gap-0.5 overflow-x-auto rounded-full bg-hover p-0.5">
+            {TIMEFRAMES.map((tf: Timeframe) => (
+              <button
+                key={tf}
+                type="button"
+                onClick={() => setInterval(tf)}
+                className={`inline-flex min-h-8 items-center justify-center rounded-full px-2.5 py-1 text-xs font-medium transition-colors focus-ring ${
+                  interval === tf
+                    ? "bg-interactive text-white shadow-card"
+                    : "text-muted hover:text-text"
+                }`}
+              >
+                {tf.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          {/* Fade di tepi kanan → isyarat visual bahwa deret bisa digeser (HP) */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 right-0 w-5 rounded-r-full bg-gradient-to-l from-hover to-transparent sm:hidden"
+          />
         </div>
         <span className="flex-none text-xs tabular-nums text-muted">
           {formatUTCNow()}

@@ -93,7 +93,7 @@ export function SearchBox({ fluid = false }: { fluid?: boolean }) {
       {open && (
         <div
           ref={listRef}
-          className="card absolute left-0 top-full z-50 mt-1 max-h-64 w-64 overflow-y-auto"
+          className="card absolute left-0 top-full z-50 mt-1 max-h-64 w-64 max-w-[calc(100vw_-_2rem)] overflow-y-auto"
         >
           {results.length === 0 ? (
             <div className="px-3 py-2 text-xs text-muted">

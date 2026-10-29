@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 
 import { CoinIcon } from "@/components/ui/CoinIcon";
 import { DEFAULT_SYMBOLS } from "@/lib/constants";
@@ -39,6 +39,8 @@ function TickerItem({ symbol }: { symbol: string }) {
 export function LiveTicker() {
   const tickers = useMarketStore((state) => state.tickers);
   const hasData = DEFAULT_SYMBOLS.some((symbol) => tickers[symbol]);
+  /** Marquee berhenti selama pengguna menekan/menyentuh (juga di HP). */
+  const [paused, setPaused] = useState(false);
 
   if (!hasData) {
     return (
@@ -67,7 +69,13 @@ export function LiveTicker() {
   return (
     <div className="overflow-hidden border-b border-border bg-panel/60 backdrop-blur">
       <div
-        className="animate-marquee flex w-max hover:[animation-play-state:paused]"
+        className={`animate-marquee flex w-max hover:[animation-play-state:paused] ${
+          paused ? "[animation-play-state:paused]" : ""
+        }`}
+        onPointerDown={() => setPaused(true)}
+        onPointerUp={() => setPaused(false)}
+        onPointerLeave={() => setPaused(false)}
+        onPointerCancel={() => setPaused(false)}
         style={{ "--marquee-duration": `${duration}s` } as CSSProperties}
       >
         <div className="flex w-max items-center gap-1">
