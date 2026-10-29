@@ -258,7 +258,7 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] `app/coin/[code]/loading.tsx` — samakan offset sticky dengan detail koin
 - [x] Verifikasi: lint OK · 201/201 test hijau · build OK · HTML dev emitting `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>` + 2 tag `theme-color` · CSS build berisi `overflow-x: clip`, `env(safe-area-inset-bottom)`, `--header-h`, utiliti `top-[var(--header-h,5rem)]`
 - [x] Docs: BUGS.md (BUG-009…BUG-012 + KI-006 backlog P2/P3) · DECISIONS.md · TASKS.md · PROGRESS.md
-- [ ] **P2/P3 (backlog, KI-006):** marquee pause-on-touch · clamp dropdown pencarian · affordance scroll timeframe · dashboard 2 kolom di `lg` · sembunyikan kolom Volume <768 · sort di kartu mobile · e2e viewport (Playwright). _(target sentuh ≥44px & `prefers-reduced-motion` kilatan harga diselesaikan di bagian I, 24 Oktober 2026)_
+- [x] **P2/P3 (backlog, KI-006):** marquee pause-on-touch · clamp dropdown pencarian · affordance scroll timeframe · dashboard 2 kolom di `lg` · sembunyikan kolom Volume <768 · sort di kartu mobile — **diselesaikan di bagian J, 29 Oktober 2026**; e2e viewport (Playwright) tetap ditunda. _(target sentuh ≥44px & `prefers-reduced-motion` kilatan harga diselesaikan di bagian I, 24 Oktober 2026)_
 
 ## I — Aksesibilitas: keyboard, screen reader, target sentuh (Paket I) (24 Oktober 2026)
 - [x] `components/dashboard/TickerTable.tsx` — baris/kartu `div onClick` → `<Link href="/coin/{code}">` (kartu mobile: seluruh isi dibungkus `Link`, `WatchStar` di luar tautan); sel "Koin" desktop → `Link`; `aria-label="Buka detail {nama} ({kode})"`; `aria-sort` (`ascending`/`descending`/`none`) + `aria-label` pada tombol sort
@@ -272,6 +272,16 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] Verifikasi: lint OK · 201/201 test hijau · build OK · SSR dev memuat `href="#main"` + `id="main" tabindex="-1"` · `WatchStar` `size-11 … sm:size-7` · 12 chip `min-h-8 … focus-ring` · CSS build memuat blok reduced-motion (`animation: none`) · dev server dimatikan
 - [x] Docs: BUGS.md (BUG-013…BUG-018 + KI-006 diperbarui) · DECISIONS.md · ARCHITECTURE.md (§4.10) · TASKS.md · PROGRESS.md
 - [ ] **Ditunda:** component test & e2e (Playwright butuh dependency baru → paket tersendiri)
+
+## J — Responsif lanjutan (sisa KI-006) (29 Oktober 2026)
+- [x] `components/dashboard/LiveTicker.tsx` — marquee dijeda saat disentuh/ditekan (`onPointerDown` pause; `onPointerUp`/`onPointerLeave`/`onPointerCancel` lanjut), bukan hanya `hover:`
+- [x] `components/layout/SearchBox.tsx` — dropdown `max-w-[calc(100vw_-_2rem)]` agar tidak meluber
+- [x] `components/coin/ChartToolbar.tsx` — deret timeframe: wadah `relative` + fade kanan (`bg-gradient-to-l from-hover to-transparent sm:hidden`) sebagai isyarat bisa digeser
+- [x] `app/page.tsx` — dashboard **2 kolom mulai `lg`** (`lg:grid-cols-[300px_minmax(0,1fr)]`, berita `lg:col-span-2`) + 3 kolom `xl`
+- [x] `components/dashboard/TickerTable.tsx` — kolom Volume `hidden md:table-cell` (header + sel + skeleton); baris **kontrol sort pada kartu HP** (`sm:hidden`, `aria-pressed`, tombol ≥ `min-h-8`)
+- [x] Verifikasi: lint OK · 201/201 test hijau · build OK · SSR dev memuat wadah timeframe + fade, grid `lg:grid-cols-[300px_minmax(0,1fr)]`; CSS build memuat `max-width:calc(100vw - 2rem)`, `.md\:table-cell`, `[animation-play-state:paused]`, `lg:col-span-2`, `from-hover`/`to-transparent` · dev server dimatikan
+- [x] Docs: BUGS.md (KI-006 → Fixed) · DECISIONS.md · ARCHITECTURE.md (§4.9) · TASKS.md · PROGRESS.md
+- [ ] **Ditunda:** e2e viewport (Playwright, dependency baru)
 
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device

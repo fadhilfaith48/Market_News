@@ -90,6 +90,22 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 29 Oktober 2026 — Paket J: responsif lanjutan (sisa KI-006)
+
+### Status: Done (kode selesai & terverifikasi; commit menunggu perintah)
+
+- [x] **J-1 — marquee tak bisa dijeda di HP** → `LiveTicker` menambahkan state `paused`; `onPointerDown` menjeda, `onPointerUp`/`onPointerLeave`/`onPointerCancel` melanjutkan, plus `hover:[animation-play-state:paused]` untuk mouse. Sebelumnya hanya `hover:` yang tak berlaku di perangkat sentuh.
+- [x] **J-2 — dropdown pencarian meluber** → `SearchBox` dropdown `max-w-[calc(100vw_-_2rem)]`; CSS build terverifikasi `max-width:calc(100vw - 2rem)`.
+- [x] **J-3 — deret timeframe tampak terpotong** → `ChartToolbar` membungkus deret dalam `relative` + fade kanan (`bg-gradient-to-l from-hover to-transparent sm:hidden`) sebagai isyarat bisa digeser.
+- [x] **J-4 — dashboard 1 kolom sampai 1280px** → `app/page.tsx` **2 kolom mulai `lg`** (`lg:grid-cols-[300px_minmax(0,1fr)]`, berita `lg:col-span-2`), tetap 3 kolom `xl`. iPad landscape 1024–1280px kini punya 2 kolom.
+- [x] **J-5 — kolom Volume padat 640–768px** → `TickerTable` kolom Volume `hidden md:table-cell` pada header, sel, dan skeleton.
+- [x] **J-6 — sort tak ada di kartu HP** → baris kontrol sort `sm:hidden` (tombol `min-h-8`, `aria-pressed`, `aria-label`) di atas daftar kartu.
+- [x] **Verifikasi** — lint OK · **201/201 test hijau** · build OK · SSR dev (port 3126) memuat wadah timeframe + fade dan grid `lg:grid-cols-[300px_minmax(0,1fr)]` · CSS build memuat `max-width:calc(100vw - 2rem)`, `@media (min-width:48rem){.md\:table-cell}`, `[animation-play-state:paused]`, `lg:col-span-2`, `from-hover`/`to-transparent` · dev server dimatikan.
+- [x] **Docs** — BUGS.md (**KI-006 → Fixed**, seluruh sisa P2/P3 tercatat) · DECISIONS.md (1 keputusan baru) · ARCHITECTURE.md (§4.9 diperluas) · TASKS.md (bagian J) · PROGRESS.md (entri ini).
+- [ ] **Ditunda** — e2e viewport (Playwright) tetap di paket testing terpisah.
+
+---
+
 ## 29 Agustus 2026 — Sesi Inisialisasi Dokumen
 
 ### Status: Done (fase setup dokumentasi)

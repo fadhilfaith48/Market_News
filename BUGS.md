@@ -240,14 +240,16 @@ Format entri baru:
 - **Solusi:** Throttle/batch update store (maks N kali per detik), memoization komponen, dan manfaatkan API incremental TradingView Lightweight Charts.
 - **Update 22/09/2026:** Batching diterapkan — `lib/batcher.ts` (`createBatchFlusher`, dedup per simbol, flush 250ms `TICKER_BATCH_FLUSH_MS`), `store/marketStore.ts` (`applyTickers`, satu `set` per batch), `hooks/useBinanceWS.ts` (`onTickers` + batcher, flush saat cleanup), `useTickerPolling.ts` ikut memakai `applyTickers`. Test: `tests/batcher.test.ts` baru + `tests/store.test.ts` (`applyTickers`), 95 test hijau, lint & build OK. Belum: throttle update kline/`useKlineStream`, `React.memo` pada baris tabel, dan kompresi re-render `FlashPrice`.
 
-## Known Issue 6 — Gap responsif P2/P3 (backlog)
+## Known Issue 6 — Gap responsif P2/P3
 - **ID:** KI-006
 - **Prioritas:** Medium
-- **Status:** Open — sebagian dituntaskan (P1 pada 22 Oktober 2026; target sentuh & `prefers-reduced-motion` pada 24 Oktober 2026)
-- **Sudah diselesaikan (24 Oktober 2026):** target sentuh bintang/ikon/chip (BUG-016) dan penghentian animasi kilatan harga saat `prefers-reduced-motion` (BUG-018).
-- **Dampak (sisa):** LiveTicker marquee tidak bisa dijeda di perangkat sentuh (`hover:` hanya berlaku di perangkat ber-hover), sehingga 50 koin (durasi ≈ 140 detik) terus berjalan tanpa jeda. Dropdown pencarian `w-64` tetap bisa meluber di HP sangat kecil. Deret timeframe bisa terpotong tanpa petunjuk bahwa bisa digeser. Dashboard tetap 1 kolom sampai 1280px, sehingga iPad landscape (1024–1280px) memakai tabel selebar penuh. Sort tidak tersedia pada tampilan kartu HP. Kolom Volume/Market Cap padat di 640–768px.
-- **Solusi/rancangan perbaikan:** (P2) pause marquee pada `pointerdown`; clamp lebar dropdown pencarian; tambahkan affordance scroll pada deret timeframe; tambah layout 2 kolom dashboard mulai `lg`. (P3) sembunyikan kolom Volume di <768px; sediakan kontrol sort pada tampilan kartu mobile. Tidak ada dependency baru (pure Tailwind/CSS).
-- **Catatan:** Belum ada pengujian otomatis pada viewport nyata (Playwright/e2e belum dipasang) — verifikasi responsif selama ini masih manual/berbasis kelas Tailwind.
+- **Status:** **Fixed — 29 Oktober 2026** (P1 22 Okt; target sentuh & reduced-motion 24 Okt; sisa P2/P3 29 Okt)
+- **Diselesaikan:**
+  - **22 Okt (Paket H, P1):** auto-zoom iOS, safe-area notch, sticky header, kolom chart iPad (BUG-009…BUG-012).
+  - **24 Okt (Paket I):** target sentuh bintang/ikon/chip (BUG-016) dan penghentian animasi kilatan harga saat `prefers-reduced-motion` (BUG-018).
+  - **29 Okt (Paket J, sisa P2/P3):** (a) marquee `LiveTicker` bisa **dijeda saat disentuh/ditekan** (`onPointerDown/Up/Leave/Cancel`, bukan hanya `hover:`); (b) dropdown pencarian dibatasi `max-w-[calc(100vw_-_2rem)]` agar tidak meluber; (c) deret timeframe diberi **fade kanan** sebagai isyarat bisa digeser; (d) dashboard memakai **2 kolom mulai `lg`** (1024px) dan 3 kolom `xl`, memberi ruang layak untuk iPad landscape; (e) kolom **Volume disembunyikan di <768px** (`hidden md:table-cell`), termasuk skeleton; (f) **kontrol sort ditambahkan pada tampilan kartu HP** (`sm:hidden`, `aria-pressed`).
+- **Dampak:** tidak ada lagi gap responsif yang diketahui pada 375 / 768 / 1024 / 1280px.
+- **Catatan:** Verifikasi masih manual/berbasis kelas Tailwind + pemeriksaan CSS build (belum ada e2e viewport). Pengujian otomatis Playwright dilacak sebagai pekerjaan testing terpisah (butuh dependency baru).
 
 ---
 

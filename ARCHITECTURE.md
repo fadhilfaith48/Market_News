@@ -192,8 +192,11 @@ market-news/
 1. **`viewport` di `app/layout.tsx`** — `width: "device-width"`, `initialScale: 1`, `viewportFit: "cover"`, `themeColor` (light `#ffffff` / dark `#131722`). `viewportFit: "cover"` mengaktifkan `env(safe-area-inset-*)` → ruang aman iPhone dihormati di `body` (padding bawah), `Header` (padding atas), `Toaster`, dan `DrawerShell`.
 2. **Anti scroll horizontal** — `html { overflow-x: clip }` (bukan `hidden`): `hidden`/`auto` akan menjadikan elemen tersebut scroll container sehingga `position: sticky` (header & panel info) ikut ter-scroll dan rusak.
 3. **Tinggi header dinamis (`--header-h`)** — `Header` mengukur tinggi elemennya sendiri dengan `ResizeObserver` lalu menulis `--header-h` ke `<html>`; elemen yang sticky di bawah header (`CoinDetail`, `app/coin/[code]/loading.tsx`) memakai `top-[var(--header-h,5rem)]`. Diperlukan karena header berubah 1 baris (≥1024px) ↔ 2 baris (<1024px). Fallback `--header-h: 6.5rem` ada di `globals.css` bila JS belum berjalan.
-4. **Breakpoint kunci** — `sm` (640px) batas tabel ↔ kartu pada `TickerTable`; `md` (768px) 2 kolom pada beberapa grid; `lg` (1024px) 2 kolom detail koin (`CoinDetail`) + header 1 baris; `xl` (1280px) 3 kolom dashboard.
+4. **Breakpoint kunci** — `sm` (640px) batas tabel ↔ kartu pada `TickerTable`; `md` (768px) 2 kolom pada beberapa grid **dan batas kolom Volume tabel** (disembunyikan <768px); `lg` (1024px) 2 kolom detail koin (`CoinDetail`), **dashboard 2 kolom** (sidebar + tabel, berita `col-span-2`), dan header 1 baris; `xl` (1280px) dashboard 3 kolom.
 5. **Anti auto-zoom iOS** — seluruh input teks memakai `font-size` ≥ 16px pada <640px (`text-base sm:text-xs`), karena iOS Safari auto-zoom pada input <16px dan zoom-nya persisten.
+6. **Marquee `LiveTicker`** — jeda berbasis pointer: `onPointerDown` menghentikan animasi, `onPointerUp`/`onPointerLeave`/`onPointerCancel` melanjutkannya; `hover:[animation-play-state:paused]` tetap ada untuk mouse. Ini menggantikan ketergantungan pada `hover:` yang tidak berlaku di perangkat sentuh.
+7. **Dropdown pencarian** — `max-w-[calc(100vw_-_2rem)]` mencegah daftar saran meluber keluar viewport di layar sempit.
+8. **Tabel & toolbar** — kolom Volume `hidden md:table-cell` (header + sel + skeleton); tampilan kartu HP memiliki baris sort `sm:hidden`; deret timeframe diberi fade kanan (`bg-gradient-to-l from-hover to-transparent sm:hidden`) sebagai isyarat dapat digeser.
 
 ### 4.10 Aksesibilitas (keyboard, screen reader, target sentuh)
 
