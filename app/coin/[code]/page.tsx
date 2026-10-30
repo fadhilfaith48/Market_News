@@ -23,9 +23,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const code = (await params).code.toUpperCase();
   if (!VALID_CODES.has(code)) notFound();
   const name = COIN_NAMES[code] ?? code;
+  const title = `${name} (${code})`;
+  const description = `Harga real-time dan grafik candlestick ${code} (${name}).`;
   return {
-    title: `${name} (${code}) — Market News`,
-    description: `Harga real-time dan grafik candlestick ${code} (${name}).`,
+    title,
+    description,
+    alternates: { canonical: `/coin/${code}` },
+    openGraph: {
+      type: "website",
+      title: `${title} · Market News`,
+      description,
+      url: `/coin/${code}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} · Market News`,
+      description,
+    },
   };
 }
 

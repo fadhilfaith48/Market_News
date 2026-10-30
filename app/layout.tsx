@@ -10,11 +10,47 @@ import { MarketDataProvider } from "@/components/dashboard/MarketDataProvider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ThemeSync } from "@/components/ThemeSync";
 import { Toaster } from "@/components/ui/Toaster";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Market News — Crypto",
-  description: "Dashboard data pasar cryptocurrency real-time.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "crypto",
+    "cryptocurrency",
+    "harga bitcoin",
+    "grafik crypto",
+    "market crypto",
+    "watchlist crypto",
+    "berita crypto",
+  ],
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    url: "/",
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
 };
 
 /**
