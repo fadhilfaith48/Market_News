@@ -106,6 +106,21 @@ Format entri baru (ikuti pola yang sama):
 
 ---
 
+## 30 Oktober 2026 — Paket L: SEO + security headers
+
+### Status: Done (kode selesai & terverifikasi; commit menunggu perintah)
+
+- [x] **L-1 — identitas situs terpusat** → `lib/site.ts` (`SITE_URL` dari `NEXT_PUBLIC_SITE_URL` dengan fallback `https://market-news-roan.vercel.app`, `SITE_NAME`, `SITE_TITLE`, `SITE_DESCRIPTION`).
+- [x] **L-2 — metadata global** → `app/layout.tsx`: `metadataBase`, title bertemplate `%s · Market News`, `alternates.canonical`, `openGraph` (website/id_ID), `twitter` (`summary_large_image`), `robots` index/follow, keywords.
+- [x] **L-3 — metadata per koin** → `app/coin/[code]/page.tsx`: `canonical` + OpenGraph/Twitter, judul kanonik `Nama (KODE)` (template menambahkan `· Market News`, tidak dobel).
+- [x] **L-4 — sitemap & robots** → `app/sitemap.ts` (`/` + 50 koin) dan `app/robots.ts` (allow `/`, disallow `/api/`, host + sitemap).
+- [x] **L-5 — OG image** → `components/seo/OgImage.tsx` (komponen bersama) + `app/opengraph-image.tsx` & `app/twitter-image.tsx`, 1200×630 PNG via `next/og`, digenerate statis saat build.
+- [x] **L-6 — security headers** → `next.config.ts`: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, `X-DNS-Prefetch-Control`, HSTS, dan CSP (production saja; dev dikecualikan agar HMR Turbopack tidak terblokir).
+- [x] **Verifikasi** — lint OK · **201/201 test hijau** · build OK (**66 route**, +4) · production server (port 3128): seluruh header keamanan + CSP muncul; `/robots.txt` benar; `/sitemap.xml` berisi **51 URL**; `/opengraph-image` & `/twitter-image` `image/png` (~80 KB); `<head>` memuat `canonical`, `og:*` (og:image 1200×630), `twitter:*`; judul koin `Bitcoin (BTC) · Market News`; server dimatikan.
+- [x] **Docs** — DECISIONS.md (1 keputusan baru) · ARCHITECTURE.md (§4.11) · TASKS.md (bagian L) · PROGRESS.md (entri ini).
+
+---
+
 ## 29 Agustus 2026 — Sesi Inisialisasi Dokumen
 
 ### Status: Done (fase setup dokumentasi)

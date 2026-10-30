@@ -207,6 +207,14 @@ market-news/
 5. **Target sentuh** — `WatchStar` `size-11` (44px) di <640px & `sm:size-7` (28px) di desktop; tombol ikon header `min-h-9 min-w-9` (36px, memenuhi WCAG 2.2 AA ≥24px tanpa memecah header 360px); chip toolbar chart (tipe/MA/timeframe) `min-h-8` + `focus-ring`.
 6. **Gerakan** — `app/globals.css` mematikan `.animate-flash-up`/`.animate-flash-down` di bawah `@media (prefers-reduced-motion: reduce)` (warna teks naik/turun tetap menyampaikan arah harga).
 
+### 4.11 SEO & header keamanan
+
+1. **`lib/site.ts`** — sumber tunggal identitas situs: `SITE_URL` (`NEXT_PUBLIC_SITE_URL`, fallback `https://market-news-roan.vercel.app`), `SITE_NAME`, `SITE_TITLE`, `SITE_DESCRIPTION`.
+2. **Metadata** — `app/layout.tsx`: `metadataBase`, template judul `%s · Market News`, `canonical`, `openGraph` (website/id_ID), `twitter` (`summary_large_image`), `robots` index/follow. `app/coin/[code]/page.tsx`: canonical + OG/Twitter per koin. Judul kanonik koin `Nama (KODE)` lalu template menambahkan `· Market News` (tidak dobel).
+3. **`app/sitemap.ts`** — `/` + 50 `/coin/{KODE}` (diturunkan dari `VALID_CODES`). **`app/robots.ts`** — allow `/`, disallow `/api/`, menunjuk sitemap & host.
+4. **OG image** — `app/opengraph-image.tsx` & `app/twitter-image.tsx` (1200×630, PNG) memakai `ImageResponse` dari `next/og` dengan komponen bersama `components/seo/OgImage.tsx`; digenerate statis saat build.
+5. **Header keamanan (`next.config.ts`)** — berlaku untuk `/:path*`: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `Cross-Origin-Opener-Policy: same-origin`, `X-DNS-Prefetch-Control`, HSTS, dan **CSP** (`default-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`, `img-src https:`, `connect-src` ke endpoint WS Binance). **CSP hanya di production** agar HMR Turbopack di dev tidak terblokir.
+
 ---
 
 ## 5. Keputusan Desain Sistem Utama

@@ -283,6 +283,17 @@ Berdasarkan prompt desain referensi TradingView (30 Agustus 2026). Fokus **layou
 - [x] Docs: BUGS.md (KI-006 → Fixed) · DECISIONS.md · ARCHITECTURE.md (§4.9) · TASKS.md · PROGRESS.md
 - [ ] **Ditunda:** e2e viewport (Playwright, dependency baru)
 
+## L — SEO & security headers (30 Oktober 2026)
+- [x] `lib/site.ts` (baru) — `SITE_URL` (`NEXT_PUBLIC_SITE_URL`, fallback domain Vercel), `SITE_NAME`, `SITE_TITLE`, `SITE_DESCRIPTION`
+- [x] `app/layout.tsx` — `metadataBase`, template judul `%s · Market News`, `canonical`, `openGraph` (website/id_ID), `twitter` (`summary_large_image`), `robots` index/follow
+- [x] `app/coin/[code]/page.tsx` — canonical + OpenGraph/Twitter per koin; judul kanonik `Nama (KODE)`
+- [x] `app/sitemap.ts` (baru) — `/` + 50 halaman koin (`VALID_CODES`)
+- [x] `app/robots.ts` (baru) — allow `/`, disallow `/api/`, sitemap + host
+- [x] `app/opengraph-image.tsx` + `app/twitter-image.tsx` + `components/seo/OgImage.tsx` (baru) — OG 1200×630 PNG via `next/og`
+- [x] `next.config.ts` — header keamanan (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, COOP, HSTS, `X-DNS-Prefetch-Control`) + **CSP production** (dev dikecualikan agar HMR aman)
+- [x] Verifikasi: lint OK · 201/201 test hijau · build OK (66 route, +4) · production server (port 3128): semua header muncul, `/robots.txt` benar, `/sitemap.xml` berisi **51 URL**, `/opengraph-image` & `/twitter-image` `image/png` (80 KB), `<head>` memuat canonical/og:*/twitter:* (termasuk og:image 1200×630), judul koin `Bitcoin (BTC) · Market News` · server dimatikan
+- [x] Docs: DECISIONS.md · ARCHITECTURE.md (§4.11) · TASKS.md · PROGRESS.md
+
 ## Nanti (Backlog — di luar Fase 1)
 - [ ] Opsional: MongoDB Atlas (free tier) + autentikasi ringan untuk sinkronisasi watchlist antar device
 - [ ] Opsional: notifikasi push email/SMS
